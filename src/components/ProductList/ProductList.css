@@ -1,0 +1,145 @@
+.product-list-admin {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-top: 2rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+}
+
+.product-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.add-product-btn {
+  background: #2563eb;
+  color: #fff;
+  padding: 0.5rem 1.25rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.add-product-btn:hover {
+  background: #1a56db;
+}
+
+.product-list-filters {
+  margin-bottom: 1rem;
+}
+
+.product-list-filters input {
+  padding: 0.5rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 1rem;
+  width: 100%;
+  max-width: 320px;
+}
+
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+.product-table th, .product-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+.product-detail-link {
+  color: #2563eb;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.active-status {
+  color: #059669;
+  font-weight: bold;
+}
+
+.inactive-status {
+  color: #dc2626;
+  font-weight: bold;
+}
+
+.deactivate-btn, .activate-btn, .detail-btn {
+  margin-right: 0.5rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.deactivate-btn {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.deactivate-btn:hover {
+  background: #fecaca;
+}
+
+.activate-btn {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.activate-btn:hover {
+  background: #6ee7b7;
+}
+
+.detail-btn {
+  background: #f1f5f9;
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.detail-btn:hover {
+  background: #dbeafe;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pagination button {
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #2563eb;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pagination button:disabled {
+  background: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+  .product-list-admin {
+    padding: 1rem;
+  }
+  .product-table th, .product-table td {
+    padding: 0.5rem;
+    font-size: 0.95rem;
+  }
+  .add-product-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.95rem;
+  }
+}

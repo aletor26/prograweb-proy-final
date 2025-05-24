@@ -1,0 +1,67 @@
+.user-list-container {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-top: 2rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+}
+
+.user-filter-input {
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 1rem;
+  width: 100%;
+  max-width: 320px;
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+.user-table th, .user-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+.active-status {
+  color: #059669;
+  font-weight: bold;
+}
+
+.inactive-status {
+  color: #dc2626;
+  font-weight: bold;
+}
+
+.deactivate-btn, .activate-btn {
+  margin-right: 0.5rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.deactivate-btn {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.deactivate-btn:hover {
+  background: #fecaca;
+}
+
+.activate-btn {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.activate-btn:hover {
+  background: #6ee7b7;
+}
