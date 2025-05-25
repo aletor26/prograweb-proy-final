@@ -21,11 +21,17 @@ interface Category {
   active: boolean;
 }
 
+type FilterType = 'name' | 'description' | 'id';
+
 const AdminCategories = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState<FilterType>('name');
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
 
   // Función para contar productos por categoría
   const countProductsByCategory = (categoryName: string): number => {
@@ -59,6 +65,7 @@ const AdminCategories = () => {
           });
           
           setCategories(categoriesWithCount);
+          setFilteredCategories(categoriesWithCount);
         }
       } catch (error) {
         console.error('Error al cargar categorías y productos:', error);
@@ -78,6 +85,24 @@ const AdminCategories = () => {
       window.removeEventListener('storage', handleStorageChange);
     };
   }, [user, navigate]);
+
+  // Efecto para filtrar categorías cuando cambia el término de búsqueda o el tipo de filtro
+  useEffect(() => {
+    const filtered = categories.filter(category => {
+      const searchLower = searchTerm.toLowerCase();
+      switch (filterType) {
+        case 'name':
+          return category.name.toLowerCase().includes(searchLower);
+        case 'description':
+          return category.description.toLowerCase().includes(searchLower);
+        case 'id':
+          return category.id.toLowerCase().includes(searchLower);
+        default:
+          return false;
+      }
+    });
+    setFilteredCategories(filtered);
+  }, [searchTerm, categories, filterType]);
 
   const handleDeleteCategory = (categoryId: string) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar esta categoría?')) {
@@ -114,6 +139,24 @@ const AdminCategories = () => {
     navigate(`/admin/categories/${categoryId}/edit`);
   };
 
+  const handleFilterTypeChange = (type: FilterType) => {
+    setFilterType(type);
+    setShowFilterMenu(false);
+  };
+
+  const getFilterLabel = () => {
+    switch (filterType) {
+      case 'name':
+        return 'Nombre';
+      case 'description':
+        return 'Descripción';
+      case 'id':
+        return 'ID';
+      default:
+        return 'Filtrar por';
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="admin-categories">
@@ -126,53 +169,102 @@ const AdminCategories = () => {
     <div className="admin-categories">
       <div className="admin-header">
         <h1>Gestión de Categorías</h1>
-        <button 
-          className="add-category-button"
-          onClick={() => navigate('/admin/categories/new')}
-        >
-          <i className="fas fa-plus"></i> Agregar Categoría
-        </button>
+        <div className="admin-controls">
+          <div className="search-container">
+            <div className="search-with-filter">
+              <div className="filter-dropdown">
+                <button 
+                  className="filter-button"
+                  onClick={() => setShowFilterMenu(!showFilterMenu)}
+                >
+                  <i className="fas fa-filter"></i>
+                  {getFilterLabel()}
+                  <i className="fas fa-chevron-down"></i>
+                </button>
+                {showFilterMenu && (
+                  <div className="filter-menu">
+                    <button 
+                      className={`filter-option ${filterType === 'name' ? 'active' : ''}`}
+                      onClick={() => handleFilterTypeChange('name')}
+                    >
+                      Nombre
+                    </button>
+                    <button 
+                      className={`filter-option ${filterType === 'description' ? 'active' : ''}`}
+                      onClick={() => handleFilterTypeChange('description')}
+                    >
+                      Descripción
+                    </button>
+                    <button 
+                      className={`filter-option ${filterType === 'id' ? 'active' : ''}`}
+                      onClick={() => handleFilterTypeChange('id')}
+                    >
+                      ID
+                    </button>
+                  </div>
+                )}
+              </div>
+              <input
+                type="text"
+                placeholder={`Buscar por ${getFilterLabel().toLowerCase()}...`}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input"
+              />
+            </div>
+          </div>
+          <button 
+            className="add-category-button"
+            onClick={() => navigate('/admin/categories/new')}
+          >
+            <i className="fas fa-plus"></i> Agregar Categoría
+          </button>
+        </div>
       </div>
 
       <div className="categories-section">
         <div className="categories-list">
-          {categories.length === 0 ? (
+          {filteredCategories.length === 0 ? (
             <div className="no-categories">
-              <p>No hay categorías disponibles</p>
-              <p>Haz clic en "Agregar Categoría" para crear una nueva</p>
+              {searchTerm ? (
+                <p>No se encontraron categorías que coincidan con la búsqueda</p>
+              ) : (
+                <>
+                  <p>No hay categorías disponibles</p>
+                  <p>Haz clic en "Agregar Categoría" para crear una nueva</p>
+                </>
+              )}
             </div>
           ) : (
-            categories.map((category) => (
+            filteredCategories.map((category) => (
               <div key={category.id} className={`category-card ${!category.active ? 'inactive' : ''}`}>
-                <div className="category-header">
-                  <div className="category-info">
-                    <h3>{category.name}</h3>
-                    <p className="category-description">{category.description}</p>
-                    <p className="product-count">{category.productCount} productos</p>
-                  </div>
-                  <div className="category-actions">
-                    <button 
-                      className="action-button edit-button"
-                      onClick={() => handleEditCategory(category.id.toString())}
-                      title="Editar categoría"
-                    >
-                      <i className="fas fa-edit"></i>
-                    </button>
-                    <button 
-                      className="action-button toggle-button"
-                      onClick={() => handleToggleActive(category.id.toString())}
-                      title={category.active ? "Desactivar categoría" : "Activar categoría"}
-                    >
-                      <i className={`fas fa-${category.active ? 'eye-slash' : 'eye'}`}></i>
-                    </button>
-                    <button 
-                      className="action-button delete-button"
-                      onClick={() => handleDeleteCategory(category.id.toString())}
-                      title="Eliminar categoría"
-                    >
-                      <i className="fas fa-trash"></i>
-                    </button>
-                  </div>
+                <div className="category-info">
+                  <h3>{category.name}</h3>
+                  <p className="category-description">{category.description}</p>
+                  <p className="product-count">{category.productCount} productos</p>
+                </div>
+                <div className="category-actions">
+                  <button 
+                    className="action-button edit-button"
+                    onClick={() => handleEditCategory(category.id.toString())}
+                    title="Editar categoría"
+                  >
+                    <i className="fas fa-edit"></i>
+                  </button>
+                  <button 
+                    className="action-button toggle-button"
+                    onClick={() => handleToggleActive(category.id.toString())}
+                    title={category.active ? "Desactivar categoría" : "Activar categoría"}
+                  >
+                    <i className={`fas fa-${category.active ? 'eye-slash' : 'eye'}`}></i>
+                  </button>
+                  <button 
+                    className="action-button delete-button"
+                    onClick={() => handleDeleteCategory(category.id.toString())}
+                    title="Eliminar categoría"
+                  >
+                    <i className="fas fa-trash"></i>
+                  </button>
                 </div>
               </div>
             ))

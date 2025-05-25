@@ -48,8 +48,8 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
 const CustomerRoute = ({ children }: CustomerRouteProps) => {
   const { user } = useAuth();
 
-  if (user?.role === 'admin') {
-    return <Navigate to="/admin/orders" />;
+  if (user?.role !== 'customer') {
+    return <Navigate to="/" />;
   }
 
   return <>{children}</>;

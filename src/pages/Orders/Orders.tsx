@@ -29,6 +29,7 @@ const Orders = () => {
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showCancelConfirm, setShowCancelConfirm] = useState<string | null>(null);
 
   const isAdmin = user?.role === 'admin';
 
@@ -63,18 +64,41 @@ const Orders = () => {
     };
   }, [user?.email]);
 
+  const handleCancelOrder = (orderId: string) => {
+    setShowCancelConfirm(orderId);
+  };
+
+  const confirmCancelOrder = (orderId: string) => {
+    if (!user?.email) return;
+
+    try {
+      const updatedOrders = orders.map(order => {
+        if (order.id === orderId) {
+          return { ...order, status: 'cancelled' as const };
+        }
+        return order;
+      });
+
+      localStorage.setItem(`orders_${user.email}`, JSON.stringify(updatedOrders));
+      setOrders(updatedOrders);
+      setShowCancelConfirm(null);
+    } catch (error) {
+      console.error('Error cancelling order:', error);
+    }
+  };
+
   const getStatusColor = (status: Order['status']) => {
     switch (status) {
       case 'pending':
-        return 'text-yellow-600';
+        return 'status-pending';
       case 'processing':
-        return 'text-blue-600';
+        return 'status-processing';
       case 'completed':
-        return 'text-green-600';
+        return 'status-completed';
       case 'cancelled':
-        return 'text-red-600';
+        return 'status-cancelled';
       default:
-        return 'text-gray-600';
+        return '';
     }
   };
 
@@ -113,6 +137,29 @@ const Orders = () => {
 
   return (
     <div className="orders-container">
+      {showCancelConfirm && (
+        <div className="modal-overlay">
+          <div className="confirmation-modal">
+            <h3>¿Estás seguro que deseas cancelar este pedido?</h3>
+            <p>Esta acción no se puede deshacer.</p>
+            <div className="modal-actions">
+              <button 
+                onClick={() => setShowCancelConfirm(null)}
+                className="modal-button secondary"
+              >
+                No, mantener pedido
+              </button>
+              <button 
+                onClick={() => confirmCancelOrder(showCancelConfirm)}
+                className="modal-button primary"
+              >
+                Sí, cancelar pedido
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <h1 className="orders-title">
         {isAdmin ? 'Gestión de Pedidos' : 'Mis Pedidos'}
       </h1>
@@ -124,35 +171,39 @@ const Orders = () => {
       ) : (
         <div className="orders-list">
           {orders.map((order) => (
-            <Link 
-              to={`/orders/${order.id}`} 
-              key={order.id} 
-              className="order-card"
-            >
+            <div key={order.id} className="order-card">
               <div className="order-header">
                 <div>
                   <h3 className="order-id">Pedido #{order.id}</h3>
                   <p className="order-date">{new Date(order.date).toLocaleDateString()}</p>
                 </div>
-                <span className={`order-status ${getStatusColor(order.status)}`}>
-                  {getStatusText(order.status)}
-                </span>
+                <div className="order-status-container">
+                  <span className={`order-status ${getStatusColor(order.status)}`}>
+                    {getStatusText(order.status)}
+                  </span>
+                  {!isAdmin && (order.status === 'pending' || order.status === 'processing') && (
+                    <button 
+                      onClick={() => handleCancelOrder(order.id)}
+                      className="cancel-order-button"
+                    >
+                      Cancelar Pedido
+                    </button>
+                  )}
+                </div>
               </div>
 
-              <div className="order-details">
-                <div className="order-section">
-                  <h4>Detalles de envío</h4>
-                  <p>{order.shippingDetails.fullName}</p>
-                  <p>{order.shippingDetails.address}</p>
-                  <p>{order.shippingDetails.city}</p>
-                  <p>{order.shippingDetails.phone}</p>
-                  <p className="shipping-method">{getShippingMethodText(order.shippingMethod)}</p>
-                </div>
+              <div className="order-section">
+                <h4>Detalles de envío</h4>
+                <p>{order.shippingDetails.fullName}</p>
+                <p>{order.shippingDetails.address}</p>
+                <p>{order.shippingDetails.city}</p>
+                <p>{order.shippingDetails.phone}</p>
+                <p className="shipping-method">{getShippingMethodText(order.shippingMethod)}</p>
+              </div>
 
-                <div className="order-section">
-                  <h4>Método de pago</h4>
-                  <p>{getPaymentMethodText(order.paymentMethod)}</p>
-                </div>
+              <div className="order-section">
+                <h4>Método de pago</h4>
+                <p>{getPaymentMethodText(order.paymentMethod)}</p>
               </div>
 
               <div className="order-items">
@@ -170,13 +221,11 @@ const Orders = () => {
                 <span className="order-total">
                   Total: S/ {order.total.toFixed(2)}
                 </span>
-                {isAdmin && (
-                  <div className="admin-indicator">
-                    <span>Click para gestionar pedido</span>
-                  </div>
-                )}
+                <Link to={`/orders/${order.id}`} className="view-details-button">
+                  Ver detalles
+                </Link>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       )}

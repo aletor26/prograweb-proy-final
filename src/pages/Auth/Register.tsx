@@ -125,13 +125,8 @@ const Register = () => {
       users.push(newUser);
       localStorage.setItem('users', JSON.stringify(users));
       
-      // Iniciar sesión automáticamente con id y role
-      login({
-        id: newUser.id,
-        email: newUser.email,
-        name: newUser.name,
-        role: newUser.role
-      });
+      // Iniciar sesión automáticamente
+      await login(newUser.email, newUser.password);
       navigate('/');
     } catch (error) {
       setErrors({

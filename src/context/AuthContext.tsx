@@ -5,7 +5,7 @@ interface User {
   id: string;
   name: string;
   email: string;
-  role: 'user' | 'admin';
+  role: 'customer' | 'admin';
 }
 
 interface AuthContextType {
@@ -61,11 +61,16 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       throw new Error('Credenciales inválidas');
     }
 
+    // Asegurarse de que el usuario tenga un rol válido
+    if (!foundUser.role) {
+      foundUser.role = 'customer';
+    }
+
     const userToSave = {
       id: foundUser.id,
       name: foundUser.name,
       email: foundUser.email,
-      role: foundUser.role
+      role: foundUser.role as 'customer' | 'admin'
     };
 
     setUser(userToSave);

@@ -146,8 +146,8 @@
 }
 
 .item-name {
-  font-weight: 500;
   color: #1a1a1a;
+  font-weight: 500;
 }
 
 .item-quantity {
@@ -155,8 +155,8 @@
 }
 
 .item-price {
-  font-weight: 500;
   color: #1a56db;
+  font-weight: 500;
 }
 
 .order-footer {
@@ -168,9 +168,9 @@
 }
 
 .order-total {
+  color: #1a1a1a;
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1a1a1a;
 }
 
 .admin-indicator {
@@ -226,5 +226,226 @@
 
   .admin-indicator {
     align-self: flex-end;
+  }
+}
+
+.cancel-order-button {
+  padding: 0.5rem 1rem;
+  background: rgba(255, 68, 68, 0.1);
+  color: #ff4444;
+  border: 1px solid #ff4444;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.cancel-order-button:hover {
+  background: rgba(255, 68, 68, 0.2);
+}
+
+.order-section {
+  margin-bottom: 1.5rem;
+}
+
+.order-section h4 {
+  color: #1a1a1a;
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.order-section p {
+  color: #4a5568;
+  opacity: 0.8;
+  margin-bottom: 0.5rem;
+}
+
+.shipping-method {
+  color: var(--secondary-color) !important;
+  font-weight: 500;
+}
+
+.order-items {
+  margin-top: 1.5rem;
+}
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: rgba(200, 169, 126, 0.1);
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+}
+
+.item-name {
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+.item-quantity {
+  color: #4a5568;
+}
+
+.item-price {
+  color: #1a56db;
+  font-weight: 500;
+}
+
+.order-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(200, 169, 126, 0.2);
+}
+
+.order-total {
+  color: #1a1a1a;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.view-details-button {
+  padding: 0.5rem 1rem;
+  background: var(--secondary-color);
+  color: var(--text-dark);
+  border: none;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.view-details-button:hover {
+  background: #d4b88f;
+  transform: translateY(-2px);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.confirmation-modal {
+  background: var(--card-background);
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(200, 169, 126, 0.2);
+}
+
+.confirmation-modal h3 {
+  color: var(--text-light);
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+}
+
+.confirmation-modal p {
+  color: var(--text-light);
+  opacity: 0.8;
+  margin-bottom: 1.5rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.modal-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.modal-button.secondary {
+  background: rgba(200, 169, 126, 0.1);
+  color: var(--text-light);
+  border: 1px solid rgba(200, 169, 126, 0.2);
+}
+
+.modal-button.secondary:hover {
+  background: rgba(200, 169, 126, 0.2);
+}
+
+.modal-button.primary {
+  background: #ff4444;
+  color: white;
+}
+
+.modal-button.primary:hover {
+  background: #ff2020;
+}
+
+.no-orders {
+  text-align: center;
+  padding: 3rem;
+  background: var(--card-background);
+  border-radius: 12px;
+  border: 1px solid rgba(200, 169, 126, 0.2);
+}
+
+.no-orders p {
+  color: var(--text-light);
+  opacity: 0.7;
+  font-size: 1.1rem;
+}
+
+.orders-loading {
+  text-align: center;
+  padding: 3rem;
+}
+
+.orders-loading p {
+  color: var(--text-light);
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .orders-container {
+    margin: 1rem auto;
+  }
+
+  .order-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .order-status {
+    align-self: flex-start;
+  }
+
+  .cancel-order-button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .order-footer {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .modal-actions {
+    flex-direction: column;
   }
 }

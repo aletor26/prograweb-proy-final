@@ -33,7 +33,7 @@ const UserForm = () => {
       id: user.id,
       name: user.name,
       email: user.email,
-      password: user.password || ''
+      password: ''
     });
   }, [user, navigate]);
 

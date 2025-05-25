@@ -354,7 +354,7 @@
 
 .admin-header {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -365,6 +365,40 @@
   font-size: 2.5rem;
   margin: 0;
   font-family: 'Playfair Display', serif;
+  margin-bottom: 1.5rem;
+}
+
+.admin-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.search-container {
+  flex: 1;
+  max-width: 500px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(200, 169, 126, 0.2);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-light);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--secondary-color);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .add-category-button {
@@ -534,5 +568,90 @@
   .category-actions {
     width: 100%;
     justify-content: center;
+  }
+}
+
+.search-with-filter {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.filter-dropdown {
+  position: relative;
+}
+
+.filter-button {
+  background: rgba(200, 169, 126, 0.1);
+  border: 1px solid rgba(200, 169, 126, 0.2);
+  color: var(--text-light);
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.filter-button:hover {
+  background: rgba(200, 169, 126, 0.2);
+  border-color: var(--secondary-color);
+}
+
+.filter-button i:last-child {
+  font-size: 0.8rem;
+  margin-left: 0.25rem;
+}
+
+.filter-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 0.5rem;
+  background: var(--card-background);
+  border: 1px solid rgba(200, 169, 126, 0.2);
+  border-radius: 4px;
+  padding: 0.5rem;
+  z-index: 100;
+  min-width: 150px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.filter-option {
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 1rem;
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.filter-option:hover {
+  background: rgba(200, 169, 126, 0.1);
+}
+
+.filter-option.active {
+  background: var(--secondary-color);
+  color: var(--text-dark);
+}
+
+@media (max-width: 768px) {
+  .search-with-filter {
+    flex-direction: column;
+  }
+
+  .filter-button {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .filter-menu {
+    width: 100%;
   }
 } 

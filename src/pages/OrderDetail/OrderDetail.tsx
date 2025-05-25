@@ -33,6 +33,7 @@ const OrderDetail = () => {
   const { user } = useAuth();
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   const isAdmin = user?.role === 'admin';
 
@@ -72,10 +73,23 @@ const OrderDetail = () => {
 
         localStorage.setItem(`orders_${user.email}`, JSON.stringify(updatedOrders));
         setOrder({ ...order, status: newStatus });
+        
+        // Si se está cancelando, cerrar el diálogo de confirmación
+        if (newStatus === 'cancelled') {
+          setShowCancelConfirm(false);
+        }
       }
     } catch (error) {
       console.error('Error updating order status:', error);
     }
+  };
+
+  const handleCancelOrder = () => {
+    setShowCancelConfirm(true);
+  };
+
+  const confirmCancelOrder = () => {
+    updateOrderStatus('cancelled');
   };
 
   const getStatusColor = (status: Order['status']) => {
@@ -139,8 +153,33 @@ const OrderDetail = () => {
     );
   }
 
+  const canCancelOrder = !isAdmin && (order.status === 'pending' || order.status === 'processing');
+
   return (
     <div className="order-detail-container">
+      {showCancelConfirm && (
+        <div className="modal-overlay">
+          <div className="confirmation-modal">
+            <h3>¿Estás seguro que deseas cancelar este pedido?</h3>
+            <p>Esta acción no se puede deshacer.</p>
+            <div className="modal-actions">
+              <button 
+                onClick={() => setShowCancelConfirm(false)}
+                className="modal-button secondary"
+              >
+                No, mantener pedido
+              </button>
+              <button 
+                onClick={confirmCancelOrder}
+                className="modal-button primary"
+              >
+                Sí, cancelar pedido
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="order-detail-card">
         <div className="order-detail-header">
           <div className="order-detail-title">
@@ -151,7 +190,7 @@ const OrderDetail = () => {
             <span className={`order-status ${getStatusColor(order.status)}`}>
               {getStatusText(order.status)}
             </span>
-            {isAdmin && (
+            {isAdmin ? (
               <div className="admin-controls">
                 <select
                   value={order.status}
@@ -164,61 +203,60 @@ const OrderDetail = () => {
                   <option value="cancelled">Cancelado</option>
                 </select>
               </div>
+            ) : canCancelOrder && (
+              <button 
+                onClick={handleCancelOrder}
+                className="cancel-order-button"
+              >
+                Cancelar Pedido
+              </button>
             )}
           </div>
         </div>
 
-        <div className="order-detail-content">
-          <div className="order-info-section">
-            <h2>Detalles de envío</h2>
-            <div className="shipping-details">
-              <p><strong>Nombre:</strong> {order.shippingDetails.fullName}</p>
-              <p><strong>Email:</strong> {order.shippingDetails.email}</p>
-              <p><strong>Dirección:</strong> {order.shippingDetails.address}</p>
-              <p><strong>Ciudad:</strong> {order.shippingDetails.city}</p>
-              <p><strong>Teléfono:</strong> {order.shippingDetails.phone}</p>
-              <p><strong>Método de envío:</strong> {getShippingMethodText(order.shippingMethod)}</p>
-            </div>
-          </div>
-
-          <div className="order-info-section">
-            <h2>Método de pago</h2>
-            <p>{getPaymentMethodText(order.paymentMethod)}</p>
-          </div>
-
-          <div className="order-items-section">
-            <h2>Productos</h2>
-            <div className="order-items-list">
-              {order.items.map((item) => (
-                <div key={item.id} className="order-item">
-                  <div className="item-info">
-                    <span className="item-name">{item.name}</span>
-                    <span className="item-quantity">x{item.quantity}</span>
-                  </div>
-                  <span className="item-price">S/ {item.price.toFixed(2)}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="order-total-section">
-            <div className="order-total">
-              <span>Total</span>
-              <span>S/ {order.total.toFixed(2)}</span>
-            </div>
+        <div className="order-info-section">
+          <h2>Detalles de envío</h2>
+          <div className="shipping-details">
+            <p><strong>Nombre:</strong> {order.shippingDetails.fullName}</p>
+            <p><strong>Email:</strong> {order.shippingDetails.email}</p>
+            <p><strong>Dirección:</strong> {order.shippingDetails.address}</p>
+            <p><strong>Ciudad:</strong> {order.shippingDetails.city}</p>
+            <p><strong>Teléfono:</strong> {order.shippingDetails.phone}</p>
+            <p><strong>Método de envío:</strong> {getShippingMethodText(order.shippingMethod)}</p>
           </div>
         </div>
 
-        <div className="order-detail-actions">
+        <div className="order-info-section">
+          <h2>Método de pago</h2>
+          <p>{getPaymentMethodText(order.paymentMethod)}</p>
+        </div>
+
+        <div className="order-items-section">
+          <h2>Productos</h2>
+          <div className="order-items-list">
+            {order.items.map((item) => (
+              <div key={item.id} className="order-item">
+                <div className="item-info">
+                  <span className="item-name">{item.name}</span>
+                  <span className="item-quantity">x{item.quantity}</span>
+                </div>
+                <span className="item-price">S/ {item.price.toFixed(2)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="order-total-section">
+          <div className="order-total">
+            <span>Total</span>
+            <span>S/ {order.total.toFixed(2)}</span>
+          </div>
+        </div>
+
+        <div className="order-actions">
           <button onClick={() => navigate('/orders')} className="back-button">
             Volver a mis pedidos
           </button>
-          {isAdmin && (
-            <div className="admin-notes">
-              <p>Panel de administrador</p>
-              <p>Última actualización: {new Date(order.date).toLocaleString()}</p>
-            </div>
-          )}
         </div>
       </div>
     </div>
