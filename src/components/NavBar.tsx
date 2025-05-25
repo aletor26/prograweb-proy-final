@@ -14,11 +14,11 @@ interface Category {
 const NavBar = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuth();
-  const { items } = useCart();
+  const { items, savedItems } = useCart();
   const [searchQuery, setSearchQuery] = useState('');
   const [showCategories, setShowCategories] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<Category[] | null>(null);
 
   const isAdmin = user?.role === 'admin';
 
@@ -27,19 +27,22 @@ const NavBar = () => {
       const storedCategories = localStorage.getItem('categories');
       if (storedCategories) {
         const parsedCategories = JSON.parse(storedCategories);
-        // Solo mostrar categorías activas
         setCategories(parsedCategories.filter((cat: Category) => cat.active));
+      } else {
+        setCategories(null);
       }
     };
 
     loadCategories();
-    // Agregar un event listener para actualizar las categorías cuando cambien
     window.addEventListener('storage', loadCategories);
-    
     return () => {
       window.removeEventListener('storage', loadCategories);
     };
   }, []);
+
+  const fallbackCategories = [
+    'Vinos', 'Piscos', 'Whiskies', 'Vodkas', 'Tequilas', 'Rones', 'Gin', 'Champagnes'
+  ];
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,9 +59,7 @@ const NavBar = () => {
   return (
     <nav className="navbar">
       <div className="navbar-brand">
-        <Link to="/" className="brand-logo">
-          Cheers!
-        </Link>
+        <Link to="/" className="brand-logo">Cheers!</Link>
       </div>
 
       <form onSubmit={handleSearch} className="search-form">
@@ -85,31 +86,49 @@ const NavBar = () => {
           </button>
           {showCategories && (
             <div className="categories-list">
-              {categories.map((category) => (
-                <Link 
-                  key={category.id}
-                  to={`/category/${category.name.toLowerCase()}`}
+              {(categories ?? fallbackCategories).map((cat: any) => (
+                <Link
+                  key={cat.id ?? cat}
+                  to={`/category/${(cat.name ?? cat).toLowerCase()}`}
                   className="category-item"
                   onClick={() => setShowCategories(false)}
                 >
-                  {category.name}
+                  {cat.name ?? cat}
                 </Link>
               ))}
             </div>
           )}
         </div>
+
         <Link to="/productos" className="menu-link">Productos</Link>
         <Link to="/ofertas" className="menu-link highlight">OFERTAS</Link>
 
         {isAuthenticated ? (
           <div className="nav-user-section">
             {!isAdmin && (
-              <Link to="/cart" className="cart-link">
-                <i className="fas fa-shopping-cart"></i>
-                {items.length > 0 && (
-                  <span className="cart-count">{items.length}</span>
-                )}
-              </Link>
+              <>
+                <Link to="/saved-items" className="saved-items-link">
+                  <img
+                    src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/master/svgs/regular/heart.svg"
+                    alt="Favoritos"
+                    className="nav-icon"
+                  />
+                  {savedItems.length > 0 && (
+                    <span className="saved-items-count">{savedItems.length}</span>
+                  )}
+                </Link>
+
+                <Link to="/cart" className="cart-link">
+                  <img
+                    src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/master/svgs/solid/shopping-bag.svg"
+                    alt="Carrito"
+                    className="nav-icon"
+                  />
+                  {items.length > 0 && (
+                    <span className="cart-count">{items.length}</span>
+                  )}
+                </Link>
+              </>
             )}
 
             <div className="user-menu-container">
@@ -119,12 +138,16 @@ const NavBar = () => {
               >
                 {isAdmin ? (
                   <div className="admin-profile">
-                    <i className="fas fa-user-shield"></i>
+                    <i className="fa fa-user-shield"></i>
                     <span>Admin</span>
                   </div>
                 ) : (
                   <div className="user-profile">
-                    <i className="fas fa-user"></i>
+                    <img
+                      src="https://cdn-icons-png.flaticon.com/512/6522/6522581.png"
+                      alt="Usuario"
+                      className="nav-icon"
+                    />
                     <span>{user?.name}</span>
                   </div>
                 )}
@@ -136,17 +159,14 @@ const NavBar = () => {
                     <p className="user-name">{isAdmin ? 'Administrador' : user?.name}</p>
                     <p className="user-email">{user?.email}</p>
                   </div>
-                  
+
                   {!isAdmin && (
                     <>
                       <Link to="/profile" className="menu-item">
-                        <i className="fas fa-user-circle"></i>
-                        Mi Perfil
+                        <i className="fas fa-user-circle"></i> Mi Perfil
                       </Link>
-                      
                       <Link to="/orders" className="menu-item">
-                        <i className="fas fa-box"></i>
-                        Mis Pedidos
+                        <i className="fas fa-box"></i> Mis Pedidos
                       </Link>
                     </>
                   )}
@@ -154,27 +174,22 @@ const NavBar = () => {
                   {isAdmin && (
                     <>
                       <Link to="/admin/orders" className="menu-item admin-link">
-                        <i className="fas fa-shopping-cart"></i>
-                        Gestión de Pedidos
+                        <i className="fas fa-tasks"></i> Gestión de Pedidos
                       </Link>
                       <Link to="/admin/categories" className="menu-item admin-link">
-                        <i className="fas fa-tags"></i>
-                        Gestión de Categorías
+                        <i className="fas fa-tags"></i> Gestión de Categorías
                       </Link>
                       <Link to="/admin/products" className="menu-item admin-link">
-                        <i className="fas fa-wine-bottle"></i>
-                        Gestión de Productos
+                        <i className="fas fa-wine-bottle"></i> Gestión de Productos
                       </Link>
                       <Link to="/admin/users" className="menu-item admin-link">
-                        <i className="fas fa-users"></i>
-                        Gestión de Usuarios
+                        <i className="fas fa-users"></i> Gestión de Usuarios
                       </Link>
                     </>
                   )}
-                  
+
                   <button onClick={handleLogout} className="menu-item logout-button">
-                    <i className="fas fa-sign-out-alt"></i>
-                    Cerrar sesión
+                    <i className="fas fa-sign-out-alt"></i> Cerrar sesión
                   </button>
                 </div>
               )}
@@ -182,12 +197,8 @@ const NavBar = () => {
           </div>
         ) : (
           <div className="auth-buttons">
-            <Link to="/login" className="login-button">
-              Iniciar sesión
-            </Link>
-            <Link to="/register" className="register-button">
-              Registrarse
-            </Link>
+            <Link to="/login" className="login-button">Iniciar sesión</Link>
+            <Link to="/register" className="register-button">Registrarse</Link>
           </div>
         )}
       </div>
@@ -195,4 +206,4 @@ const NavBar = () => {
   );
 };
 
-export default NavBar; 
+export default NavBar;

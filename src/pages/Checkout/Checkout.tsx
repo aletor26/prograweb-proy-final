@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
+import QRCode from 'react-qr-code';
 import './Checkout.css';
 
 interface ShippingAddress {
@@ -45,6 +46,22 @@ const Checkout = () => {
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const shippingCost = shippingMethod === 'standard' ? 15 : 25;
   const total = subtotal + shippingCost;
+
+  // Generar datos para el código QR
+  const generateQRData = () => {
+    const orderData = {
+      orderId: Date.now(),
+      total: total,
+      items: cartItems.map(item => ({
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price
+      })),
+      customer: shippingAddress.email,
+      date: new Date().toISOString()
+    };
+    return JSON.stringify(orderData);
+  };
 
   const handleShippingSubmit = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -238,8 +255,14 @@ const Checkout = () => {
 
           {paymentMethod === 'qr' && (
             <div className="qr-code">
-              <img src="/qr-code.png" alt="Código QR para pago" />
+              <QRCode
+                value={generateQRData()}
+                size={200}
+                level="H"
+                className="qr-code-image"
+              />
               <p>Escanea el código QR para realizar el pago</p>
+              <small className="qr-total">Total a pagar: S/. {total.toFixed(2)}</small>
             </div>
           )}
 

@@ -25,6 +25,7 @@ import AdminProducts from './pages/Admin/Products/AdminProducts';
 import ProductForm from './pages/Admin/Products/ProductForm';
 import AdminUsers from './pages/Admin/Users/AdminUsers';
 import UserForm from './pages/Admin/Users/UserForm';
+import SavedItems from './pages/SavedItems/SavedItems';
 
 interface AdminRouteProps {
   children: React.ReactNode;
@@ -102,6 +103,14 @@ const AppRoutes = () => {
         <ProtectedRoute>
           <CustomerRoute>
             <Profile />
+          </CustomerRoute>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/saved-items" element={
+        <ProtectedRoute>
+          <CustomerRoute>
+            <SavedItems />
           </CustomerRoute>
         </ProtectedRoute>
       } />

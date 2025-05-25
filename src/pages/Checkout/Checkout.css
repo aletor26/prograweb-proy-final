@@ -138,14 +138,30 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 1rem;
-  color: #000000;
+  margin-top: 1.5rem;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.qr-code img {
-  width: 200px;
-  height: 200px;
-  margin-bottom: 1rem;
+.qr-code-image {
+  padding: 1rem;
+  background-color: white;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.qr-code p {
+  font-size: 1.1rem;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.qr-total {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1a56db;
 }
 
 .credit-card-form {
