@@ -200,4 +200,47 @@ export const products: Product[] = [
     category: "Champagnes",
     description: "Champagne vintage de una cosecha excepcional"
   }
-]; 
+];
+
+// Initialize products in localStorage if they don't exist
+export const initializeProducts = () => {
+  const storedProducts = localStorage.getItem('products');
+  if (!storedProducts) {
+    localStorage.setItem('products', JSON.stringify(products));
+  }
+};
+
+// Get all products from localStorage
+export const getProducts = (): Product[] => {
+  const storedProducts = localStorage.getItem('products');
+  return storedProducts ? JSON.parse(storedProducts) : [];
+};
+
+// Add a new product
+export const addProduct = (product: Omit<Product, 'id'>): Product => {
+  const products = getProducts();
+  const newProduct = {
+    ...product,
+    id: products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1
+  };
+  products.push(newProduct);
+  localStorage.setItem('products', JSON.stringify(products));
+  return newProduct;
+};
+
+// Update an existing product
+export const updateProduct = (product: Product): void => {
+  const products = getProducts();
+  const index = products.findIndex(p => p.id === product.id);
+  if (index !== -1) {
+    products[index] = product;
+    localStorage.setItem('products', JSON.stringify(products));
+  }
+};
+
+// Delete a product
+export const deleteProduct = (id: number): void => {
+  const products = getProducts();
+  const filteredProducts = products.filter(p => p.id !== id);
+  localStorage.setItem('products', JSON.stringify(filteredProducts));
+}; 

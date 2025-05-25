@@ -20,8 +20,6 @@ const ManageCategoryProducts = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    // Aquí cargarías los productos de la categoría desde tu backend
-    // Por ahora usamos datos de ejemplo
     setCategoryName('Vinos');
     setProducts([
       {

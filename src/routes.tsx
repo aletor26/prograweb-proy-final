@@ -18,13 +18,13 @@ import Profile from './pages/Profile/Profile';
 import Search from './pages/Search/Search';
 import Offers from './pages/Offers/Offers';
 import AdminOrders from './pages/Admin/AdminOrders';
-import AdminDashboard from './pages/Admin/AdminDashboard';
-import AdminHome from './pages/Admin/AdminHome';
-//FRANCO 
-import UserList from './pages/Admin/Users/UserList';
-import UserDetail from './pages/Admin/Users/UserDetail';
-import OrderList from './pages/Admin/Orders_2/OrderList';
-import OrderDetailAdmin from './pages/Admin/Orders_2/OrderDetail';
+import AdminCategories from './pages/Admin/Categories/AdminCategories';
+import AddCategory from './pages/Admin/Categories/AddCategory';
+import EditCategory from './pages/Admin/Categories/EditCategory';
+import AdminProducts from './pages/Admin/Products/AdminProducts';
+import ProductForm from './pages/Admin/Products/ProductForm';
+import AdminUsers from './pages/Admin/Users/AdminUsers';
+import UserForm from './pages/Admin/Users/UserForm';
 
 interface AdminRouteProps {
   children: React.ReactNode;
@@ -115,50 +115,69 @@ const AppRoutes = () => {
       <Route path="/ofertas" element={<ProtectedRoute><Offers /></ProtectedRoute>} />
 
       {/* Rutas de administrador */}
-      <Route path="/admin" element={
-        <ProtectedRoute>
-          <AdminRoute>
-            <AdminHome />
-          </AdminRoute>
-        </ProtectedRoute>
-    } />
       <Route path="/admin/orders" element={
         <ProtectedRoute>
           <AdminRoute>
-            <AdminDashboard />
+            <AdminOrders />
           </AdminRoute>
         </ProtectedRoute>
-  } />
-
-
-  <Route path="/admin/users" element={
-    <ProtectedRoute>
-      <AdminRoute>
-        <UserList />
-        </AdminRoute>
-        </ProtectedRoute>} 
-        />
-  <Route path="/admin/users/:userId" element={
-    <ProtectedRoute>
-      <AdminRoute>
-        <UserDetail />
-        </AdminRoute>
-        </ProtectedRoute>} 
-        />
-  <Route path="/admin/orders" element={
-    <ProtectedRoute>
-      <AdminRoute>
-        <OrderList />
-        </AdminRoute>
-        </ProtectedRoute>} 
-        />
-  <Route path="/admin/orders/:orderId" element={
-    <ProtectedRoute>
-      <AdminRoute>
-        <OrderDetail />
-        </AdminRoute>
-        </ProtectedRoute>} 
-        />
+      } />
+      <Route path="/admin/categories" element={
+        <ProtectedRoute>
+          <AdminRoute>
+            <AdminCategories />
+          </AdminRoute>
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/categories/new" element={
+        <ProtectedRoute>
+          <AdminRoute>
+            <AddCategory />
+          </AdminRoute>
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/categories/:categoryId/edit" element={
+        <ProtectedRoute>
+          <AdminRoute>
+            <EditCategory />
+          </AdminRoute>
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/products" element={
+        <ProtectedRoute>
+          <AdminRoute>
+            <AdminProducts />
+          </AdminRoute>
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/products/new" element={
+        <ProtectedRoute>
+          <AdminRoute>
+            <ProductForm />
+          </AdminRoute>
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/products/:id/edit" element={
+        <ProtectedRoute>
+          <AdminRoute>
+            <ProductForm />
+          </AdminRoute>
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/users" element={
+        <ProtectedRoute>
+          <AdminRoute>
+            <AdminUsers />
+          </AdminRoute>
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/users/:id/edit" element={
+        <ProtectedRoute>
+          <AdminRoute>
+            <UserForm />
+          </AdminRoute>
+        </ProtectedRoute>
+      } />
     </Routes>
   );
 };

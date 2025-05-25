@@ -1,8 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import './NavBar.css';
+
+interface Category {
+  id: string;
+  name: string;
+  description: string;
+  active: boolean;
+}
 
 const NavBar = () => {
   const navigate = useNavigate();
@@ -11,8 +18,28 @@ const NavBar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showCategories, setShowCategories] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const isAdmin = user?.role === 'admin';
+
+  useEffect(() => {
+    const loadCategories = () => {
+      const storedCategories = localStorage.getItem('categories');
+      if (storedCategories) {
+        const parsedCategories = JSON.parse(storedCategories);
+        // Solo mostrar categorías activas
+        setCategories(parsedCategories.filter((cat: Category) => cat.active));
+      }
+    };
+
+    loadCategories();
+    // Agregar un event listener para actualizar las categorías cuando cambien
+    window.addEventListener('storage', loadCategories);
+    
+    return () => {
+      window.removeEventListener('storage', loadCategories);
+    };
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,17 +52,6 @@ const NavBar = () => {
     logout();
     navigate('/login');
   };
-
-  const categories = [
-    'Vinos',
-    'Piscos',
-    'Whiskies',
-    'Vodkas',
-    'Tequilas',
-    'Rones',
-    'Gin',
-    'Champagnes'
-  ];
 
   return (
     <nav className="navbar">
@@ -71,12 +87,12 @@ const NavBar = () => {
             <div className="categories-list">
               {categories.map((category) => (
                 <Link 
-                  key={category}
-                  to={`/category/${category.toLowerCase()}`}
+                  key={category.id}
+                  to={`/category/${category.name.toLowerCase()}`}
                   className="category-item"
                   onClick={() => setShowCategories(false)}
                 >
-                  {category}
+                  {category.name}
                 </Link>
               ))}
             </div>
@@ -137,17 +153,21 @@ const NavBar = () => {
 
                   {isAdmin && (
                     <>
-                      <Link to="/admin" className="menu-item admin-link">
-                        <i className="fas fa-home"></i>
-                         Panel Principal
+                      <Link to="/admin/orders" className="menu-item admin-link">
+                        <i className="fas fa-shopping-cart"></i>
+                        Gestión de Pedidos
+                      </Link>
+                      <Link to="/admin/categories" className="menu-item admin-link">
+                        <i className="fas fa-tags"></i>
+                        Gestión de Categorías
+                      </Link>
+                      <Link to="/admin/products" className="menu-item admin-link">
+                        <i className="fas fa-wine-bottle"></i>
+                        Gestión de Productos
                       </Link>
                       <Link to="/admin/users" className="menu-item admin-link">
-                        <i className="fas fa-box"></i>
-                        Usuarios
-                      </Link>
-                      <Link to="/admin/orders" className="menu-item admin-link">
-                        <i className="fas fa-tasks"></i>
-                        Gestión de Pedidos
+                        <i className="fas fa-users"></i>
+                        Gestión de Usuarios
                       </Link>
                     </>
                   )}

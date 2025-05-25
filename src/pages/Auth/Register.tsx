@@ -113,13 +113,11 @@ const Register = () => {
 
       // Guardar nuevo usuario
       const newUser = {
-      id: 'user-' + Date.now() + '-' + Math.floor(Math.random() * 10000), // ID dinámico
-      name: `${formData.nombre} ${formData.apellido}`,
-      email: formData.email,
-      dni: formData.dni,
-      password: formData.password,
-      active: true // puedes agregar este campo si lo usas para activar/desactivar usuarios
-    };
+        name: `${formData.nombre} ${formData.apellido}`,
+        email: formData.email,
+        dni: formData.dni,
+        password: formData.password
+      };
 
       users.push(newUser);
       localStorage.setItem('users', JSON.stringify(users));
