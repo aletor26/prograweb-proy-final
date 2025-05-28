@@ -1,10 +1,11 @@
 import { useCart } from '../../context/CartContext';
 import { products } from '../../data/products';
 import './Products.css';
+import { useNavigate } from 'react-router-dom';
 
 const Products = () => {
   const { addToCart } = useCart();
-
+  const navigate = useNavigate();
   return (
     <div className="products-container">
       <h1>Nuestros Productos</h1>
@@ -22,6 +23,12 @@ const Products = () => {
               >
                 Agregar al carrito
               </button>
+              <button
+                  className="add-to-cart-button"
+                  onClick={() => navigate(`/detalle/${product.id}`)}
+                >
+                  Ver detalle
+                </button>
             </div>
           </div>
         ))}

@@ -28,6 +28,7 @@ import UserForm from './pages/Admin/Users/UserForm';
 import SavedItems from './pages/SavedItems/SavedItems';
 import DetalleProducto from './pages/DetalleProducto/DetalleProducto';
 
+
 interface AdminRouteProps {
   children: React.ReactNode;
 }
@@ -64,6 +65,7 @@ const AppRoutes = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/detalle/:id" element={<DetalleProducto />} />
+      
       
       {/* Rutas protegidas - Solo clientes */}
       <Route path="/cart" element={

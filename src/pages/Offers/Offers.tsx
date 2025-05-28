@@ -4,7 +4,7 @@ import './Offers.css';
 
 const Offers = () => {
   const { addToCart } = useCart();
-
+ 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-ES', {
       year: 'numeric',
@@ -46,6 +46,7 @@ const Offers = () => {
               >
                 Agregar al carrito
               </button>
+              
             </div>
           </div>
         ))}
