@@ -1,0 +1,36 @@
+.summary-cards-container {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.summary-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  padding: 2rem 2.5rem;
+  min-width: 200px;
+  text-align: center;
+  transition: box-shadow 0.2s;
+}
+
+.summary-card h3 {
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.summary-card .summary-value {
+  font-size: 2.2rem;
+  font-weight: bold;
+  color: #1a237e;
+  margin-bottom: 0.5rem;
+}
+
+.summary-card .summary-currency {
+  color: #1976d2;
+  font-weight: bold;
+  font-size: 2rem;
+}

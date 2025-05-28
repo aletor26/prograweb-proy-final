@@ -4,6 +4,7 @@ import { CartProvider } from './context/CartContext';
 import NavBar from './components/NavBar';
 import AppRoutes from './routes';
 import './App.css';
+import { Footer } from './components/Footer/Footer';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
             <main className="main-content">
               <AppRoutes />
             </main>
+            <Footer />
           </div>
         </Router>
       </CartProvider>
