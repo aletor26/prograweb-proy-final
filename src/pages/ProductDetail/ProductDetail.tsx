@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { products } from '../../data/products';
 
 interface Product {
   id: number;
@@ -8,12 +9,13 @@ interface Product {
   image: string;
   category: string;
   description: string;
-  stock: number;
-  details: {
-    brand: string;
-    origin: string;
-    volume: string;
-    alcoholContent: string;
+  // stock y details pueden no existir en todos los productos
+  stock?: number;
+  details?: {
+    brand?: string;
+    origin?: string;
+    volume?: string;
+    alcoholContent?: string;
   };
 }
 
@@ -24,29 +26,18 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Fetch product data from API
-    // Mockup data for now
-    setProduct({
-      id: 1,
-      name: "Vino Tinto Reserva",
-      price: 59.99,
-      image: "/wines/red-wine.jpg",
-      category: "Vinos",
-      description: "Un vino tinto reserva con notas de frutos rojos y un final elegante...",
-      stock: 15,
-      details: {
-        brand: "Viña del Valle",
-        origin: "Valle de Ica",
-        volume: "750ml",
-        alcoholContent: "13.5%"
-      }
-    });
+    const found = products.find(
+      (p) => String(p.id) === String(id)
+    );
+    setProduct(found || null);
     setLoading(false);
   }, [id]);
 
   const handleAddToCart = () => {
     // TODO: Implementar lógica de agregar al carrito
-    console.log(`Agregando ${quantity} unidades del producto ${id} al carrito`);
+    if (product) {
+      console.log(`Agregando ${quantity} unidades del producto ${product.id} al carrito`);
+    }
   };
 
   if (loading) {
@@ -91,24 +82,34 @@ const ProductDetail = () => {
           <div className="space-y-4">
             <p className="text-gray-600">{product.description}</p>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <p className="font-semibold">Marca</p>
-                <p className="text-gray-600">{product.details.brand}</p>
+            {product.details && (
+              <div className="grid grid-cols-2 gap-4">
+                {product.details.brand && (
+                  <div className="space-y-2">
+                    <p className="font-semibold">Marca</p>
+                    <p className="text-gray-600">{product.details.brand}</p>
+                  </div>
+                )}
+                {product.details.origin && (
+                  <div className="space-y-2">
+                    <p className="font-semibold">Origen</p>
+                    <p className="text-gray-600">{product.details.origin}</p>
+                  </div>
+                )}
+                {product.details.volume && (
+                  <div className="space-y-2">
+                    <p className="font-semibold">Volumen</p>
+                    <p className="text-gray-600">{product.details.volume}</p>
+                  </div>
+                )}
+                {product.details.alcoholContent && (
+                  <div className="space-y-2">
+                    <p className="font-semibold">Contenido de alcohol</p>
+                    <p className="text-gray-600">{product.details.alcoholContent}</p>
+                  </div>
+                )}
               </div>
-              <div className="space-y-2">
-                <p className="font-semibold">Origen</p>
-                <p className="text-gray-600">{product.details.origin}</p>
-              </div>
-              <div className="space-y-2">
-                <p className="font-semibold">Volumen</p>
-                <p className="text-gray-600">{product.details.volume}</p>
-              </div>
-              <div className="space-y-2">
-                <p className="font-semibold">Contenido de alcohol</p>
-                <p className="text-gray-600">{product.details.alcoholContent}</p>
-              </div>
-            </div>
+            )}
           </div>
 
           <div className="pt-6 border-t">
@@ -121,21 +122,23 @@ const ProductDetail = () => {
                 value={quantity}
                 onChange={(e) => setQuantity(Number(e.target.value))}
                 className="border rounded-lg px-4 py-2"
+                disabled={!product.stock}
               >
-                {[...Array(Math.min(10, product.stock))].map((_, i) => (
+                {[...Array(Math.min(10, product.stock || 1))].map((_, i) => (
                   <option key={i + 1} value={i + 1}>
                     {i + 1}
                   </option>
                 ))}
               </select>
               <span className="text-sm text-gray-500">
-                {product.stock} unidades disponibles
+                {product.stock ? `${product.stock} unidades disponibles` : 'Stock no disponible'}
               </span>
             </div>
 
             <button
               onClick={handleAddToCart}
               className="w-full bg-primary-600 text-white py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors"
+              disabled={!product.stock}
             >
               Agregar al carrito
             </button>
@@ -146,4 +149,4 @@ const ProductDetail = () => {
   );
 };
 
-export default ProductDetail; 
+export default ProductDetail;

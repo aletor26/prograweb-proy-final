@@ -1,12 +1,16 @@
 import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { products } from '../../data/products';
+import { useCart } from '../../context/CartContext';
+
 import './Search.css';
 
 const Search = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
   const [isLoading] = useState(false);
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
 
   const searchResults = products.filter(product => 
     product.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -33,6 +37,20 @@ const Search = () => {
                 <h3>{product.name}</h3>
                 <p className="product-category">{product.category}</p>
                 <p className="product-price">S/. {product.price.toFixed(2)}</p>
+              <button
+                  className="add-to-cart-button"
+                  onClick={() => navigate(`/detalle/${product.id}`)}
+                >
+                  Ver detalle
+                </button>
+              <button 
+                className="add-to-cart-button"
+                onClick={() => addToCart(product)}
+              >
+                Agregar al carrito
+              </button>
+              
+      
               </div>
             </div>
           ))}
