@@ -2,26 +2,28 @@
   max-width: 520px;
   margin: 48px auto;
   padding: 36px 28px 32px 28px;
-  background: linear-gradient(135deg, #f8fafc 60%, #e0e7ff 100%);
+  background: #fff;
   border-radius: 22px;
   box-shadow: 0 8px 32px rgba(60, 72, 88, 0.18), 0 1.5px 8px rgba(80, 80, 160, 0.10);
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 2px solid #6366f1;
+  border: none;
   transition: box-shadow 0.3s;
 }
 
 .detalle-producto-container:hover {
-  box-shadow: 0 12px 40px rgba(99, 102, 241, 0.22), 0 2px 12px rgba(80, 80, 160, 0.13);
+  box-shadow: 0 12px 40px rgba(99, 102, 241, 0.12), 0 2px 12px rgba(80, 80, 160, 0.10);
 }
 
 .detalle-producto-container h2 {
   font-size: 2.3rem;
   margin-bottom: 18px;
-  color: #4338ca;
+  color: #111;
+  font-weight: bold;
   letter-spacing: 1px;
-  text-shadow: 0 2px 8px #e0e7ff;
+  text-align: center;
+  text-shadow: none;
 }
 
 .detalle-producto-container img {
@@ -30,7 +32,7 @@
   max-width: 260px;
   border-radius: 16px;
   box-shadow: 0 4px 16px rgba(99, 102, 241, 0.13);
-  border: 3px solid #6366f1;
+  border: none;
   background: #fff;
   transition: transform 0.2s;
 }
@@ -48,10 +50,17 @@
   box-shadow: 0 1px 4px rgba(99, 102, 241, 0.06);
   width: 100%;
   text-align: center;
-  /* Contorno llamativo */
-  border: 2px solid #6366f1;
-  outline: 2.5px solid #a5b4fc;
-  outline-offset: 2px;
+  border: none;
+  outline: none;
+  
+}
+
+.detalle-producto-container p.detalle-producto-nombre {
+  font-weight: bold;
+  color: #111;
+  background: #fff;
+  font-size: 1.18rem;
+  margin-bottom: 8px;
 }
 
 @media (max-width: 600px) {
@@ -63,3 +72,4 @@
     max-width: 90vw;
   }
 }
+
