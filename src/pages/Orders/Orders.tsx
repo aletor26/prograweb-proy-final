@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
+import Paginacion from '../../components/Paginacion/Paginacion';
 import './Orders.css';
 
 interface Order {
   id: string;
   date: string;
   total: number;
-  status: 'Pendiente' | 'processing' | 'completed' | 'cancelled';
+  status: 'Pendiente' | 'Procesado' | 'Completado' | 'Cancelado';
   items: {
     id: number;
     name: string;
@@ -25,11 +26,14 @@ interface Order {
   paymentMethod: 'qr' | 'credit-card';
 }
 
+const ORDERS_PER_PAGE = 3;
+
 const Orders = () => {
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCancelConfirm, setShowCancelConfirm] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const isAdmin = user?.role === 'admin';
 
@@ -75,7 +79,7 @@ const Orders = () => {
     try {
       const updatedOrders = orders.map(order => {
         if (order.id === orderId) {
-          return { ...order, status: 'cancelled' as const };
+          return { ...order, status: 'Cancelado' as const };
         }
         return order;
       });
@@ -92,16 +96,30 @@ const Orders = () => {
     switch (status) {
       case 'Pendiente':
         return 'status-pending';
-      case 'processing':
+      case 'Procesado':
         return 'status-processing';
-      case 'completed':
+      case 'Completado':
         return 'status-completed';
-      case 'cancelled':
+      case 'Cancelado':
         return 'status-cancelled';
       default:
         return '';
     }
   };
+
+  // Paginación
+  const totalPages = Math.ceil(orders.length / ORDERS_PER_PAGE);
+  const paginatedOrders = orders.slice(
+    (currentPage - 1) * ORDERS_PER_PAGE,
+    currentPage * ORDERS_PER_PAGE
+  );
+
+  useEffect(() => {
+    // Si la página actual queda fuera de rango después de eliminar/cancelar, ajusta
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [orders, totalPages, currentPage]);
 
   if (isLoading) {
     return (
@@ -147,38 +165,45 @@ const Orders = () => {
           <p>No hay pedidos {isAdmin ? 'registrados' : 'realizados'}</p>
         </div>
       ) : (
-        <div className="orders-list">
-          <div className="orders-list-header">
-            <span>ID</span>
-            <span>Fecha</span>
-            <span>Estado</span>
-            <span>Total</span>
-            <span>Acciones</span>
-          </div>
-          {orders.map((order) => (
-            <div key={order.id} className="order-row">
-              <span>#{order.id}</span>
-              <span>{new Date(order.date).toLocaleDateString()}</span>
-              <span className={`order-status ${getStatusColor(order.status)}`}>
-                {order.status}
-              </span>
-              <span>S/ {order.total.toFixed(2)}</span>
-              <span>
-                <Link to={`/orders/${order.id}`} className="view-details-button">
-                  Ver detalles
-                </Link>
-                {!isAdmin && (order.status === 'Pendiente' || order.status === 'processing') && (
-                  <button 
-                    onClick={() => handleCancelOrder(order.id)}
-                    className="cancel-order-button"
-                  >
-                    Cancelar
-                  </button>
-                )}
-              </span>
+        <>
+          <div className="orders-list">
+            <div className="orders-list-header">
+              <span>ID</span>
+              <span>Fecha</span>
+              <span>Estado</span>
+              <span>Total</span>
+              <span>Acciones</span>
             </div>
-          ))}
-        </div>
+            {paginatedOrders.map((order) => (
+              <div key={order.id} className="order-row">
+                <span>#{order.id}</span>
+                <span>{new Date(order.date).toLocaleDateString()}</span>
+                <span className={`order-status ${getStatusColor(order.status)}`}>
+                  {order.status}
+                </span>
+                <span>S/ {order.total.toFixed(2)}</span>
+                <span>
+                  <Link to={`/orders/${order.id}`} className="view-details-button">
+                    Ver detalles
+                  </Link>
+                  {!isAdmin && (order.status === 'Pendiente' || order.status === 'Procesado') && (
+                    <button 
+                      onClick={() => handleCancelOrder(order.id)}
+                      className="cancel-order-button"
+                    >
+                      Cancelar
+                    </button>
+                  )}
+                </span>
+              </div>
+            ))}
+          </div>
+          <Paginacion
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </>
       )}
     </div>
   );

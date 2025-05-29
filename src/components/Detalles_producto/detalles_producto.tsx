@@ -10,7 +10,7 @@ export function Detalle({ id }: { id: string | number | undefined }) {
 
   return (
     <div>
-      <h2>DETALLE DE: {product.name}</h2>
+      <h2>{product.name}</h2>
       <img src={product.image} alt={product.name} />
       <p>{product.category}</p>
       <p>{product.description}</p>
