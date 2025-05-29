@@ -94,7 +94,7 @@ const Checkout = () => {
       id: Date.now().toString(),
       date: new Date().toISOString(),
       total: total,
-      status: 'pending',
+      status: 'Pendiente',
       items: cartItems.map(item => ({
         id: item.id,
         name: item.name,

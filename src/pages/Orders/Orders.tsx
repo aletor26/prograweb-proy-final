@@ -7,7 +7,7 @@ interface Order {
   id: string;
   date: string;
   total: number;
-  status: 'pending' | 'processing' | 'completed' | 'cancelled';
+  status: 'Pendiente' | 'processing' | 'completed' | 'cancelled';
   items: {
     id: number;
     name: string;
@@ -43,6 +43,7 @@ const Orders = () => {
     } catch (error) {
       console.error('Error fetching orders:', error);
     } finally {
+      await new Promise(resolve => setTimeout(resolve, 1000));
       setIsLoading(false);
     }
   };
@@ -89,7 +90,7 @@ const Orders = () => {
 
   const getStatusColor = (status: Order['status']) => {
     switch (status) {
-      case 'pending':
+      case 'Pendiente':
         return 'status-pending';
       case 'processing':
         return 'status-processing';
@@ -100,29 +101,6 @@ const Orders = () => {
       default:
         return '';
     }
-  };
-
-  const getStatusText = (status: Order['status']) => {
-    switch (status) {
-      case 'pending':
-        return 'Pendiente';
-      case 'processing':
-        return 'En proceso';
-      case 'completed':
-        return 'Completado';
-      case 'cancelled':
-        return 'Cancelado';
-      default:
-        return status;
-    }
-  };
-
-  const getShippingMethodText = (method: Order['shippingMethod']) => {
-    return method === 'standard' ? 'Envío estándar (3-5 días)' : 'Envío express (1-2 días)';
-  };
-
-  const getPaymentMethodText = (method: Order['paymentMethod']) => {
-    return method === 'qr' ? 'Pago con QR' : 'Tarjeta de crédito';
   };
 
   if (isLoading) {
@@ -170,61 +148,34 @@ const Orders = () => {
         </div>
       ) : (
         <div className="orders-list">
+          <div className="orders-list-header">
+            <span>ID</span>
+            <span>Fecha</span>
+            <span>Estado</span>
+            <span>Total</span>
+            <span>Acciones</span>
+          </div>
           {orders.map((order) => (
-            <div key={order.id} className="order-card">
-              <div className="order-header">
-                <div>
-                  <h3 className="order-id">Pedido #{order.id}</h3>
-                  <p className="order-date">{new Date(order.date).toLocaleDateString()}</p>
-                </div>
-                <div className="order-status-container">
-                  <span className={`order-status ${getStatusColor(order.status)}`}>
-                    {getStatusText(order.status)}
-                  </span>
-                  {!isAdmin && (order.status === 'pending' || order.status === 'processing') && (
-                    <button 
-                      onClick={() => handleCancelOrder(order.id)}
-                      className="cancel-order-button"
-                    >
-                      Cancelar Pedido
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              <div className="order-section">
-                <h4>Detalles de envío</h4>
-                <p>{order.shippingDetails.fullName}</p>
-                <p>{order.shippingDetails.address}</p>
-                <p>{order.shippingDetails.city}</p>
-                <p>{order.shippingDetails.phone}</p>
-                <p className="shipping-method">{getShippingMethodText(order.shippingMethod)}</p>
-              </div>
-
-              <div className="order-section">
-                <h4>Método de pago</h4>
-                <p>{getPaymentMethodText(order.paymentMethod)}</p>
-              </div>
-
-              <div className="order-items">
-                <h4>Productos</h4>
-                {order.items.map((item) => (
-                  <div key={item.id} className="order-item">
-                    <span className="item-name">{item.name}</span>
-                    <span className="item-quantity">x{item.quantity}</span>
-                    <span className="item-price">S/ {item.price.toFixed(2)}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="order-footer">
-                <span className="order-total">
-                  Total: S/ {order.total.toFixed(2)}
-                </span>
+            <div key={order.id} className="order-row">
+              <span>#{order.id}</span>
+              <span>{new Date(order.date).toLocaleDateString()}</span>
+              <span className={`order-status ${getStatusColor(order.status)}`}>
+                {order.status}
+              </span>
+              <span>S/ {order.total.toFixed(2)}</span>
+              <span>
                 <Link to={`/orders/${order.id}`} className="view-details-button">
                   Ver detalles
                 </Link>
-              </div>
+                {!isAdmin && (order.status === 'Pendiente' || order.status === 'processing') && (
+                  <button 
+                    onClick={() => handleCancelOrder(order.id)}
+                    className="cancel-order-button"
+                  >
+                    Cancelar
+                  </button>
+                )}
+              </span>
             </div>
           ))}
         </div>
@@ -233,4 +184,4 @@ const Orders = () => {
   );
 };
 
-export default Orders; 
+export default Orders;

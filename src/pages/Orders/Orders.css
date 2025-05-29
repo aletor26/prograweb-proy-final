@@ -26,8 +26,14 @@
 }
 
 .orders-list {
-  display: grid;
-  gap: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  padding: 1.2rem 0.5rem;
 }
 
 .order-card {
@@ -46,14 +52,28 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.order-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #e2e8f0;
+.orders-list-header,
+.order-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1.2fr 1.2fr 1fr 2fr;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: transparent; 
+  border-radius: 8px;
 }
+
+.orders-list-header {
+  font-weight: bold;
+  background: transparent;
+}
+
+.order-row {
+  box-shadow: none;
+  background: transparent;
+}
+
+
 
 .order-id {
   font-size: 1.25rem;
@@ -73,6 +93,11 @@
   font-size: 0.875rem;
   font-weight: 500;
 }
+
+.order-status.status-pending { color: #f59e42; }
+.order-status.status-processing { color: #1976d2; }
+.order-status.status-completed { color: #388e3c; }
+.order-status.status-cancelled { color: #d32f2f; }
 
 .text-yellow-600 {
   background-color: #fef3c7;
@@ -230,19 +255,19 @@
 }
 
 .cancel-order-button {
-  padding: 0.5rem 1rem;
-  background: rgba(255, 68, 68, 0.1);
-  color: #ff4444;
-  border: 1px solid #ff4444;
+  margin-left: 0.5rem;
+  background: #fff;
+  color: #d32f2f;
+  border: 1px solid #d32f2f;
   border-radius: 4px;
+  padding: 0.3rem 0.7rem;
   cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  white-space: nowrap;
+  transition: background 0.2s, color 0.2s;
 }
 
 .cancel-order-button:hover {
-  background: rgba(255, 68, 68, 0.2);
+  background: #d32f2f;
+  color: #fff;
 }
 
 .order-section {
@@ -310,14 +335,13 @@
 }
 
 .view-details-button {
-  padding: 0.5rem 1rem;
-  background: var(--secondary-color);
-  color: var(--text-dark);
+  background: #1976d2;
+  color: #fff;
   border: none;
   border-radius: 4px;
+  padding: 0.3rem 0.7rem;
   text-decoration: none;
-  font-weight: 500;
-  transition: all 0.3s ease;
+  margin-right: 0.5rem;
 }
 
 .view-details-button:hover {
@@ -395,12 +419,19 @@
   background: #ff2020;
 }
 
-.no-orders {
+.orders-title {
+  color: #ff6b6b;
   text-align: center;
-  padding: 3rem;
-  background: var(--card-background);
+  margin-bottom: 2rem;
+}
+
+.no-orders {
+  color: #222;
+  background: #fff;
   border-radius: 12px;
-  border: 1px solid rgba(200, 169, 126, 0.2);
+  padding: 2rem;
+  text-align: center;
+  margin-top: 2rem;
 }
 
 .no-orders p {

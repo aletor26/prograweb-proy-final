@@ -153,6 +153,29 @@
   text-decoration: underline;
 }
 
+
+.auth-card,
+.auth-title,
+.auth-description,
+.auth-message,
+.form-group label,
+.form-group input,
+.auth-link {
+  color: #222 !important;
+}
+
+.auth-title {
+  font-weight: 700;
+}
+
+.auth-card {
+  background: #fff;
+}
+
+.form-group input {
+  background: #fff;
+  color: #222;
+}
 @media (max-width: 640px) {
   .auth-container {
     padding: 1rem;
