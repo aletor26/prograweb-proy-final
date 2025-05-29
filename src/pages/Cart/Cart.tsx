@@ -1,11 +1,13 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import type { CartItem } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 import './Cart.css';
 
 const Cart = () => {
   const navigate = useNavigate();
   const { items: cartItems, updateQuantity, removeFromCart: removeItem, moveToSaved } = useCart();
+  const { user } = useAuth();
 
   const subtotal = cartItems.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0);
   const shipping = 15.00;
@@ -109,7 +111,14 @@ const Cart = () => {
           </span>
         </div>
         <button
-          onClick={() => navigate('/checkout')}
+          onClick={() => {
+            if (!user) {
+              localStorage.setItem('redirectAfterLogin', '/checkout');
+              navigate('/login');
+              return;
+            }
+            navigate('/checkout');
+          }}
           className="checkout-button"
           disabled={cartItems.length === 0}
           aria-label="Proceder al pago"

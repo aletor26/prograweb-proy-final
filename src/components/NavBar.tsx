@@ -106,30 +106,32 @@ const NavBar = () => {
 
         {isAuthenticated ? (
           <div className="nav-user-section">
-            {!isAdmin && (
-              <>
-                <Link to="/saved-items" className="saved-items-link">
-                  <img
-                    src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/master/svgs/regular/heart.svg"
-                    alt="Favoritos"
-                    className="nav-icon"
-                  />
-                  {savedItems.length > 0 && (
-                    <span className="saved-items-count">{savedItems.length}</span>
-                  )}
-                </Link>
+            {/* Carrito: solo para clientes o usuarios no loggeados */}
+            {(!isAuthenticated || !isAdmin) && (
+              <Link to="/cart" className="cart-link">
+                <img
+                  src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/master/svgs/solid/shopping-bag.svg"
+                  alt="Carrito"
+                  className="nav-icon"
+                />
+                {items.length > 0 && (
+                  <span className="cart-count">{items.length}</span>
+                )}
+              </Link>
+            )}
 
-                <Link to="/cart" className="cart-link">
-                  <img
-                    src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/master/svgs/solid/shopping-bag.svg"
-                    alt="Carrito"
-                    className="nav-icon"
-                  />
-                  {items.length > 0 && (
-                    <span className="cart-count">{items.length}</span>
-                  )}
-                </Link>
-              </>
+            {/* Favoritos solo si está loggeado y no es admin */}
+            {isAuthenticated && !isAdmin && (
+              <Link to="/saved-items" className="saved-items-link">
+                <img
+                  src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/master/svgs/regular/heart.svg"
+                  alt="Favoritos"
+                  className="nav-icon"
+                />
+                {savedItems.length > 0 && (
+                  <span className="saved-items-count">{savedItems.length}</span>
+                )}
+              </Link>
             )}
 
             <div className="user-menu-container">

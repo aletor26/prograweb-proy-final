@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
+import { Link, useNavigate } from 'react-router-dom';
 import './ProductCard.css';
 
 interface Product {
@@ -11,8 +13,10 @@ interface Product {
 }
 
 const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
-  const { addToCart } = useCart();
+  const { addToCart, moveToSaved } = useCart();
+  const { user } = useAuth();
   const [hovered, setHovered] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div
@@ -30,13 +34,38 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
           <div className="product-card-price">S/ {product.price}</div>
         </div>
       </div>
-      <button
-        className="add-to-cart-btn"
-        onClick={() => addToCart(product)}
-        tabIndex={hovered ? 0 : -1}
-      >
-        Añadir al carrito
-      </button>
+      {hovered && (
+        <div className="product-card-actions">
+          <button
+            className="add-to-cart-btn"
+            onClick={() => addToCart(product)}
+            tabIndex={0}
+          >
+            Añadir al carrito
+          </button>
+          <button
+            className="save-to-wishlist-btn"
+            onClick={() => {
+              if (!user) {
+                localStorage.setItem('redirectAfterLogin', window.location.pathname);
+                window.location.href = '/login';
+                return;
+              }
+              moveToSaved(product.id);
+            }}
+            tabIndex={0}
+          >
+            Guardar para después
+          </button>
+          <button
+            className="details-btn"
+            onClick={() => navigate(`/detalle/${product.id}`)}
+            tabIndex={0}
+          >
+            Ver detalles
+          </button>
+        </div>
+      )}
     </div>
   );
 };

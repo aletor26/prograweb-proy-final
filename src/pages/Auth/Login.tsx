@@ -67,7 +67,13 @@ const Login = () => {
     setIsLoading(true);
     try {
       await login(formData.email, formData.password);
-      navigate('/');
+      const redirect = localStorage.getItem('redirectAfterLogin');
+      if (redirect) {
+        navigate(redirect);
+        localStorage.removeItem('redirectAfterLogin');
+      } else {
+        navigate('/');
+      }
     } catch (error) {
       setErrors({
         general: 'Correo o contraseña incorrectos'
