@@ -2,6 +2,7 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+  color: var(--text-light, #fff);
 }
 
 .admin-header {
@@ -12,9 +13,46 @@
 }
 
 .admin-header h1 {
-  color: var(--text-light);
+  color: var(--text-light, #fff);
   font-family: 'Playfair Display', serif;
   margin: 0;
+}
+
+.admin-search-bar {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+.admin-search-input {
+  width: 100%;
+  max-width: 350px;
+  padding: 0.7rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  transition: border 0.2s, box-shadow 0.2s;
+  background: #23272f;
+  color: #fff;
+}
+.admin-search-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.08);
+}
+.admin-search-select {
+  padding: 0.7rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #23272f;
+  color: #fff;
+  outline: none;
+  margin-right: 0.5rem;
+}
+.admin-search-select:focus {
+  border-color: #6366f1;
 }
 
 .users-section {

@@ -1,30 +1,30 @@
 import React from "react";
 
 interface UserFilterProps {
-  filters: { id: string; nombre: string; apellido: string };
-  onChange: (filters: { id: string; nombre: string; apellido: string }) => void;
+  searchTerm: string;
+  searchField: 'id' | 'nombre' | 'apellido';
+  onSearchTermChange: (term: string) => void;
+  onSearchFieldChange: (field: 'id' | 'nombre' | 'apellido') => void;
 }
 
-const UserFilter: React.FC<UserFilterProps> = ({ filters, onChange }) => {
+const UserFilter: React.FC<UserFilterProps> = ({ searchTerm, searchField, onSearchTermChange, onSearchFieldChange }) => {
   return (
-    <div style={{ display: "flex", gap: "1rem", marginBottom: 20 }}>
+    <div className="admin-search-bar">
+      <select
+        className="admin-search-select"
+        value={searchField}
+        onChange={e => onSearchFieldChange(e.target.value as 'id' | 'nombre' | 'apellido')}
+      >
+        <option value="id">ID</option>
+        <option value="nombre">Nombre</option>
+        <option value="apellido">Apellido</option>
+      </select>
       <input
+        className="admin-search-input"
         type="text"
-        placeholder="ID"
-        value={filters.id}
-        onChange={e => onChange({ ...filters, id: e.target.value })}
-      />
-      <input
-        type="text"
-        placeholder="Nombre"
-        value={filters.nombre}
-        onChange={e => onChange({ ...filters, nombre: e.target.value })}
-      />
-      <input
-        type="text"
-        placeholder="Apellido"
-        value={filters.apellido}
-        onChange={e => onChange({ ...filters, apellido: e.target.value })}
+        placeholder={`Buscar por ${searchField}`}
+        value={searchTerm}
+        onChange={e => onSearchTermChange(e.target.value)}
       />
     </div>
   );

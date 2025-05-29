@@ -11,7 +11,8 @@ const usuariosMock = [
 ];
 
 const UserList: React.FC = () => {
-  const [filters, setFilters] = useState({ id: "", nombre: "", apellido: "" });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchField, setSearchField] = useState<'id' | 'nombre' | 'apellido'>('id');
   const [usuarios, setUsuarios] = useState<any[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | undefined>(undefined);
 
@@ -22,12 +23,14 @@ const UserList: React.FC = () => {
     setCurrentUserId(currentUser ? JSON.parse(currentUser).id : undefined);
   }, []);
 
-  // Filtrado simple
-  const usuariosFiltrados = usuarios.filter(u =>
-    u.id.includes(filters.id) &&
-    (u.nombre?.toLowerCase() ?? u.name?.toLowerCase() ?? "").includes(filters.nombre.toLowerCase()) &&
-    (u.apellido?.toLowerCase() ?? "").includes(filters.apellido.toLowerCase())
-  );
+  // Filtrado según campo
+  const usuariosFiltrados = usuarios.filter(u => {
+    const value =
+      searchField === 'id' ? u.id :
+      searchField === 'nombre' ? (u.nombre?.toLowerCase() ?? u.name?.toLowerCase() ?? '') :
+      searchField === 'apellido' ? (u.apellido?.toLowerCase() ?? '') : '';
+    return value.includes(searchTerm.toLowerCase());
+  });
 
   // Activar/desactivar usuario
   const handleToggleActive = (id: string) => {
@@ -55,7 +58,12 @@ const UserList: React.FC = () => {
   return (
     <div className="user-list-container">
       <h2>Lista de Usuarios</h2>
-      <UserFilter filters={filters} onChange={setFilters} />
+      <UserFilter
+        searchTerm={searchTerm}
+        searchField={searchField}
+        onSearchTermChange={setSearchTerm}
+        onSearchFieldChange={setSearchField}
+      />
       <table className="user-table">
         <thead>
           <tr>
