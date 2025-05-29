@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import UserDetailView from '../../../components/UserDetail/UserDetailView';
+import UserOrdersList from '../../../components/UserDetail/UserOrdersList';
 // import UserOrdersList from "../../../components/UserDetail/UserOrdersList"; // Si quieres mostrar órdenes
 
 const UserDetail = () => {
@@ -32,6 +33,7 @@ const UserDetail = () => {
     <div>
       <h2>Detalle de Usuario</h2>
       <UserDetailView user={user} />
+      <UserOrdersList email={user.email} />
       {/* <UserOrdersList email={user.email} /> */}
       <button onClick={() => navigate(-1)}>Volver</button>
     </div>

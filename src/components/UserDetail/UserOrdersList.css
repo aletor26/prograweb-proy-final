@@ -1,0 +1,80 @@
+.user-orders-list {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  padding: 1.5rem;
+  margin: 2rem 0;
+}
+
+.user-orders-list h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-dark, #222);
+  margin-bottom: 1rem;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #f8fafc;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.orders-table th, .orders-table td {
+  padding: 0.7rem 1rem;
+  text-align: left;
+}
+
+.orders-table th {
+  background: #f3f4f6;
+  color: #222;
+  font-weight: 600;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.orders-table tr {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.orders-table tr:last-child {
+  border-bottom: none;
+}
+
+.orders-table td {
+  color: #444;
+  font-size: 1rem;
+}
+
+.order-status-pending {
+  color: #d97706;
+  font-weight: 600;
+}
+.order-status-processing {
+  color: #2563eb;
+  font-weight: 600;
+}
+.order-status-completed {
+  color: #059669;
+  font-weight: 600;
+}
+.order-status-cancelled {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.order-detail-link {
+  color: #4338ca;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+@media (max-width: 700px) {
+  .user-orders-list {
+    padding: 0.7rem;
+  }
+  .orders-table th, .orders-table td {
+    padding: 0.4rem 0.2rem;
+    font-size: 0.95rem;
+  }
+} 

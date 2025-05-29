@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import UserFilter from "./UserFilter";
 import UserRow from "./UserRow";
+import './UserList.css';
 
 // Simulación de usuarios (luego se puede traer de API)
 const usuariosMock = [
@@ -52,10 +53,10 @@ const UserList: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="user-list-container">
       <h2>Lista de Usuarios</h2>
       <UserFilter filters={filters} onChange={setFilters} />
-      <table>
+      <table className="user-table">
         <thead>
           <tr>
             <th>ID</th>
