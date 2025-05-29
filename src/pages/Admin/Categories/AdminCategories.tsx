@@ -77,13 +77,26 @@ const AdminCategories = () => {
     navigate(`/admin/categories/${categoryId}/edit`);
   };
 
-  const handleDeleteCategory = (categoryId: string) => {
-    if (window.confirm('¿Seguro que deseas eliminar esta categoría?')) {
-      const updatedCategories = categories.filter(c => c.id !== categoryId);
-      setCategories(updatedCategories);
-      localStorage.setItem('categories', JSON.stringify(updatedCategories));
-      window.dispatchEvent(new Event('storage'));
+  const handleDeactivateCategory = (categoryId: string) => {
+    const activeCategories = categories.filter(c => c.active);
+    if (activeCategories.length === 1 && activeCategories[0].id === categoryId) {
+      alert("Debe haber al menos una categoría activa.");
+      return;
     }
+    // ...desactivar normalmente
+  };
+
+  const handleDeleteCategory = (categoryId: string) => {
+    const activeCategories = categories.filter(c => c.active && c.id !== categoryId);
+    if (activeCategories.length === 0) {
+      alert("Debe haber al menos una categoría activa.");
+      return;
+    }
+    // Eliminar la categoría
+    const updatedCategories = categories.filter(c => c.id !== categoryId);
+    setCategories(updatedCategories);
+    localStorage.setItem('categories', JSON.stringify(updatedCategories));
+    window.dispatchEvent(new Event('storage'));
   };
 
   const handleFilterTypeChange = (type: FilterType) => {

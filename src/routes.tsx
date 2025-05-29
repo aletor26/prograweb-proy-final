@@ -28,6 +28,8 @@ import SavedItems from './pages/SavedItems/SavedItems';
 import UserForm from './pages/User/UserForm';
 import DetalleProducto from './pages/DetalleProducto/DetalleProducto';
 import UserDetail from './pages/Admin/Users/UserDetail';
+import AdminOrdersList from './pages/Admin/Orders/AdminOrdersList';
+import OrderDetailAdmin from './pages/Admin/Orders/OrderDetail';
 
 
 interface AdminRouteProps {
@@ -130,13 +132,7 @@ const AppRoutes = () => {
       <Route path="/ofertas" element={<ProtectedRoute><Offers /></ProtectedRoute>} />
 
       {/* Rutas de administrador */}
-      <Route path="/admin/orders" element={
-        <ProtectedRoute>
-          <AdminRoute>
-            <AdminOrders />
-          </AdminRoute>
-        </ProtectedRoute>
-      } />
+      <Route path="/admin/orders" element={<ProtectedRoute><AdminRoute><AdminOrdersList /></AdminRoute></ProtectedRoute>} />
       <Route path="/admin/categories" element={
         <ProtectedRoute>
           <AdminRoute>
@@ -199,6 +195,13 @@ const AppRoutes = () => {
             <UserForm editMode={false} setEditMode={function (value: boolean): void {
               throw new Error('Function not implemented.');
             } } />
+          </AdminRoute>
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/orders/:id" element={
+        <ProtectedRoute>
+          <AdminRoute>
+            <OrderDetailAdmin />
           </AdminRoute>
         </ProtectedRoute>
       } />
