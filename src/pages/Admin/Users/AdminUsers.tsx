@@ -64,9 +64,12 @@ const AdminUsers = () => {
           setUsers(parsedUsers);
         }
 
-        // Órdenes (pueden estar por usuario)
+        // Órdenes: intenta primero global, si no, por usuario
         let allOrders: Order[] = [];
-        if (parsedUsers.length > 0) {
+        const globalOrders = localStorage.getItem('orders');
+        if (globalOrders) {
+          allOrders = JSON.parse(globalOrders);
+        } else if (parsedUsers.length > 0) {
           parsedUsers.forEach((u) => {
             const userOrders = localStorage.getItem(`orders_${u.email}`);
             if (userOrders) {

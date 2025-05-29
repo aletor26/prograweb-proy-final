@@ -34,26 +34,25 @@
 
 .products-header {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
   margin-bottom: 1.5rem;
+  flex-wrap: wrap;
 }
 
-.add-product-button {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  cursor: pointer;
+.products-header-actions {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1rem;
+  gap: 1rem;
 }
 
-.add-product-button:hover {
-  background-color: #45a049;
+.products-header h2 {
+  flex: 1 1 100%;
+  margin-bottom: 1rem;
+}
+
+.add-product-button,
+.add-existing-product-button {
+  margin-bottom: 0.5rem;
 }
 
 .products-list {

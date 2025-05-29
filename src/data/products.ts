@@ -157,7 +157,7 @@ export const products: Product[] = [
     "id": 17,
     "name": "Absolut Raspberry Vodka",
     "price": 85.99,
-    "image": "https://www.absolut.com/media/1500/absolut-raspberry.jpg",
+    "image": "https://plazavea.vteximg.com.br/arquivos/ids/16778531-450-450/20283104.jpg?v=637974199978200000",
     "category": "Vodkas",
     "description": "Vodka premium con un delicioso sabor natural a frambuesa.",
     active: true

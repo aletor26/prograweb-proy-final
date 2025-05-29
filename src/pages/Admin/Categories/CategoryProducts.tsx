@@ -13,32 +13,67 @@ interface Product {
 }
 
 interface CategoryProductsProps {
-  categoryId: string;
   categoryName: string;
 }
 
-const CategoryProducts = ({ categoryId, categoryName }: CategoryProductsProps) => {
+const CategoryProducts = ({ categoryName }: CategoryProductsProps) => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const navigate = useNavigate();
+  const [showAddExisting, setShowAddExisting] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState('');
+  const currentCategory = categoryName;
 
   useEffect(() => {
-    // Cargar productos de la categoría desde los datos estáticos
-    const categoryProducts = staticProducts.filter(
-      p => p.category.toLowerCase().trim() === categoryName.toLowerCase().trim()
+    // Cargar todos los productos (de localStorage o estáticos)
+    const stored = localStorage.getItem('products');
+    const all = stored ? JSON.parse(stored) : staticProducts;
+    setAllProducts(all);
+
+    // Cargar productos de la categoría actual
+    const categoryProducts = all.filter(
+      (p: Product) => p.category.toLowerCase().trim() === categoryName.toLowerCase().trim()
     );
     setProducts(categoryProducts);
   }, [categoryName]);
+
+  const handleShowAddExistingProduct = () => {
+    setShowAddExisting(true);
+  };
+
+  const handleAddExistingProduct = () => {
+    if (!selectedProductId) return;
+    const updatedAllProducts = allProducts.map(p =>
+      p.id === Number(selectedProductId) ? { ...p, category: currentCategory } : p
+    );
+    setAllProducts(updatedAllProducts);
+    localStorage.setItem('products', JSON.stringify(updatedAllProducts));
+    // Actualiza la lista de la categoría actual
+    const categoryProducts = updatedAllProducts.filter(
+      (p: Product) => p.category.toLowerCase().trim() === categoryName.toLowerCase().trim()
+    );
+    setProducts(categoryProducts);
+    setShowAddExisting(false);
+  };
 
   return (
     <div className="category-products">
       <div className="products-header">
         <h2>Productos de la Categoría</h2>
-        <button 
-          className="add-product-button"
-          onClick={() => navigate('/admin/products/new')}
-        >
-          <i className="fas fa-plus"></i> Agregar Producto
-        </button>
+        <div className="products-header-actions">
+          <button 
+            className="add-product-button"
+            onClick={() => navigate('/admin/products/new')}
+          >
+            <i className="fas fa-plus"></i> Agregar Producto
+          </button>
+          <button 
+            className="add-existing-product-button"
+            onClick={handleShowAddExistingProduct}
+          >
+            <i className="fas fa-plus-square"></i> Agregar producto existente
+          </button>
+        </div>
       </div>
 
       <div className="products-list">
@@ -91,6 +126,23 @@ const CategoryProducts = ({ categoryId, categoryName }: CategoryProductsProps) =
           </div>
         )}
       </div>
+
+      {showAddExisting && (
+        <div className="modal-add-existing-product">
+          <select value={selectedProductId} onChange={e => setSelectedProductId(e.target.value)}>
+            <option value="">Selecciona un producto</option>
+            {allProducts
+              .filter(p => p.category !== currentCategory)
+              .map(p => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+          </select>
+          <button onClick={handleAddExistingProduct}>Agregar</button>
+          <button onClick={() => setShowAddExisting(false)}>Cancelar</button>
+        </div>
+      )}
     </div>
   );
 };

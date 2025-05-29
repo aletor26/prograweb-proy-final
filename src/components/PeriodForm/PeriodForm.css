@@ -7,11 +7,9 @@
 }
 
 .period-form label {
+  color: var(--text-light, #fff);
   font-weight: 500;
-  color: #f9f9f9;
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
+  margin-right: 1rem;
 }
 
 .period-form input[type="date"] {
@@ -27,4 +25,49 @@
 .period-form input[type="date"]:focus {
   border: 1.5px solid #1976d2;
   outline: none;
+}
+
+.period-datepicker {
+  margin-left: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #c8a97e;
+  background: #23272f;
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+}
+
+.period-datepicker:focus {
+  border-color: #c8a97e;
+  box-shadow: 0 2px 8px rgba(200,169,126,0.08);
+}
+
+.react-datepicker__input-container input {
+  background: #23272f;
+  color: #fff;
+  border: 1px solid #c8a97e;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+}
+
+.react-datepicker {
+  background: #23272f;
+  border: 1px solid #c8a97e;
+  color: #fff;
+}
+
+.react-datepicker__header {
+  background: #181818;
+  border-bottom: 1px solid #c8a97e;
+}
+
+.react-datepicker__day--selected, .react-datepicker__day--keyboard-selected {
+  background: #c8a97e;
+  color: #181818;
+}
+
+.react-datepicker__day--today {
+  border: 1px solid #c8a97e;
 }

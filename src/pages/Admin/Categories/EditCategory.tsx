@@ -27,6 +27,9 @@ const EditCategory = () => {
   const { categoryId } = useParams();
   const [category, setCategory] = useState<Category | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
+  const [showAddExisting, setShowAddExisting] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState('');
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     if (user?.role !== 'admin') {
@@ -58,6 +61,11 @@ const EditCategory = () => {
     };
 
     loadCategoryAndProducts();
+
+    // Cargar todos los productos (de localStorage o estáticos)
+    const stored = localStorage.getItem('products');
+    const all = stored ? JSON.parse(stored) : [];
+    setAllProducts(all);
 
     // Escuchar cambios en el almacenamiento
     window.addEventListener('storage', loadCategoryAndProducts);
@@ -119,6 +127,24 @@ const EditCategory = () => {
     });
   };
 
+  const handleShowAddExistingProduct = () => setShowAddExisting(true);
+
+  const handleAddExistingProduct = () => {
+    if (!selectedProductId) return;
+    const categoryName = category?.name ?? '';
+    const updatedAllProducts = allProducts.map(p =>
+      p.id === Number(selectedProductId) ? { ...p, category: categoryName } : p
+    );
+    setAllProducts(updatedAllProducts);
+    localStorage.setItem('products', JSON.stringify(updatedAllProducts));
+    // Actualiza la lista de la categoría actual
+    const categoryProducts = updatedAllProducts.filter(
+      (p: Product) => p.category.toLowerCase().trim() === categoryName.toLowerCase().trim()
+    );
+    setProducts(categoryProducts);
+    setShowAddExisting(false);
+  };
+
   if (!category) {
     return <div>Cargando...</div>;
   }
@@ -178,12 +204,20 @@ const EditCategory = () => {
       <div className="category-products">
         <div className="products-header">
           <h2>Productos de la Categoría</h2>
-          <button 
-            className="add-product-button"
-            onClick={handleAddProduct}
-          >
-            <i className="fas fa-plus"></i> Agregar Producto
-          </button>
+          <div className="products-header-actions">
+            <button 
+              className="add-product-button"
+              onClick={handleAddProduct}
+            >
+              <i className="fas fa-plus"></i> Agregar Producto
+            </button>
+            <button 
+              className="add-existing-product-button"
+              onClick={handleShowAddExistingProduct}
+            >
+              <i className="fas fa-plus-square"></i> Agregar producto existente
+            </button>
+          </div>
         </div>
 
         <div className="products-list">
@@ -227,6 +261,32 @@ const EditCategory = () => {
             </div>
           )}
         </div>
+        {showAddExisting && (
+          <div className="modal-add-existing-product">
+            <h4>Selecciona un producto para agregar</h4>
+            <div className="existing-products-list">
+              {allProducts
+                .filter(p => p.category !== category?.name)
+                .map(p => (
+                  <div key={p.id} className="existing-product-item">
+                    <img src={p.image} alt={p.name} className="existing-product-image" />
+                    <div className="existing-product-info">
+                      <span className="existing-product-name">{p.name}</span>
+                      <span className="existing-product-price">${p.price.toFixed(2)}</span>
+                    </div>
+                    <button className="add-existing-btn" onClick={() => {
+                      setSelectedProductId(p.id.toString());
+                      handleAddExistingProduct();
+                    }}>Agregar</button>
+                  </div>
+                ))}
+              {allProducts.filter(p => p.category !== category?.name).length === 0 && (
+                <div className="no-products">No hay productos disponibles para agregar.</div>
+              )}
+            </div>
+            <button className="cancel-existing-btn" onClick={() => setShowAddExisting(false)}>Cancelar</button>
+          </div>
+        )}
       </div>
     </div>
   );

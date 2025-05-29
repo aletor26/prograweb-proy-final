@@ -1,4 +1,6 @@
 import React from 'react';
+import ReactDatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import './PeriodForm.css';
 
 interface PeriodFormProps {
@@ -17,20 +19,28 @@ const PeriodForm: React.FC<PeriodFormProps> = ({
   <form className="period-form" style={{ marginBottom: '2rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
     <label>
       Desde:
-      <input
-        type="date"
-        value={startDate}
-        onChange={e => onStartDateChange(e.target.value)}
-        max={endDate}
+      <ReactDatePicker
+        selected={new Date(startDate)}
+        onChange={date => onStartDateChange(date?.toISOString().slice(0, 10) || '')}
+        selectsStart
+        startDate={new Date(startDate)}
+        endDate={new Date(endDate)}
+        dateFormat="yyyy-MM-dd"
+        maxDate={new Date(endDate)}
+        className="period-datepicker"
       />
     </label>
     <label>
       Hasta:
-      <input
-        type="date"
-        value={endDate}
-        onChange={e => onEndDateChange(e.target.value)}
-        min={startDate}
+      <ReactDatePicker
+        selected={new Date(endDate)}
+        onChange={date => onEndDateChange(date?.toISOString().slice(0, 10) || '')}
+        selectsEnd
+        startDate={new Date(startDate)}
+        endDate={new Date(endDate)}
+        dateFormat="yyyy-MM-dd"
+        minDate={new Date(startDate)}
+        className="period-datepicker"
       />
     </label>
   </form>
