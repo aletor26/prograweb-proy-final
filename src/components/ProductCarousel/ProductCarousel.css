@@ -1,0 +1,32 @@
+.product-carousel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.carousel-btn {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel-btn:disabled {
+  background: #bdbdbd;
+  cursor: not-allowed;
+}
+
+.carousel-track {
+  display: flex;
+  gap: 1.5rem;
+}

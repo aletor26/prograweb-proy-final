@@ -1,0 +1,35 @@
+.ad-carousel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2rem 0 3rem 0;
+  gap: 1.5rem;
+}
+
+.ad-carousel-img {
+  width: 100%;
+  max-width: 1200px;
+  height: 350px;
+  object-fit: cover;
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+}
+
+.ad-carousel-btn {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 2.8rem;
+  height: 2.8rem;
+  font-size: 1.7rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ad-carousel-btn:hover {
+  background: #1251a3;
+}

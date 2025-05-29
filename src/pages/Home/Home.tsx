@@ -1,55 +1,40 @@
-import { useCart } from '../../context/CartContext';
 import { products } from '../../data/products';
-import { useNavigate } from 'react-router-dom';
+import ProductCarousel from '../../components/ProductCarousel/ProductCarousel';
+import AdCarousel from '../../components/AdCarousel/AdCarousel';
 import './Home.css';
 
 const Home = () => {
-  const { addToCart } = useCart();
-  const navigate = useNavigate();
-  const handleAddToCart = (productId: number) => {
-    const product = products.find(p => p.id === productId);
-    if (product) {
-      addToCart(product);
-    }
-  };
+  // 12 más vendidos (puedes cambiar la lógica si tienes ventas reales)
+  const bestSellers = products.slice(0, 12);
+  const whiskies = products.filter(p => p.category.toLowerCase() === 'whiskies');
+  const vinos = products.filter(p => p.category.toLowerCase() === 'vinos');
 
   return (
     <div className="home">
-      <div className="products-grid">
-        {products.map(product => (
-          <div key={product.id} className="product-card">
-            <div className="product-image-container">
-              <img 
-                src={product.image} 
-                alt={product.name} 
-                className="product-image"
-              />
-            </div>
-            <div className="product-info">
-              <h3 className="product-name">{product.name}</h3>
-              <p className="product-category">{product.category}</p>
-              <p className="product-description">{product.description}</p>
-              <div className="product-footer">
-                <span className="product-price">S/ {product.price.toFixed(2)}</span>
-                <button 
-                  onClick={() => handleAddToCart(product.id)}
-                  className="add-to-cart-button"
-                >
-                  Agregar al carrito
-                </button>
-                <button
-                  className="add-to-cart-button"
-                  onClick={() => navigate(`/detalle/${product.id}`)}
-                >
-                  Ver el detalle  producto
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+      {/* Sección 1: Carousel de Publicidad */}
+      <section className="home-section home-ad-section">
+        <AdCarousel />
+      </section>
+
+      {/* Sección 2: Más vendidos */}
+      <section className="home-section">
+        <h2 className="home-section-title">Más vendidos del mes</h2>
+        <ProductCarousel products={bestSellers} />
+      </section>
+
+      {/* Sección 3: Whiskies */}
+      <section className="home-section">
+        <h2 className="home-section-title">Whiskies</h2>
+        <ProductCarousel products={whiskies} />
+      </section>
+
+      {/* Sección 4: Vinos */}
+      <section className="home-section">
+        <h2 className="home-section-title">Vinos</h2>
+        <ProductCarousel products={vinos} />
+      </section>
     </div>
   );
 };
 
-export default Home; 
+export default Home;
