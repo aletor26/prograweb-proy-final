@@ -1,28 +1,44 @@
+import { Link } from 'react-router-dom';
 import './Footer.css';
-
 
 export function Footer (){
   return (
     <footer className="footer">
       <div className="footer-container">
         <div className="footer-section">
-          <h3>Licorería Online</h3>
+          <h3>Cheers!</h3>
           <p>Tu tienda de licores de confianza</p>
         </div>
         <div className="footer-section">
           <h4>Contacto</h4>
-          <p>Email: contacto@licoreria.com</p>
+          <p>
+            Email: <a href="mailto:Cheers@licoreria.com">Cheers@licoreria.com</a>
+          </p>
           <p>Teléfono: (01) 123-4567</p>
         </div>
         <div className="footer-section">
-          <h4>Horario</h4>
-          <p>Lunes a Sábado: 10:00 - 22:00</p>
-          <p>Domingo: 10:00 - 20:00</p>
+          <h4>Páginas</h4>
+          <p>
+            <Link to="/">Inicio</Link>
+          </p>
+          <p>
+            <Link to="/productos">Productos</Link>
+          </p>
+          <p>
+            <Link to="/carrito">Carrito</Link>
+          </p>
+          <p>
+            <Link to="/checkout">Checkout</Link>
+          </p>
         </div>
         <div className="footer-section">
-          <h4>Legal</h4>
-          <p>Términos y condiciones</p>
-          <p>Política de privacidad</p>
+          <h4>Hot sale!</h4>
+          <p>
+            <Link to="/ofertas">Ofertas</Link>
+          </p>
+          <p>
+            <Link to="/saved-items">Artículos guardados</Link>
+          </p>
         </div>
       </div>
       <div className="footer-bottom">
