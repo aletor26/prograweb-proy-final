@@ -24,8 +24,8 @@ import EditCategory from './pages/Admin/Categories/EditCategory';
 import AdminProducts from './pages/Admin/Products/AdminProducts';
 import ProductForm from './pages/Admin/Products/ProductForm';
 import AdminUsers from './pages/Admin/Users/AdminUsers';
-import UserForm from './pages/Admin/Users/UserForm';
 import SavedItems from './pages/SavedItems/SavedItems';
+import UserForm from './pages/User/UserForm';
 import DetalleProducto from './pages/DetalleProducto/DetalleProducto';
 
 
@@ -188,7 +188,9 @@ const AppRoutes = () => {
       <Route path="/admin/users/:id/edit" element={
         <ProtectedRoute>
           <AdminRoute>
-            <UserForm />
+            <UserForm editMode={false} setEditMode={function (value: boolean): void {
+              throw new Error('Function not implemented.');
+            } } />
           </AdminRoute>
         </ProtectedRoute>
       } />

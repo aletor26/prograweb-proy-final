@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
+import UserDataView from './UserDataView';
+import UserFormFields from './UserFormFields';
 import './UserForm.css';
 
 interface UserFormData {
@@ -10,12 +12,16 @@ interface UserFormData {
   password?: string;
 }
 
-const UserForm = () => {
+interface UserFormProps {
+  editMode: boolean;
+  setEditMode: (value: boolean) => void;
+}
+
+const UserForm: React.FC<UserFormProps> = ({ editMode, setEditMode }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [showMessage, setShowMessage] = useState(false);
   const [error, setError] = useState<string>('');
-  const [editMode, setEditMode] = useState(false);
 
   const [formData, setFormData] = useState<UserFormData>({
     id: '',
@@ -91,34 +97,13 @@ const UserForm = () => {
     return null;
   }
 
-  
+  // Vista SOLO LECTURA
   if (!editMode) {
     return (
       <div className="user-form-container">
         <h1>Mi Perfil</h1>
-        <div className="user-data-view">
-          <div className="form-group">
-            <label>Nombre</label>
-            <div className="data-value">{formData.name}</div>
-          </div>
-          <div className="form-group">
-            <label>Email</label>
-            <div className="data-value">{formData.email}</div>
-          </div>
-          <div className="form-group">
-            <label>Contraseña</label>
-            <div className="data-value">••••••</div>
-          </div>
-        </div>
-        <div className="form-actions">
-          <button
-            type="button"
-            className="save-button"
-            onClick={() => setEditMode(true)}
-          >
-            Editar perfil
-          </button>
-        </div>
+        <UserDataView name={formData.name} email={formData.email} />
+        {/* El botón de editar perfil se muestra fuera de este componente, en Profile */}
       </div>
     );
   }
@@ -138,42 +123,7 @@ const UserForm = () => {
       )}
       <h1>Editar Perfil</h1>
       <form onSubmit={handleSubmit} className="user-form">
-        <div className="form-group">
-          <label htmlFor="name">Nombre</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="password">Nueva Contraseña (dejar en blanco para mantener la actual)</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password || ''}
-            onChange={handleChange}
-            placeholder="••••••"
-          />
-        </div>
-
+        <UserFormFields formData={formData} onChange={handleChange} />
         <div className="form-actions">
           <button
             type="button"

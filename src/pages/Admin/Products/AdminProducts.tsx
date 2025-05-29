@@ -20,13 +20,11 @@ const AdminProducts = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar si el usuario es admin
     if (user?.role !== 'admin') {
       navigate('/');
       return;
     }
 
-    // Cargar productos
     const loadProducts = () => {
       try {
         const allProducts = getProducts();
@@ -38,12 +36,11 @@ const AdminProducts = () => {
     };
 
     loadProducts();
-    
-    // Escuchar cambios en el almacenamiento
+
     const handleStorageChange = () => {
       loadProducts();
     };
-    
+
     window.addEventListener('storage', handleStorageChange);
     return () => {
       window.removeEventListener('storage', handleStorageChange);
@@ -56,7 +53,6 @@ const AdminProducts = () => {
         const updatedProducts = products.filter(product => product.id !== productId);
         localStorage.setItem('products', JSON.stringify(updatedProducts));
         setProducts(updatedProducts);
-        // Disparar evento para actualizar otros componentes
         window.dispatchEvent(new Event('storage'));
       } catch (error) {
         console.error('Error al eliminar producto:', error);
@@ -71,52 +67,52 @@ const AdminProducts = () => {
   if (isLoading) {
     return (
       <div className="admin-products">
-        <div className="loading">Cargando productos...</div>
+        <div className="admin-products-loading">Cargando productos...</div>
       </div>
     );
   }
 
   return (
     <div className="admin-products">
-      <div className="admin-header">
+      <div className="admin-products-header">
         <h1>Gestión de Productos</h1>
         <button 
-          className="add-product-button"
+          className="admin-products-add-button"
           onClick={() => navigate('/admin/products/new')}
         >
           <i className="fas fa-plus"></i> Agregar Producto
         </button>
       </div>
 
-      <div className="products-section">
-        <div className="products-list">
+      <div className="admin-products-section">
+        <div className="admin-products-list">
           {products.length === 0 ? (
-            <div className="no-products">
+            <div className="admin-products-no-products">
               <p>No hay productos disponibles</p>
               <p>Haz clic en "Agregar Producto" para crear uno nuevo</p>
             </div>
           ) : (
             products.map((product) => (
-              <div key={product.id} className="product-card">
-                <div className="product-image">
+              <div key={product.id} className="admin-product-card">
+                <div className="admin-product-image">
                   <img src={product.image} alt={product.name} />
                 </div>
-                <div className="product-info">
+                <div className="admin-product-info">
                   <h3>{product.name}</h3>
-                  <p className="product-description">{product.description}</p>
-                  <p className="product-category">Categoría: {product.category}</p>
-                  <p className="product-price">S/. {product.price.toFixed(2)}</p>
+                  <p className="admin-product-description">{product.description}</p>
+                  <p className="admin-product-category">Categoría: {product.category}</p>
+                  <p className="admin-product-price">S/. {product.price.toFixed(2)}</p>
                 </div>
-                <div className="product-actions">
+                <div className="admin-product-actions">
                   <button 
-                    className="action-button edit-button"
+                    className="admin-product-action-button admin-product-edit-button"
                     onClick={() => handleEditProduct(product.id)}
                     title="Editar producto"
                   >
                     <i className="fas fa-edit"></i>
                   </button>
                   <button 
-                    className="action-button delete-button"
+                    className="admin-product-action-button admin-product-delete-button"
                     onClick={() => handleDeleteProduct(product.id)}
                     title="Eliminar producto"
                   >
@@ -132,4 +128,4 @@ const AdminProducts = () => {
   );
 };
 
-export default AdminProducts; 
+export default AdminProducts;

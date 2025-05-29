@@ -1,17 +1,8 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
-import { products as staticProducts } from '../../../data/products';
+import BotonEditar from '../../../components/BotonEditar/BotonEditar';
 import './AdminCategories.css';
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-  description: string;
-  category: string;
-}
 
 interface Category {
   id: string;
@@ -23,6 +14,12 @@ interface Category {
 
 type FilterType = 'name' | 'description' | 'id';
 
+const filterLabels: Record<FilterType, string> = {
+  name: 'Nombre',
+  description: 'Descripción',
+  id: 'ID'
+};
+
 const AdminCategories = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -31,109 +28,49 @@ const AdminCategories = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<FilterType>('name');
   const [showFilterMenu, setShowFilterMenu] = useState(false);
-  const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
-
-  // Función para contar productos por categoría
-  const countProductsByCategory = (categoryName: string): number => {
-    return staticProducts.filter(product => 
-      product.category?.toLowerCase().trim() === categoryName.toLowerCase().trim()
-    ).length;
-  };
+  const filterMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Verificar si el usuario es admin
-    if (user?.role !== 'admin') {
-      navigate('/');
-      return;
+    const storedCategories = localStorage.getItem('categories');
+    if (storedCategories) {
+      setCategories(JSON.parse(storedCategories));
     }
+    setIsLoading(false);
+  }, []);
 
-    // Cargar categorías y productos
-    const loadCategoriesAndProducts = () => {
-      try {
-        const storedCategories = localStorage.getItem('categories');
-        
-        if (storedCategories) {
-          const parsedCategories = JSON.parse(storedCategories);
-          
-          // Calcular el número de productos por categoría usando los productos estáticos
-          const categoriesWithCount = parsedCategories.map((category: Category) => {
-            const count = countProductsByCategory(category.name);
-            return {
-              ...category,
-              productCount: count
-            };
-          });
-          
-          setCategories(categoriesWithCount);
-          setFilteredCategories(categoriesWithCount);
-        }
-      } catch (error) {
-        console.error('Error al cargar categorías y productos:', error);
+  // Cierra el menú si se hace click fuera
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        filterMenuRef.current &&
+        !filterMenuRef.current.contains(event.target as Node)
+      ) {
+        setShowFilterMenu(false);
       }
-      setIsLoading(false);
-    };
-
-    loadCategoriesAndProducts();
-    
-    // Escuchar cambios en el almacenamiento
-    const handleStorageChange = () => {
-      loadCategoriesAndProducts();
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
+    }
+    if (showFilterMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [user, navigate]);
+  }, [showFilterMenu]);
 
-  // Efecto para filtrar categorías cuando cambia el término de búsqueda o el tipo de filtro
-  useEffect(() => {
-    const filtered = categories.filter(category => {
-      const searchLower = searchTerm.toLowerCase();
-      switch (filterType) {
-        case 'name':
-          return category.name.toLowerCase().includes(searchLower);
-        case 'description':
-          return category.description.toLowerCase().includes(searchLower);
-        case 'id':
-          return category.id.toLowerCase().includes(searchLower);
-        default:
-          return false;
-      }
-    });
-    setFilteredCategories(filtered);
-  }, [searchTerm, categories, filterType]);
-
-  const handleDeleteCategory = (categoryId: string) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar esta categoría?')) {
-      try {
-        const updatedCategories = categories.filter(category => category.id !== categoryId);
-        setCategories(updatedCategories);
-        localStorage.setItem('categories', JSON.stringify(updatedCategories));
-        // Disparar evento para actualizar el NavBar
-        window.dispatchEvent(new Event('storage'));
-      } catch (error) {
-        console.error('Error al eliminar categoría:', error);
-      }
+  const filteredCategories = categories.filter(category => {
+    const searchLower = searchTerm.toLowerCase();
+    switch (filterType) {
+      case 'name':
+        return category.name.toLowerCase().includes(searchLower);
+      case 'description':
+        return category.description.toLowerCase().includes(searchLower);
+      case 'id':
+        return category.id.toLowerCase().includes(searchLower);
+      default:
+        return false;
     }
-  };
-
-  const handleToggleActive = (categoryId: string) => {
-    try {
-      const updatedCategories = categories.map(category => {
-        if (category.id === categoryId) {
-          return { ...category, active: !category.active };
-        }
-        return category;
-      });
-      setCategories(updatedCategories);
-      localStorage.setItem('categories', JSON.stringify(updatedCategories));
-      // Disparar evento para actualizar el NavBar
-      window.dispatchEvent(new Event('storage'));
-    } catch (error) {
-      console.error('Error al cambiar estado de categoría:', error);
-    }
-  };
+  });
 
   const handleEditCategory = (categoryId: string) => {
     navigate(`/admin/categories/${categoryId}/edit`);
@@ -144,127 +81,117 @@ const AdminCategories = () => {
     setShowFilterMenu(false);
   };
 
-  const getFilterLabel = () => {
-    switch (filterType) {
-      case 'name':
-        return 'Nombre';
-      case 'description':
-        return 'Descripción';
-      case 'id':
-        return 'ID';
-      default:
-        return 'Filtrar por';
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="admin-categories">
-        <div className="loading">Cargando categorías...</div>
+        <div className="admin-categories-loading">Cargando categorías...</div>
       </div>
     );
   }
 
   return (
     <div className="admin-categories">
-      <div className="admin-header">
+      <div className="admin-categories-header">
         <h1>Gestión de Categorías</h1>
-        <div className="admin-controls">
-          <div className="search-container">
-            <div className="search-with-filter">
-              <div className="filter-dropdown">
-                <button 
-                  className="filter-button"
-                  onClick={() => setShowFilterMenu(!showFilterMenu)}
+        <div className="admin-categories-controls">
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <button
+              className="admin-categories-filter-btn"
+              title="Filtrar por"
+              onClick={() => setShowFilterMenu((prev) => !prev)}
+            >
+              <i className="fas fa-filter"></i>
+              <span style={{ marginLeft: 6 }}>{filterLabels[filterType]}</span>
+              <i className="fas fa-chevron-down" style={{ marginLeft: 4, fontSize: '0.9em' }}></i>
+            </button>
+            {showFilterMenu && (
+              <div
+                ref={filterMenuRef}
+                style={{
+                  position: 'absolute',
+                  top: '110%',
+                  left: 0,
+                  background: '#222',
+                  border: '1px solid #c8a97e',
+                  borderRadius: 6,
+                  zIndex: 10,
+                  minWidth: 120,
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+                }}
+              >
+                <button
+                  className="admin-categories-filter-btn"
+                  style={{
+                    width: '100%',
+                    background: filterType === 'name' ? '#c8a97e' : 'none',
+                    color: filterType === 'name' ? '#222' : '#c8a97e',
+                    borderRadius: '6px 6px 0 0'
+                  }}
+                  onClick={() => handleFilterTypeChange('name')}
                 >
-                  <i className="fas fa-filter"></i>
-                  {getFilterLabel()}
-                  <i className="fas fa-chevron-down"></i>
+                  Nombre
                 </button>
-                {showFilterMenu && (
-                  <div className="filter-menu">
-                    <button 
-                      className={`filter-option ${filterType === 'name' ? 'active' : ''}`}
-                      onClick={() => handleFilterTypeChange('name')}
-                    >
-                      Nombre
-                    </button>
-                    <button 
-                      className={`filter-option ${filterType === 'description' ? 'active' : ''}`}
-                      onClick={() => handleFilterTypeChange('description')}
-                    >
-                      Descripción
-                    </button>
-                    <button 
-                      className={`filter-option ${filterType === 'id' ? 'active' : ''}`}
-                      onClick={() => handleFilterTypeChange('id')}
-                    >
-                      ID
-                    </button>
-                  </div>
-                )}
+                <button
+                  className="admin-categories-filter-btn"
+                  style={{
+                    width: '100%',
+                    background: filterType === 'description' ? '#c8a97e' : 'none',
+                    color: filterType === 'description' ? '#222' : '#c8a97e'
+                  }}
+                  onClick={() => handleFilterTypeChange('description')}
+                >
+                  Descripción
+                </button>
+                <button
+                  className="admin-categories-filter-btn"
+                  style={{
+                    width: '100%',
+                    background: filterType === 'id' ? '#c8a97e' : 'none',
+                    color: filterType === 'id' ? '#222' : '#c8a97e',
+                    borderRadius: '0 0 6px 6px'
+                  }}
+                  onClick={() => handleFilterTypeChange('id')}
+                >
+                  ID
+                </button>
               </div>
-              <input
-                type="text"
-                placeholder={`Buscar por ${getFilterLabel().toLowerCase()}...`}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="search-input"
-              />
-            </div>
+            )}
           </div>
-          <button 
-            className="add-category-button"
+          <input
+            type="text"
+            placeholder={`Buscar por ${filterLabels[filterType].toLowerCase()}...`}
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            className="admin-categories-search-input"
+            style={{ marginLeft: 8 }}
+          />
+          <button
+            className="admin-categories-add-button"
             onClick={() => navigate('/admin/categories/new')}
           >
-            <i className="fas fa-plus"></i> Agregar Categoría
+            + Agregar Categoría
           </button>
         </div>
       </div>
-
-      <div className="categories-section">
-        <div className="categories-list">
+      <div className="admin-categories-section">
+        <div className="admin-categories-list">
           {filteredCategories.length === 0 ? (
-            <div className="no-categories">
-              {searchTerm ? (
-                <p>No se encontraron categorías que coincidan con la búsqueda</p>
-              ) : (
-                <>
-                  <p>No hay categorías disponibles</p>
-                  <p>Haz clic en "Agregar Categoría" para crear una nueva</p>
-                </>
-              )}
+            <div className="admin-categories-no-categories">
+              <p>No hay categorías disponibles.</p>
             </div>
           ) : (
-            filteredCategories.map((category) => (
-              <div key={category.id} className={`category-card ${!category.active ? 'inactive' : ''}`}>
-                <div className="category-info">
-                  <h3>{category.name}</h3>
-                  <p className="category-description">{category.description}</p>
-                  <p className="product-count">{category.productCount} productos</p>
+            filteredCategories.map(category => (
+              <div key={category.id} className={`admin-category-card${!category.active ? ' inactive' : ''}`}>
+                <div className="admin-category-header">
+                  <h2>{category.name}</h2>
                 </div>
-                <div className="category-actions">
-                  <button 
-                    className="action-button edit-button"
-                    onClick={() => handleEditCategory(category.id.toString())}
-                    title="Editar categoría"
-                  >
-                    <i className="fas fa-edit"></i>
-                  </button>
-                  <button 
-                    className="action-button toggle-button"
-                    onClick={() => handleToggleActive(category.id.toString())}
-                    title={category.active ? "Desactivar categoría" : "Activar categoría"}
-                  >
-                    <i className={`fas fa-${category.active ? 'eye-slash' : 'eye'}`}></i>
-                  </button>
-                  <button 
-                    className="action-button delete-button"
-                    onClick={() => handleDeleteCategory(category.id.toString())}
-                    title="Eliminar categoría"
-                  >
-                    <i className="fas fa-trash"></i>
-                  </button>
+                <div className="admin-category-info">
+                  <p>{category.description}</p>
+                  <p><strong>{category.productCount}</strong> productos</p>
+                </div>
+                <div className="admin-category-actions">
+                  <BotonEditar onClick={() => handleEditCategory(category.id)} label="" />
+                  {/* Otros botones de acción aquí */}
                 </div>
               </div>
             ))
@@ -275,4 +202,4 @@ const AdminCategories = () => {
   );
 };
 
-export default AdminCategories; 
+export default AdminCategories;
