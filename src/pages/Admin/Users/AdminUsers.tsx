@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import SummaryCards from '../../../components/SummaryCards/SummaryCards';
 import PeriodForm from '../../../components/PeriodForm/PeriodForm';
+import UserList from '../../../components/UserList/UserList';
 import './AdminUsers.css';
 
 interface User {
@@ -178,49 +179,7 @@ const AdminUsers = () => {
       />
 
       <div className="users-section">
-        <div className="users-list">
-          {users.length === 0 ? (
-            <div className="no-users">
-              <p>No hay usuarios registrados</p>
-            </div>
-          ) : (
-            <table className="users-table">
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Email</th>
-                  <th>Rol</th>
-                  <th>Fecha de Registro</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((userItem) => (
-                  <tr key={userItem.id}>
-                    <td>{userItem.name}</td>
-                    <td>{userItem.email}</td>
-                    <td>
-                      <span className={`role-badge ${userItem.role}`}>
-                        {userItem.role === 'admin' ? 'Administrador' : 'Cliente'}
-                      </span>
-                    </td>
-                    <td>{formatDate(userItem.createdAt)}</td>
-                    <td className="actions-cell">
-                      <button 
-                        className="action-button delete-button"
-                        onClick={() => handleDeleteUser(userItem.id)}
-                        title="Eliminar usuario"
-                        disabled={userItem.id === user?.id}
-                      >
-                        <i className="fas fa-trash"></i>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
+        <UserList />
       </div>
     </div>
   );

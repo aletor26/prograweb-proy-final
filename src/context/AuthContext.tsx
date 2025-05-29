@@ -6,6 +6,7 @@ interface User {
   name: string;
   email: string;
   role: 'customer' | 'admin';
+  activo: boolean;
 }
 
 interface AuthContextType {
@@ -20,7 +21,8 @@ const DEFAULT_ADMIN = {
   name: 'Administrador',
   email: 'admin@cheers.com',
   password: '123',
-  role: 'admin' as const
+  role: 'admin' as const,
+  activo: true
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -61,6 +63,11 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       throw new Error('Credenciales inválidas');
     }
 
+    // Nueva validación: usuario desactivado
+    if (foundUser.activo === false) {
+      throw new Error('La cuenta está desactivada. Contacta al administrador.');
+    }
+
     // Asegurarse de que el usuario tenga un rol válido
     if (!foundUser.role) {
       foundUser.role = 'customer';
@@ -70,7 +77,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       id: foundUser.id,
       name: foundUser.name,
       email: foundUser.email,
-      role: foundUser.role as 'customer' | 'admin'
+      role: foundUser.role as 'customer' | 'admin',
+      activo: foundUser.activo
     };
 
     setUser(userToSave);
