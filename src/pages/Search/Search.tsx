@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { products } from '../../data/products';
+import { getProducts } from '../../data/products';
 import { useCart } from '../../context/CartContext';
 import Filtro_orden from '../../components/Filtro_orden/Filtro_orden';
 import './Search.css';
@@ -15,8 +15,10 @@ const Search = () => {
   // Estado para el tipo de ordenamiento
   const [sort, setSort] = useState<'name-asc' | 'name-desc' | 'price-asc' | 'price-desc'>('name-asc');
 
-  // Filtrado
-  const searchResults = products.filter(product => 
+  const allProducts = getProducts();
+  const activeProducts = allProducts.filter(p => p.active !== false);
+
+  const searchResults = activeProducts.filter(product => 
     product.name.toLowerCase().includes(query.toLowerCase()) ||
     product.category.toLowerCase().includes(query.toLowerCase())
   );

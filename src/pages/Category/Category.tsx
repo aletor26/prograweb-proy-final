@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
-import { products } from '../../data/products';
+import { getProducts } from '../../data/products';
 import { useNavigate } from 'react-router-dom';
 import './Category.css';
 
@@ -8,7 +8,9 @@ const Category = () => {
   const { category } = useParams<{ category: string }>();
   const { addToCart } = useCart();
   const navigate = useNavigate();
-  const categoryProducts = products.filter(
+  const allProducts = getProducts();
+  const activeProducts = allProducts.filter(p => p.active !== false);
+  const categoryProducts = activeProducts.filter(
     product => product.category.toLowerCase() === category?.toLowerCase()
   );
 

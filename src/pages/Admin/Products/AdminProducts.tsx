@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
-import { getProducts } from '../../../data/products';
+import { getProducts, initializeProducts } from '../../../data/products';
 import './AdminProducts.css';
 
 interface Product {
@@ -11,6 +11,7 @@ interface Product {
   image: string;
   description: string;
   category: string;
+  active: boolean;
 }
 
 const AdminProducts = () => {
@@ -18,6 +19,7 @@ const AdminProducts = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     if (user?.role !== 'admin') {
@@ -25,26 +27,11 @@ const AdminProducts = () => {
       return;
     }
 
-    const loadProducts = () => {
-      try {
-        const allProducts = getProducts();
-        setProducts(allProducts);
-      } catch (error) {
-        console.error('Error al cargar productos:', error);
-      }
-      setIsLoading(false);
-    };
-
-    loadProducts();
-
-    const handleStorageChange = () => {
-      loadProducts();
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
+    initializeProducts();
+    const allProducts = getProducts();
+    // Asegúrate de que todos tengan el campo active
+    setProducts(allProducts.map(p => ({ ...p, active: p.active !== false })));
+    setIsLoading(false);
   }, [user, navigate]);
 
   const handleDeleteProduct = (productId: number) => {
@@ -63,6 +50,20 @@ const AdminProducts = () => {
   const handleEditProduct = (productId: number) => {
     navigate(`/admin/products/${productId}/edit`);
   };
+
+  const handleToggleActive = (id: number) => {
+    const updated = products.map(p =>
+      p.id === id ? { ...p, active: !p.active } : p
+    );
+    setProducts(updated);
+    localStorage.setItem('products', JSON.stringify(updated));
+    window.dispatchEvent(new Event('storage'));
+  };
+
+  const filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (isLoading) {
     return (
@@ -85,6 +86,13 @@ const AdminProducts = () => {
       </div>
 
       <div className="admin-products-section">
+        <input
+          type="text"
+          placeholder="Buscar producto por nombre o categoría..."
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
+          className="admin-search-input"
+        />
         <div className="admin-products-list">
           {products.length === 0 ? (
             <div className="admin-products-no-products">
@@ -92,7 +100,7 @@ const AdminProducts = () => {
               <p>Haz clic en "Agregar Producto" para crear uno nuevo</p>
             </div>
           ) : (
-            products.map((product) => (
+            filteredProducts.map((product) => (
               <div key={product.id} className="admin-product-card">
                 <div className="admin-product-image">
                   <img src={product.image} alt={product.name} />
@@ -102,6 +110,9 @@ const AdminProducts = () => {
                   <p className="admin-product-description">{product.description}</p>
                   <p className="admin-product-category">Categoría: {product.category}</p>
                   <p className="admin-product-price">S/. {product.price.toFixed(2)}</p>
+                  <p className={product.active ? "estado-activo" : "estado-inactivo"}>
+                    {product.active ? "Activo" : "Inactivo"}
+                  </p>
                 </div>
                 <div className="admin-product-actions">
                   <button 
@@ -117,6 +128,12 @@ const AdminProducts = () => {
                     title="Eliminar producto"
                   >
                     <i className="fas fa-trash"></i>
+                  </button>
+                  <button
+                    className="product-action-btn"
+                    onClick={() => handleToggleActive(product.id)}
+                  >
+                    {product.active ? "Desactivar" : "Activar"}
                   </button>
                 </div>
               </div>

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import OrderFilter from "../../../components/Orders/OrderFilter";
-import OrderRow from "../../../components/Orders/OrderRow";
 import { Link } from "react-router-dom";
+import './AdminOrdersList.css';
 
 const AdminOrdersList: React.FC = () => {
   const [orders, setOrders] = useState<any[]>([]);
-  const [filters, setFilters] = useState({ id: "", nombre: "", apellido: "" });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchField, setSearchField] = useState<'id' | 'nombre' | 'apellido'>('id');
 
   useEffect(() => {
     // Cargar todos los usuarios
@@ -27,31 +27,66 @@ const AdminOrdersList: React.FC = () => {
   }, []);
 
   const filteredOrders = orders.filter(order =>
-    order.id.includes(filters.id) &&
-    order.nombre.toLowerCase().includes(filters.nombre.toLowerCase()) &&
-    order.apellido.toLowerCase().includes(filters.apellido.toLowerCase())
+    order[searchField]?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div>
+    <div className="admin-orders-section">
       <h2>Listado de Órdenes</h2>
-      <OrderFilter filters={filters} onChange={setFilters} />
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>Estado</th>
-            <th>Detalles</th>
-          </tr>
-        </thead>
-        <tbody>
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+        <select
+          value={searchField}
+          onChange={e => setSearchField(e.target.value as 'id' | 'nombre' | 'apellido')}
+          className="admin-search-input"
+          style={{ maxWidth: 120 }}
+        >
+          <option value="id">ID</option>
+          <option value="nombre">Nombre</option>
+          <option value="apellido">Apellido</option>
+        </select>
+        <input
+          type="text"
+          placeholder={`Buscar por ${searchField}`}
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
+          className="admin-search-input"
+          style={{ flex: 1 }}
+        />
+      </div>
+      {filteredOrders.length === 0 ? (
+        <div className="admin-orders-no-orders">No hay órdenes registradas</div>
+      ) : (
+        <div className="admin-orders-list">
           {filteredOrders.map(order => (
-            <OrderRow key={order.id} order={order} />
+            <div key={order.id} className="admin-order-card">
+              <div className="admin-order-info">
+                <div className="admin-order-id">ID: {order.id}</div>
+                <div>Nombre: {order.nombre}</div>
+                <div>Apellido: {order.apellido}</div>
+                <div
+                  className={
+                    "admin-order-status " +
+                    (order.status === "completed"
+                      ? "estado-completado"
+                      : order.status === "pending"
+                      ? "estado-pendiente"
+                      : order.status === "processing"
+                      ? "estado-processing"
+                      : "estado-cancelado")
+                  }
+                >
+                  Estado: {order.status}
+                </div>
+              </div>
+              <div className="admin-order-actions">
+                <Link to={`/admin/orders/${order.id}`} className="admin-order-action-button">
+                  Ver detalles
+                </Link>
+              </div>
+            </div>
           ))}
-        </tbody>
-      </table>
+        </div>
+      )}
     </div>
   );
 };

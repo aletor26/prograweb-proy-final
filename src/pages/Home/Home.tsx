@@ -1,9 +1,19 @@
-import { products } from '../../data/products';
+import { useEffect, useState } from 'react';
+import { getProducts, initializeProducts } from '../../data/products';
 import ProductCarousel from '../../components/ProductCarousel/ProductCarousel';
 import AdCarousel from '../../components/AdCarousel/AdCarousel';
 import './Home.css';
+import type { Product } from '../../data/products';
 
 const Home = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    initializeProducts();
+    const allProducts = getProducts();
+    setProducts(allProducts.filter(p => p.active !== false));
+  }, []);
+
   // 12 más vendidos (puedes cambiar la lógica si tienes ventas reales)
   const bestSellers = products.slice(0, 12);
   const newProducts = products.slice(12, 18);
