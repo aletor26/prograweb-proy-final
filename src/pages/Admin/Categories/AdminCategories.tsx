@@ -21,6 +21,66 @@ const filterLabels: Record<FilterType, string> = {
   id: 'ID'
 };
 
+// Categorías por defecto (igual que en AdminDashboard)
+const DEFAULT_CATEGORIES = [
+  {
+    id: 'vinos',
+    name: 'Vinos',
+    description: 'Vinos tintos, blancos y rosados',
+    productCount: 0,
+    active: true
+  },
+  {
+    id: 'piscos',
+    name: 'Piscos',
+    description: 'Piscos puros y acholados',
+    productCount: 0,
+    active: true
+  },
+  {
+    id: 'whiskies',
+    name: 'Whiskies',
+    description: 'Whiskies de diferentes regiones',
+    productCount: 0,
+    active: true
+  },
+  {
+    id: 'vodkas',
+    name: 'Vodkas',
+    description: 'Vodkas premium',
+    productCount: 0,
+    active: true
+  },
+  {
+    id: 'tequilas',
+    name: 'Tequilas',
+    description: 'Tequilas blancos y reposados',
+    productCount: 0,
+    active: true
+  },
+  {
+    id: 'rones',
+    name: 'Rones',
+    description: 'Rones añejos y blancos',
+    productCount: 0,
+    active: true
+  },
+  {
+    id: 'gin',
+    name: 'Gin',
+    description: 'Ginebras premium',
+    productCount: 0,
+    active: true
+  },
+  {
+    id: 'champagnes',
+    name: 'Champagnes',
+    description: 'Champagnes y espumantes',
+    productCount: 0,
+    active: true
+  }
+];
+
 const AdminCategories = () => {
   useAuth();
   const navigate = useNavigate();
@@ -32,9 +92,14 @@ const AdminCategories = () => {
   const filterMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const storedCategories = localStorage.getItem('categories');
-    if (storedCategories) {
-      setCategories(JSON.parse(storedCategories));
+    let storedCategories = localStorage.getItem('categories');
+    let categories: Category[] = storedCategories ? JSON.parse(storedCategories) : [];
+    // Si no hay categorías o todas están inactivas, restaurar por defecto
+    if (!storedCategories || categories.length === 0 || categories.every(cat => !cat.active)) {
+      localStorage.setItem('categories', JSON.stringify(DEFAULT_CATEGORIES));
+      setCategories(DEFAULT_CATEGORIES);
+    } else {
+      setCategories(categories);
     }
     setIsLoading(false);
   }, []);
