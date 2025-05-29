@@ -38,12 +38,13 @@
 
 .product-info {
   padding: 1rem;
+  color: #fbfbfb;
 }
 
 .product-info h3 {
   margin: 0;
   font-size: 1.1rem;
-  color: #333;
+  color: #fbfbfb;
 }
 
 .product-category {

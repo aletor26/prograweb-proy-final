@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useCart } from '../../context/CartContext';
 import './ProductCard.css';
 
 interface Product {
@@ -9,32 +10,35 @@ interface Product {
   category: string;
 }
 
-interface ProductCardProps {
-  product: Product;
-}
+const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
+  const { addToCart } = useCart();
+  const [hovered, setHovered] = useState(false);
 
-const ProductCard = ({ product }: ProductCardProps) => {
   return (
-    <Link to={`/product/${product.id}`} className="product-card">
-      <div className="product-card-container">
+    <div
+      className="product-card"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div className="product-card-blur">
         <div className="product-card-image">
-          <img
-            src={product.image}
-            alt={product.name}
-          />
+          <img src={product.image} alt={product.name} />
         </div>
         <div className="product-card-content">
-          <p className="product-card-category">{product.category}</p>
-          <h3 className="product-card-title">
-            {product.name}
-          </h3>
-          <p className="product-card-price">
-            S/ {product.price.toFixed(2)}
-          </p>
+          <div className="product-card-category">{product.category}</div>
+          <div className="product-card-title">{product.name}</div>
+          <div className="product-card-price">S/ {product.price}</div>
         </div>
       </div>
-    </Link>
+      <button
+        className="add-to-cart-btn"
+        onClick={() => addToCart(product)}
+        tabIndex={hovered ? 0 : -1}
+      >
+        Añadir al carrito
+      </button>
+    </div>
   );
 };
 
-export default ProductCard; 
+export default ProductCard;
