@@ -27,6 +27,7 @@ import AdminUsers from './pages/Admin/Users/AdminUsers';
 import SavedItems from './pages/SavedItems/SavedItems';
 import UserForm from './pages/User/UserForm';
 import DetalleProducto from './pages/DetalleProducto/DetalleProducto';
+import UserDetail from './pages/Admin/Users/UserDetail';
 
 
 interface AdminRouteProps {
@@ -182,6 +183,13 @@ const AppRoutes = () => {
         <ProtectedRoute>
           <AdminRoute>
             <AdminUsers />
+          </AdminRoute>
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/users/:id" element={
+        <ProtectedRoute>
+          <AdminRoute>
+            <UserDetail />
           </AdminRoute>
         </ProtectedRoute>
       } />

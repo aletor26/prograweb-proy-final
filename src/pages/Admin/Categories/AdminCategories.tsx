@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import BotonEditar from '../../../components/BotonEditar/BotonEditar';
@@ -10,6 +10,7 @@ interface Category {
   description: string;
   productCount: number;
   active: boolean;
+  image?: string;
 }
 
 type FilterType = 'name' | 'description' | 'id';
@@ -21,7 +22,7 @@ const filterLabels: Record<FilterType, string> = {
 };
 
 const AdminCategories = () => {
-  const { user } = useAuth();
+  useAuth();
   const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -74,6 +75,15 @@ const AdminCategories = () => {
 
   const handleEditCategory = (categoryId: string) => {
     navigate(`/admin/categories/${categoryId}/edit`);
+  };
+
+  const handleDeleteCategory = (categoryId: string) => {
+    if (window.confirm('¿Seguro que deseas eliminar esta categoría?')) {
+      const updatedCategories = categories.filter(c => c.id !== categoryId);
+      setCategories(updatedCategories);
+      localStorage.setItem('categories', JSON.stringify(updatedCategories));
+      window.dispatchEvent(new Event('storage'));
+    }
   };
 
   const handleFilterTypeChange = (type: FilterType) => {
@@ -181,17 +191,46 @@ const AdminCategories = () => {
             </div>
           ) : (
             filteredCategories.map(category => (
-              <div key={category.id} className={`admin-category-card${!category.active ? ' inactive' : ''}`}>
-                <div className="admin-category-header">
-                  <h2>{category.name}</h2>
-                </div>
-                <div className="admin-category-info">
-                  <p>{category.description}</p>
-                  <p><strong>{category.productCount}</strong> productos</p>
-                </div>
-                <div className="admin-category-actions">
-                  <BotonEditar onClick={() => handleEditCategory(category.id)} label="" />
-                  {/* Otros botones de acción aquí */}
+              <div
+                key={category.id}
+                className={`admin-category-card${!category.active ? ' inactive' : ''}`}
+                style={
+                  category.image
+                    ? {
+                        backgroundImage: `url(${category.image})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat',
+                        position: 'relative',
+                      }
+                    : {}
+                }
+              >
+                <div
+                  style={{
+                    background: category.image ? 'rgba(24,24,24,0.75)' : 'none',
+                    borderRadius: 8,
+                    padding: '1rem',
+                    height: '100%',
+                  }}
+                >
+                  <div className="admin-category-header">
+                    <h2>{category.name}</h2>
+                  </div>
+                  <div className="admin-category-info">
+                    <p>{category.description}</p>
+                    <p><strong>{category.productCount}</strong> productos</p>
+                  </div>
+                  <div className="admin-category-actions">
+                    <BotonEditar onClick={() => handleEditCategory(category.id)} label="" />
+                    <button
+                      className="admin-categories-delete-btn"
+                      title="Eliminar categoría"
+                      onClick={() => handleDeleteCategory(category.id)}
+                    >
+                      <i className="fas fa-trash"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
             ))

@@ -8,6 +8,7 @@ interface Category {
   name: string;
   description: string;
   active: boolean;
+  image?: string;
 }
 
 const AddCategory = () => {
@@ -15,9 +16,21 @@ const AddCategory = () => {
   const { user } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
-    description: ''
+    description: '',
+    image: ''
   });
   const [error, setError] = useState('');
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, image: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +55,8 @@ const AddCategory = () => {
       id: `cat-${Date.now()}`,
       name: formData.name.trim(),
       description: formData.description.trim(),
-      active: true
+      active: true,
+      image: formData.image
     };
 
     // Guardar en localStorage
@@ -100,6 +114,21 @@ const AddCategory = () => {
             />
           </div>
 
+          <div className="form-group">
+            <label htmlFor="image">Imagen de la Categoría</label>
+            <input
+              type="file"
+              id="image"
+              name="image"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="form-input"
+            />
+            {formData.image && (
+              <img src={formData.image} alt="Vista previa" style={{ maxWidth: 120, marginTop: 8, borderRadius: 8 }} />
+            )}
+          </div>
+
           <div className="form-actions">
             <button 
               type="button" 
@@ -118,4 +147,4 @@ const AddCategory = () => {
   );
 };
 
-export default AddCategory; 
+export default AddCategory;

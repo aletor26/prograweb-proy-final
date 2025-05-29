@@ -196,3 +196,18 @@
     grid-template-columns: 1fr;
   }
 } 
+
+.admin-categories-delete-btn {
+  background: none;
+  border: none;
+  color: #ff4444;
+  font-size: 1.3rem;
+  cursor: pointer;
+  margin-left: 0.5rem;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+.admin-categories-delete-btn:hover {
+  color: #ff8888;
+}
