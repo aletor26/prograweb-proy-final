@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import './NavBar.css';
+import BotonCerrarSesion from './BotonCerrarSesion/BotonCerrarSesion';
 
 interface Category {
   id: string;
@@ -188,9 +189,10 @@ const NavBar = () => {
                     </>
                   )}
 
-                  <button onClick={handleLogout} className="menu-item logout-button">
-                    <i className="fas fa-sign-out-alt"></i> Cerrar sesión
-                  </button>
+                   <BotonCerrarSesion
+                    onClick={handleLogout}
+                    className="menu-item logout-button"
+                  />
                 </div>
               )}
             </div>
