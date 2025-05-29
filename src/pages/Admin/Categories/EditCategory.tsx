@@ -18,6 +18,7 @@ interface Category {
   name: string;
   description: string;
   active: boolean;
+  image?: string;
 }
 
 const EditCategory = () => {
@@ -93,6 +94,17 @@ const EditCategory = () => {
     }
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && category) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCategory({ ...category, image: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleAddProduct = () => {
     // Navegar a la página de agregar producto con la categoría preseleccionada
     navigate('/admin/products/new', {
@@ -136,6 +148,21 @@ const EditCategory = () => {
             onChange={handleChange}
             required
           />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="image">Imagen de la Categoría</label>
+          <input
+            type="file"
+            id="image"
+            name="image"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="form-input"
+          />
+          {category.image && (
+            <img src={category.image} alt="Vista previa" style={{ maxWidth: 120, marginTop: 8, borderRadius: 8 }} />
+          )}
         </div>
 
         <div className="form-actions">
@@ -205,4 +232,4 @@ const EditCategory = () => {
   );
 };
 
-export default EditCategory; 
+export default EditCategory;
