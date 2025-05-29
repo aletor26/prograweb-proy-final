@@ -68,16 +68,15 @@ const AppRoutes = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/detalle/:id" element={<DetalleProducto />} />
-      
-      
+      <Route path="/" element={<Home />} />
+      <Route path="/productos" element={<Products />} />
+      <Route path="/category/:category" element={<Category />} />
+      <Route path="/nosotros" element={<About />} />
+      <Route path="/search" element={<Search />} />
+      <Route path="/ofertas" element={<Offers />} />
+      <Route path="/cart" element={<Cart />} />
+
       {/* Rutas protegidas - Solo clientes */}
-      <Route path="/cart" element={
-        <ProtectedRoute>
-          <CustomerRoute>
-            <Cart />
-          </CustomerRoute>
-        </ProtectedRoute>
-      } />
       <Route path="/checkout" element={
         <ProtectedRoute>
           <CustomerRoute>
@@ -85,7 +84,6 @@ const AppRoutes = () => {
           </CustomerRoute>
         </ProtectedRoute>
       } />
-      
       <Route path="/order-complete" element={
         <ProtectedRoute>
           <CustomerRoute>
@@ -114,7 +112,6 @@ const AppRoutes = () => {
           </CustomerRoute>
         </ProtectedRoute>
       } />
-      
       <Route path="/saved-items" element={
         <ProtectedRoute>
           <CustomerRoute>
@@ -122,14 +119,6 @@ const AppRoutes = () => {
           </CustomerRoute>
         </ProtectedRoute>
       } />
-
-      {/* Rutas protegidas - Acceso general */}
-      <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-      <Route path="/productos" element={<ProtectedRoute><Products /></ProtectedRoute>} />
-      <Route path="/category/:category" element={<ProtectedRoute><Category /></ProtectedRoute>} />
-      <Route path="/nosotros" element={<About />} />
-      <Route path="/search" element={<ProtectedRoute><Search /></ProtectedRoute>} />
-      <Route path="/ofertas" element={<ProtectedRoute><Offers /></ProtectedRoute>} />
 
       {/* Rutas de administrador */}
       <Route path="/admin/orders" element={<ProtectedRoute><AdminRoute><AdminOrdersList /></AdminRoute></ProtectedRoute>} />
