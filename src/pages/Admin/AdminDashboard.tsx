@@ -1,90 +1,31 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { obtenerEstadisticasDashboard } from '../../services/productoservicio';
+import SummaryCards from '../../components/SummaryCards/SummaryCards';
+import PeriodForm from '../../components/PeriodForm/PeriodForm';
 import './AdminDashboard.css';
 
-interface Order {
-  id: string;
-  date: string;
-  total: number;
-  status: 'pending' | 'processing' | 'completed' | 'cancelled';
-  items: {
-    id: number;
-    name: string;
-    quantity: number;
-    price: number;
-  }[];
-  shippingDetails: {
-    fullName: string;
-    email: string;
-    address: string;
-    city: string;
-    phone: string;
-  };
+interface DashboardStats {
+  totalOrders: number;
+  newUsers: number;
+  totalIncome: number;
 }
-
-interface Category {
-  id: string;
-  name: string;
-  description: string;
-  active: boolean;
-}
-
-const DEFAULT_CATEGORIES = [
-  {
-    id: 'vinos',
-    name: 'Vinos',
-    description: 'Vinos tintos, blancos y rosados',
-    active: true
-  },
-  {
-    id: 'piscos',
-    name: 'Piscos',
-    description: 'Piscos puros y acholados',
-    active: true
-  },
-  {
-    id: 'whiskies',
-    name: 'Whiskies',
-    description: 'Whiskies de diferentes regiones',
-    active: true
-  },
-  {
-    id: 'vodkas',
-    name: 'Vodkas',
-    description: 'Vodkas premium',
-    active: true
-  },
-  {
-    id: 'tequilas',
-    name: 'Tequilas',
-    description: 'Tequilas blancos y reposados',
-    active: true
-  },
-  {
-    id: 'rones',
-    name: 'Rones',
-    description: 'Rones añejos y blancos',
-    active: true
-  },
-  {
-    id: 'gin',
-    name: 'Gin',
-    description: 'Ginebras premium',
-    active: true
-  },
-  {
-    id: 'champagnes',
-    name: 'Champagnes',
-    description: 'Champagnes y espumantes',
-    active: true
-  }
-];
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
+  const [stats, setStats] = useState<DashboardStats>({
+    totalOrders: 0,
+    newUsers: 0,
+    totalIncome: 0
+  });
+
+  // Fechas por defecto (hoy)
+  const today = new Date().toISOString().slice(0, 10);
+  const [startDate, setStartDate] = useState(today);
+  const [endDate, setEndDate] = useState(today);
 
   useEffect(() => {
     // Verificar si el usuario es admin
@@ -93,14 +34,30 @@ const AdminDashboard = () => {
       return;
     }
 
-    // Inicializar categorías si no existen
-    const storedCategories = localStorage.getItem('categories');
-    if (!storedCategories) {
-      localStorage.setItem('categories', JSON.stringify(DEFAULT_CATEGORIES));
-    }
+    fetchDashboardStats();
+  }, [user, navigate, startDate, endDate]);
 
-    setIsLoading(false);
-  }, [user, navigate]);
+  const fetchDashboardStats = async () => {
+    try {
+      setIsLoading(true);
+      const data = await obtenerEstadisticasDashboard(startDate, endDate);
+      setStats({
+        totalOrders: data.totalOrders || 0,
+        newUsers: data.newUsers || 0,
+        totalIncome: data.totalIncome || 0
+      });
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+      // En caso de error, mostrar datos por defecto
+      setStats({
+        totalOrders: 0,
+        newUsers: 0,
+        totalIncome: 0
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -114,29 +71,53 @@ const AdminDashboard = () => {
     <div className="admin-dashboard">
       <div className="admin-header">
         <h1>Panel de Administración</h1>
-        <div className="admin-options">
-          <button
-            className="admin-option-button"
-            onClick={() => navigate('/admin/orders')}
-          >
-            <i className="fas fa-shopping-cart"></i>
-            Gestión de Pedidos
-          </button>
-          <button
-            className="admin-option-button"
-            onClick={() => navigate('/admin/categories')}
-          >
-            <i className="fas fa-tags"></i>
-            Gestión de Categorías
-          </button>
-          <button
-            className="admin-option-button"
-            onClick={() => navigate('/admin/products')}
-          >
-            <i className="fas fa-wine-bottle"></i>
-            Gestión de Productos
-          </button>
-        </div>
+        <p>Resumen de actividad del sistema</p>
+      </div>
+
+      <div className="admin-stats-section">
+        <h2>Estadísticas del Período</h2>
+        <PeriodForm
+          startDate={startDate}
+          endDate={endDate}
+          onStartDateChange={setStartDate}
+          onEndDateChange={setEndDate}
+        />
+        <SummaryCards
+          totalOrders={stats.totalOrders}
+          newUsers={stats.newUsers}
+          totalIncome={stats.totalIncome}
+        />
+      </div>
+
+      <div className="admin-options">
+        <button
+          className="admin-option-button"
+          onClick={() => navigate('/admin/orders')}
+        >
+          <i className="fas fa-shopping-cart"></i>
+          Gestión de Pedidos
+        </button>
+        <button
+          className="admin-option-button"
+          onClick={() => navigate('/admin/categories')}
+        >
+          <i className="fas fa-tags"></i>
+          Gestión de Categorías
+        </button>
+        <button
+          className="admin-option-button"
+          onClick={() => navigate('/admin/products')}
+        >
+          <i className="fas fa-wine-bottle"></i>
+          Gestión de Productos
+        </button>
+        <button
+          className="admin-option-button"
+          onClick={() => navigate('/admin/users')}
+        >
+          <i className="fas fa-users"></i>
+          Gestión de Usuarios
+        </button>
       </div>
     </div>
   );
