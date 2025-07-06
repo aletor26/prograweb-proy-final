@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { register as registerService, login as loginService } from '../../services/clienteservicios';
 import './Auth.css';
 
 interface RegisterForm {
@@ -89,54 +90,40 @@ const Register = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  if (!validateForm()) {
+    return;
+  }
+
+  setIsLoading(true);
+  try {
+    // Llama al servicio de registro
+    await registerService({
+      nombre: formData.nombre,
+      apellido: formData.apellido,
+      correo: formData.email,
+      dni: formData.dni,
+      clave: formData.password,
+      direccion: '', 
+      telefono: '' 
+    });
+
+    // Inicia sesión automáticamente después de registrar
+    await loginService(formData.email, formData.password);
+    navigate('/');
+  } catch (error: any) {
+    // Si el backend devuelve error de usuario existente
+    if (error?.response?.data?.message?.includes('existe')) {
+      setErrors({ email: 'Este correo ya está registrado' });
+    } else {
+      setErrors({ general: 'Error al crear la cuenta' });
     }
-
-    setIsLoading(true);
-    try {
-      // Verificar si el usuario ya existe
-      const storedUsers = localStorage.getItem('users');
-      const users = storedUsers ? JSON.parse(storedUsers) : [];
-      
-      const userExists = users.some((u: any) => u.email === formData.email);
-      
-      if (userExists) {
-        setErrors({
-          email: 'Este correo ya está registrado'
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      // Guardar nuevo usuario con id y role
-      const newUser = {
-        id: crypto.randomUUID(),
-        name: `${formData.nombre} ${formData.apellido}`,
-        email: formData.email,
-        dni: formData.dni,
-        password: formData.password,
-        role: 'customer'
-      };
-
-      users.push(newUser);
-      localStorage.setItem('users', JSON.stringify(users));
-      
-      // Iniciar sesión automáticamente
-      await login(newUser.email, newUser.password);
-      navigate('/');
-    } catch (error) {
-      setErrors({
-        general: 'Error al crear la cuenta'
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  } finally {
+    setIsLoading(false);
+  }
+};
   return (
     <div className="auth-container">
       <div className="auth-card">
