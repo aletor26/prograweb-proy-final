@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { products } from '../../data/products';
+import { obtenerProducto } from '../../services/productoservicio';
 
 interface Product {
   id: number;
@@ -24,13 +24,26 @@ const ProductDetail = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const found = products.find(
-      (p) => String(p.id) === String(id)
-    );
-    setProduct(found || null);
-    setLoading(false);
+    const fetchProduct = async () => {
+      if (!id) return;
+      
+      try {
+        setLoading(true);
+        const data = await obtenerProducto(Number(id));
+        setProduct(data);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching product:', err);
+        setError('Error al cargar el producto');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
   }, [id]);
 
   const handleAddToCart = () => {
@@ -44,6 +57,15 @@ const ProductDetail = () => {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <h2 className="text-2xl font-bold mb-4">Error</h2>
+        <p className="text-gray-600">{error}</p>
       </div>
     );
   }
