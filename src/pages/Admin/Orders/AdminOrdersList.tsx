@@ -1,34 +1,53 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { getPedidosAdmin } from "../../../services/pedidosservicio";
 import './AdminOrdersList.css';
 
 const AdminOrdersList: React.FC = () => {
   const [orders, setOrders] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchField, setSearchField] = useState<'id' | 'nombre' | 'apellido'>('id');
 
-  useEffect(() => {
-    // Cargar todos los usuarios
-    const storedUsers = localStorage.getItem("users");
-    const users = storedUsers ? JSON.parse(storedUsers) : [];
-    let allOrders: any[] = [];
-    users.forEach((u: any) => {
-      const userOrders = localStorage.getItem(`orders_${u.email}`);
-      if (userOrders) {
-        const parsedOrders = JSON.parse(userOrders).map((order: any) => ({
-          ...order,
-          nombre: u.nombre || u.name?.split(" ")[0] || "",
-          apellido: u.apellido || u.name?.split(" ").slice(1).join(" ") || "",
-        }));
-        allOrders = allOrders.concat(parsedOrders);
+  const fetchOrders = async () => {
+    try {
+      setIsLoading(true);
+      const params: any = {};
+      
+      if (searchTerm) {
+        if (searchField === 'id') {
+          params.id = searchTerm;
+        } else if (searchField === 'nombre') {
+          params.nombre = searchTerm;
+        } else if (searchField === 'apellido') {
+          params.apellido = searchTerm;
+        }
       }
-    });
-    setOrders(allOrders);
-  }, []);
 
-  const filteredOrders = orders.filter(order =>
-    order[searchField]?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      const response = await getPedidosAdmin(params);
+      setOrders(response.pedidos || []);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, [searchTerm, searchField]);
+
+  const handleSearch = () => {
+    fetchOrders();
+  };
+
+  if (isLoading) {
+    return (
+      <div className="admin-orders-section">
+        <p>Cargando órdenes...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="admin-orders-section">
@@ -52,30 +71,33 @@ const AdminOrdersList: React.FC = () => {
           className="admin-search-input"
           style={{ flex: 1 }}
         />
+        <button onClick={handleSearch} className="admin-search-button">
+          Buscar
+        </button>
       </div>
-      {filteredOrders.length === 0 ? (
+      {orders.length === 0 ? (
         <div className="admin-orders-no-orders">No hay órdenes registradas</div>
       ) : (
         <div className="admin-orders-list">
-          {filteredOrders.map(order => (
+          {orders.map(order => (
             <div key={order.id} className="admin-order-card">
               <div className="admin-order-info">
                 <div className="admin-order-id">ID: {order.id}</div>
-                <div>Nombre: {order.nombre}</div>
-                <div>Apellido: {order.apellido}</div>
+                <div>Nombre: {order.cliente?.nombre || 'N/A'}</div>
+                <div>Apellido: {order.cliente?.apellido || 'N/A'}</div>
                 <div
                   className={
                     "admin-order-status " +
-                    (order.status === "completed"
+                    (order.estado === 5
                       ? "estado-completado"
-                      : order.status === "pending"
+                      : order.estado === 1
                       ? "estado-pendiente"
-                      : order.status === "processing"
+                      : order.estado === 3
                       ? "estado-processing"
                       : "estado-cancelado")
                   }
                 >
-                  Estado: {order.status}
+                  Estado: {order.estado === 1 ? 'Pendiente' : order.estado === 3 ? 'Procesando' : order.estado === 5 ? 'Entregado' : 'Cancelado'}
                 </div>
               </div>
               <div className="admin-order-actions">
