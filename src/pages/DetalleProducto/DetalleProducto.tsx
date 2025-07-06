@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { obtenerProducto } from '../../services/productoservicio';
 
 interface Product {
@@ -10,14 +11,19 @@ interface Product {
   description: string;
 }
 
-export function Detalle({ id }: { id: string | number | undefined }) {
+const DetalleProducto = () => {
+  const { id } = useParams();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
-      if (!id) return;
+      if (!id) {
+        setError('ID de producto no proporcionado');
+        setLoading(false);
+        return;
+      }
       
       try {
         setLoading(true);
@@ -55,4 +61,6 @@ export function Detalle({ id }: { id: string | number | undefined }) {
       {/* Puedes mostrar más campos si existen */}
     </div>
   );
-}
+};
+
+export default DetalleProducto;
