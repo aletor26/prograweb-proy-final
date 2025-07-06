@@ -35,44 +35,6 @@ export async function getPedidosCliente(clienteId: number, page = 1, limit = 10)
   return res.json();
 }
 
-// DETALLE DE ORDEN
-export async function getPedidoDetalle(pedidoId: number) {
-  const res = await fetch(`${API_URL}/pedidos/${pedidoId}`);
-  if (!res.ok) throw await res.json();
-  return res.json();
-}
-
-// CANCELAR ORDEN
-export async function cancelarPedido(pedidoId: number) {
-  const res = await fetch(`${API_URL}/pedidos/${pedidoId}/cancelar`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-  });
-  if (!res.ok) throw await res.json();
-  return res.json();
-}
-
-// LISTAR PRODUCTOS
-export async function getProductos() {
-  const res = await fetch(`${API_URL}/productos`);
-  if (!res.ok) throw await res.json();
-  return res.json();
-}
-
-// DETALLE DE PRODUCTO
-export async function getProducto(id: number) {
-  const res = await fetch(`${API_URL}/productos/${id}`);
-  if (!res.ok) throw await res.json();
-  return res.json();
-}
-
-// LISTAR CATEGORÍAS
-export async function getCategorias() {
-  const res = await fetch(`${API_URL}/categorias`);
-  if (!res.ok) throw await res.json();
-  return res.json();
-}
-
 // CARRITO DE COMPRAS (simulado)
 export async function getCarrito(clienteId: number) {
   const res = await fetch(`${API_URL}/carrito/${clienteId}`);
@@ -117,7 +79,7 @@ export async function getCheckout(clienteId: number) {
   if (!res.ok) throw await res.json();
   return res.json();
 }
-
+/*
 // COMPLETAR ORDEN (checkout)
 export async function completarOrden(data: any) {
   const res = await fetch(`${API_URL}/checkout/completarorden`, {
@@ -128,3 +90,4 @@ export async function completarOrden(data: any) {
   if (!res.ok) throw await res.json();
   return res.json();
 }
+  */

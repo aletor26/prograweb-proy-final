@@ -1,5 +1,4 @@
 
-
 const API_URL = "http://localhost:3000";
 
 // Obtener todos los productos
