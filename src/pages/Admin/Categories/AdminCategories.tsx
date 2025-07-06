@@ -2,14 +2,18 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import BotonEditar from '../../../components/BotonEditar/BotonEditar';
+import {
+  obtenerCategorias,
+  eliminarCategoria
+} from '../../../services/categoriaservicio';
 import './AdminCategories.css';
 
 interface Category {
-  id: string;
+  id: number;
   name: string;
-  description: string;
-  productCount: number;
-  active: boolean;
+  description?: string;
+  productCount?: number;
+  active?: boolean;
   image?: string;
 }
 
@@ -20,66 +24,6 @@ const filterLabels: Record<FilterType, string> = {
   description: 'Descripción',
   id: 'ID'
 };
-
-// Categorías por defecto (igual que en AdminDashboard)
-const DEFAULT_CATEGORIES = [
-  {
-    id: 'vinos',
-    name: 'Vinos',
-    description: 'Vinos tintos, blancos y rosados',
-    productCount: 0,
-    active: true
-  },
-  {
-    id: 'piscos',
-    name: 'Piscos',
-    description: 'Piscos puros y acholados',
-    productCount: 0,
-    active: true
-  },
-  {
-    id: 'whiskies',
-    name: 'Whiskies',
-    description: 'Whiskies de diferentes regiones',
-    productCount: 0,
-    active: true
-  },
-  {
-    id: 'vodkas',
-    name: 'Vodkas',
-    description: 'Vodkas premium',
-    productCount: 0,
-    active: true
-  },
-  {
-    id: 'tequilas',
-    name: 'Tequilas',
-    description: 'Tequilas blancos y reposados',
-    productCount: 0,
-    active: true
-  },
-  {
-    id: 'rones',
-    name: 'Rones',
-    description: 'Rones añejos y blancos',
-    productCount: 0,
-    active: true
-  },
-  {
-    id: 'gin',
-    name: 'Gin',
-    description: 'Ginebras premium',
-    productCount: 0,
-    active: true
-  },
-  {
-    id: 'champagnes',
-    name: 'Champagnes',
-    description: 'Champagnes y espumantes',
-    productCount: 0,
-    active: true
-  }
-];
 
 const AdminCategories = () => {
   useAuth();
@@ -92,16 +36,17 @@ const AdminCategories = () => {
   const filterMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    let storedCategories = localStorage.getItem('categories');
-    let categories: Category[] = storedCategories ? JSON.parse(storedCategories) : [];
-    // Si no hay categorías o todas están inactivas, restaurar por defecto
-    if (!storedCategories || categories.length === 0 || categories.every(cat => !cat.active)) {
-      localStorage.setItem('categories', JSON.stringify(DEFAULT_CATEGORIES));
-      setCategories(DEFAULT_CATEGORIES);
-    } else {
-      setCategories(categories);
+    async function fetchCategorias() {
+      setIsLoading(true);
+      try {
+        const data = await obtenerCategorias();
+        setCategories(data);
+      } catch (e) {
+        setCategories([]);
+      }
+      setIsLoading(false);
     }
-    setIsLoading(false);
+    fetchCategorias();
   }, []);
 
   // Cierra el menú si se hace click fuera
@@ -128,40 +73,32 @@ const AdminCategories = () => {
     const searchLower = searchTerm.toLowerCase();
     switch (filterType) {
       case 'name':
-        return category.name.toLowerCase().includes(searchLower);
+        return category.name?.toLowerCase().includes(searchLower);
       case 'description':
-        return category.description.toLowerCase().includes(searchLower);
+        return category.description?.toLowerCase().includes(searchLower);
       case 'id':
-        return category.id.toLowerCase().includes(searchLower);
+        return String(category.id).toLowerCase().includes(searchLower);
       default:
         return false;
     }
   });
 
-  const handleEditCategory = (categoryId: string) => {
+  const handleEditCategory = (categoryId: number) => {
     navigate(`/admin/categories/${categoryId}/edit`);
   };
 
-  const handleDeactivateCategory = (categoryId: string) => {
-    const activeCategories = categories.filter(c => c.active);
-    if (activeCategories.length === 1 && activeCategories[0].id === categoryId) {
-      alert("Debe haber al menos una categoría activa.");
-      return;
-    }
-    // ...desactivar normalmente
-  };
-
-  const handleDeleteCategory = (categoryId: string) => {
+  const handleDeleteCategory = async (categoryId: number) => {
     const activeCategories = categories.filter(c => c.active && c.id !== categoryId);
     if (activeCategories.length === 0) {
       alert("Debe haber al menos una categoría activa.");
       return;
     }
-    // Eliminar la categoría
-    const updatedCategories = categories.filter(c => c.id !== categoryId);
-    setCategories(updatedCategories);
-    localStorage.setItem('categories', JSON.stringify(updatedCategories));
-    window.dispatchEvent(new Event('storage'));
+    try {
+      await eliminarCategoria(categoryId);
+      setCategories(categories.filter(c => c.id !== categoryId));
+    } catch (e) {
+      alert("Error al eliminar la categoría.");
+    }
   };
 
   const handleFilterTypeChange = (type: FilterType) => {
@@ -297,7 +234,7 @@ const AdminCategories = () => {
                   </div>
                   <div className="admin-category-info">
                     <p>{category.description}</p>
-                    <p><strong>{category.productCount}</strong> productos</p>
+                    <p><strong>{category.productCount ?? 0}</strong> productos</p>
                   </div>
                   <div className="admin-category-actions">
                     <BotonEditar onClick={() => handleEditCategory(category.id)} label="" />

@@ -1,25 +1,19 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
+import { crearCategoria, obtenerCategorias } from '../../../services/categoriaservicio';
 import './AddCategory.css';
-
-interface Category {
-  id: string;
-  name: string;
-  description: string;
-  active: boolean;
-  image?: string;
-}
 
 const AddCategory = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  useAuth();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     image: ''
   });
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -32,7 +26,7 @@ const AddCategory = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -41,33 +35,27 @@ const AddCategory = () => {
       return;
     }
 
-    // Verificar si ya existe una categoría con el mismo nombre
-    const storedCategories = localStorage.getItem('categories');
-    const categories: Category[] = storedCategories ? JSON.parse(storedCategories) : [];
-    
-    if (categories.some(cat => cat.name.toLowerCase() === formData.name.trim().toLowerCase())) {
-      setError('Ya existe una categoría con este nombre');
-      return;
+    setIsSubmitting(true);
+    try {
+      // Verificar si ya existe una categoría con el mismo nombre
+      const categorias = await obtenerCategorias();
+      if (categorias.some(cat => cat.name.toLowerCase() === formData.name.trim().toLowerCase())) {
+        setError('Ya existe una categoría con este nombre');
+        setIsSubmitting(false);
+        return;
+      }
+
+      await crearCategoria({
+        name: formData.name.trim(),
+        description: formData.description.trim(),
+        image: formData.image
+      });
+
+      navigate('/admin/categories');
+    } catch (e) {
+      setError('Error al crear la categoría');
     }
-
-    // Crear nueva categoría
-    const newCategory: Category = {
-      id: `cat-${Date.now()}`,
-      name: formData.name.trim(),
-      description: formData.description.trim(),
-      active: true,
-      image: formData.image
-    };
-
-    // Guardar en localStorage
-    categories.push(newCategory);
-    localStorage.setItem('categories', JSON.stringify(categories));
-
-    // Disparar evento para actualizar el NavBar
-    window.dispatchEvent(new Event('storage'));
-
-    // Redirigir a la lista de categorías
-    navigate('/admin/categories');
+    setIsSubmitting(false);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -134,10 +122,11 @@ const AddCategory = () => {
               type="button" 
               className="cancel-button"
               onClick={() => navigate('/admin/categories')}
+              disabled={isSubmitting}
             >
               Cancelar
             </button>
-            <button type="submit" className="submit-button">
+            <button type="submit" className="submit-button" disabled={isSubmitting}>
               Crear Categoría
             </button>
           </div>
