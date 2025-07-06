@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { login as loginService } from '../../services/clienteservicios';
 import './Auth.css';
 
 interface LoginForm {
@@ -66,7 +67,7 @@ const Login = () => {
 
     setIsLoading(true);
     try {
-      await login(formData.email, formData.password);
+      await loginService(formData.email, formData.password);
       const redirect = localStorage.getItem('redirectAfterLogin');
       if (redirect) {
         navigate(redirect);

@@ -6,7 +6,6 @@ const API_URL = "http://localhost:3000";
 export async function getPedidosAdmin(params: any = {}) {
   const queryString = new URLSearchParams(params).toString();
   const url = `${API_URL}/admin/pedidos${queryString ? `?${queryString}` : ''}`;
-  
   const res = await fetch(url);
   if (!res.ok) throw await res.json();
   return res.json();

@@ -14,10 +14,13 @@ export async function login(correo: string, clave: string) {
 // REGISTRO
 export async function register(data: {
   nombre: string;
+  apellido: string;
   correo: string;
+  dni: string;
   clave: string;
   direccion: string;
   telefono: string;
+  
 }) {
   const res = await fetch(`${API_URL}/register`, {
     method: "POST",
