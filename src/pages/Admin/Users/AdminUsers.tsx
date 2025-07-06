@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
+import { getUsuariosAdmin } from '../../../services/usuarioservicio';
 import SummaryCards from '../../../components/SummaryCards/SummaryCards';
 import PeriodForm from '../../../components/PeriodForm/PeriodForm';
 import UserList from '../../../components/UserList/UserList';
@@ -54,15 +55,14 @@ const AdminUsers = () => {
       return;
     }
 
-    const loadUsersAndOrders = () => {
+    const loadUsersAndOrders = async () => {
       try {
-        // Usuarios
-        const storedUsers = localStorage.getItem('users');
-        let parsedUsers: User[] = [];
-        if (storedUsers) {
-          parsedUsers = JSON.parse(storedUsers);
-          setUsers(parsedUsers);
-        }
+        setIsLoading(true);
+        
+        // Cargar usuarios del backend
+        const usersResponse = await getUsuariosAdmin();
+        const parsedUsers: User[] = usersResponse.rows || usersResponse || [];
+        setUsers(parsedUsers);
 
         // Órdenes: intenta primero global, si no, por usuario
         let allOrders: Order[] = [];
@@ -80,8 +80,15 @@ const AdminUsers = () => {
         setOrders(allOrders);
       } catch (error) {
         console.error('Error al cargar usuarios u órdenes:', error);
+        
+        // Fallback a localStorage si hay error
+        const storedUsers = localStorage.getItem('users');
+        if (storedUsers) {
+          setUsers(JSON.parse(storedUsers));
+        }
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     loadUsersAndOrders();
