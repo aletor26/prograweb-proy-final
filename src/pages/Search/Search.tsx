@@ -1,22 +1,51 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { getProducts } from '../../data/products';
+import { obtenerProductos } from '../../services/productoservicio';
 import { useCart } from '../../context/CartContext';
 import Filtro_orden from '../../components/Filtro_orden/Filtro_orden';
 import './Search.css';
 
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  image: string;
+  category: string;
+  description: string;
+  active?: boolean;
+}
+
 const Search = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
-  const [isLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
   const navigate = useNavigate();
   const { addToCart } = useCart();
 
   // Estado para el tipo de ordenamiento
   const [sort, setSort] = useState<'name-asc' | 'name-desc' | 'price-asc' | 'price-desc'>('name-asc');
 
-  const allProducts = getProducts();
-  const activeProducts = allProducts.filter(p => p.active !== false);
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setIsLoading(true);
+        const data = await obtenerProductos();
+        setProducts(data);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching products:', err);
+        setError('Error al cargar los productos');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const activeProducts = products.filter(p => p.active !== false);
 
   const searchResults = activeProducts.filter(product => 
     product.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -31,6 +60,14 @@ const Search = () => {
     if (sort === 'price-desc') return b.price - a.price;
     return 0;
   });
+
+  if (error) {
+    return (
+      <div className="search-container">
+        <div className="error">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="search-container">

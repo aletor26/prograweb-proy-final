@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
-import { getProducts, initializeProducts } from '../../../data/products';
+import { obtenerProductos, eliminarProducto, actualizarProducto } from '../../../services/productoservicio';
 import './AdminProducts.css';
 
 interface Product {
@@ -19,6 +19,7 @@ const AdminProducts = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -27,22 +28,31 @@ const AdminProducts = () => {
       return;
     }
 
-    initializeProducts();
-    const allProducts = getProducts();
-    // Asegúrate de que todos tengan el campo active
-    setProducts(allProducts.map(p => ({ ...p, active: p.active !== false })));
-    setIsLoading(false);
+    fetchProducts();
   }, [user, navigate]);
 
-  const handleDeleteProduct = (productId: number) => {
+  const fetchProducts = async () => {
+    try {
+      setIsLoading(true);
+      const data = await obtenerProductos();
+      setProducts(data.map((p: { active: boolean; }) => ({ ...p, active: p.active !== false })));
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching products:', err);
+      setError('Error al cargar los productos');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteProduct = async (productId: number) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar este producto?')) {
       try {
-        const updatedProducts = products.filter(product => product.id !== productId);
-        localStorage.setItem('products', JSON.stringify(updatedProducts));
-        setProducts(updatedProducts);
-        window.dispatchEvent(new Event('storage'));
+        await eliminarProducto(productId);
+        setProducts(products.filter(product => product.id !== productId));
       } catch (error) {
         console.error('Error al eliminar producto:', error);
+        setError('Error al eliminar el producto');
       }
     }
   };
@@ -51,13 +61,22 @@ const AdminProducts = () => {
     navigate(`/admin/products/${productId}/edit`);
   };
 
-  const handleToggleActive = (id: number) => {
-    const updated = products.map(p =>
-      p.id === id ? { ...p, active: !p.active } : p
-    );
-    setProducts(updated);
-    localStorage.setItem('products', JSON.stringify(updated));
-    window.dispatchEvent(new Event('storage'));
+  const handleToggleActive = async (id: number) => {
+    try {
+      const product = products.find(p => p.id === id);
+      if (!product) return;
+
+      const updatedProduct = { ...product, active: !product.active };
+      await actualizarProducto(id, updatedProduct);
+      
+      const updated = products.map(p =>
+        p.id === id ? { ...p, active: !p.active } : p
+      );
+      setProducts(updated);
+    } catch (error) {
+      console.error('Error al actualizar producto:', error);
+      setError('Error al actualizar el producto');
+    }
   };
 
   const filteredProducts = products.filter(product =>
@@ -69,6 +88,14 @@ const AdminProducts = () => {
     return (
       <div className="admin-products">
         <div className="admin-products-loading">Cargando productos...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="admin-products">
+        <div className="error">{error}</div>
       </div>
     );
   }

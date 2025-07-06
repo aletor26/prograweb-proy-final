@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
-import type { Product } from '../../../data/products';
-import { getProducts, addProduct, updateProduct } from '../../../data/products';
+import { obtenerProducto, crearProducto, actualizarProducto } from '../../../services/productoservicio';
 import './ProductForm.css';
 
 interface Category {
@@ -27,6 +26,8 @@ const ProductForm = () => {
   const location = useLocation();
   const isEditing = Boolean(id);
   const [showMessage, setShowMessage] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
 
   const [formData, setFormData] = useState<ProductFormData>({
@@ -51,9 +52,15 @@ const ProductForm = () => {
       setCategories(parsedCategories.filter((cat: Category) => cat.active));
     }
 
-    if (isEditing) {
-      const products = getProducts();
-      const product = products.find(p => p.id === Number(id));
+    if (isEditing && id) {
+      fetchProduct();
+    }
+  }, [user, navigate, id, isEditing]);
+
+  const fetchProduct = async () => {
+    try {
+      setLoading(true);
+      const product = await obtenerProducto(Number(id));
       if (product) {
         setFormData({
           name: product.name,
@@ -65,8 +72,13 @@ const ProductForm = () => {
       } else {
         navigate('/admin/categories');
       }
+    } catch (err) {
+      console.error('Error fetching product:', err);
+      setError('Error al cargar el producto');
+    } finally {
+      setLoading(false);
     }
-  }, [user, navigate, id, isEditing]);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,17 +92,17 @@ const ProductForm = () => {
     };
 
     try {
+      setLoading(true);
+      setError(null);
+
       if (isEditing && id) {
-        updateProduct({ ...productData, id: Number(id) });
+        await actualizarProducto(Number(id), productData);
       } else {
-        addProduct(productData);
+        await crearProducto(productData);
       }
 
       // Mostrar mensaje de éxito
       setShowMessage(true);
-
-      // Disparar evento para actualizar otros componentes
-      window.dispatchEvent(new Event('storage'));
 
       // Esperar un momento antes de redirigir
       setTimeout(() => {
@@ -101,8 +113,11 @@ const ProductForm = () => {
           navigate('/admin/categories');
         }
       }, 1500);
-    } catch (error) {
-      console.error('Error saving product:', error);
+    } catch (err) {
+      console.error('Error saving product:', err);
+      setError('Error al guardar el producto');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -111,6 +126,14 @@ const ProductForm = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  if (loading && isEditing) {
+    return (
+      <div className="product-form-container">
+        <div className="loading">Cargando producto...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="product-form-container">
       {showMessage && (
@@ -118,6 +141,13 @@ const ProductForm = () => {
           <p>¡Producto guardado exitosamente!</p>
         </div>
       )}
+      
+      {error && (
+        <div className="error-message">
+          <p>{error}</p>
+        </div>
+      )}
+
       <h1>{isEditing ? 'Editar Producto' : 'Nuevo Producto'}</h1>
       <form onSubmit={handleSubmit} className="product-form">
         <div className="form-group">
@@ -193,11 +223,12 @@ const ProductForm = () => {
             type="button" 
             onClick={() => navigate(location.state?.returnTo || '/admin/categories')} 
             className="cancel-button"
+            disabled={loading}
           >
             Cancelar
           </button>
-          <button type="submit" className="save-button">
-            {isEditing ? 'Guardar Cambios' : 'Crear Producto'}
+          <button type="submit" className="save-button" disabled={loading}>
+            {loading ? 'Guardando...' : (isEditing ? 'Guardar Cambios' : 'Crear Producto')}
           </button>
         </div>
       </form>
