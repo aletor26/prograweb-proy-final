@@ -27,7 +27,22 @@ export async function testBackendConnection() {
 export async function obtenerProductos() {
   const res = await fetch(`${API_URL}/productos`);
   if (!res.ok) throw await res.json();
-  return res.json();
+  const productos = await res.json();
+
+  // Transformar los campos al formato esperado por el frontend
+  return productos.map((producto: any) => ({
+    id: producto.id,
+    name: producto.nombre,
+    description: producto.descripcion,
+    price: producto.precio,
+    image: producto.url_imagen || 'https://placehold.co/300x300',
+    category: producto.categoriaId ? `Categoría ${producto.categoriaId}` : 'Sin categoría',
+    active: producto.estadoId === 1,
+    serie: producto.serie || null,
+    stock: producto.stock || 0,
+    createdAt: producto.createdAt,
+    updatedAt: producto.updatedAt
+  }));
 }
 
 // Obtener productos con filtros y paginación (para admin)
