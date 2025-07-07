@@ -26,7 +26,19 @@ const Products = () => {
       try {
         setLoading(true);
         const data = await obtenerProductos();
-        setProducts(data.map((p: { active: boolean; }) => ({ ...p, active: p.active !== false })));
+        setProducts(
+          data.map((p: any) => ({
+            id: p.id,
+            name: p.nombre,
+            description: p.descripcion,
+            price: p.precio,
+            image: p.url_imagen,
+            categoryId: p.categoriaId,
+            active: p.estadoId === 1,
+            createdAt: p.createdAt,
+            updatedAt: p.updatedAt,
+          }))
+        );
         setError(null);
       } catch (err) {
         console.error('Error fetching products:', err);
