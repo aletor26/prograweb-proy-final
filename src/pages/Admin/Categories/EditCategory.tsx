@@ -32,6 +32,8 @@ const EditCategory = () => {
   const [selectedProductId, setSelectedProductId] = useState('');
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (user?.role !== 'admin') {
@@ -40,37 +42,65 @@ const EditCategory = () => {
     }
 
     const loadCategoryAndProducts = async () => {
-  if (!categoryId) return;
-  setLoading(true);
-  try {
-    const cat = await obtenerCategoriaPorId(Number(categoryId));
-    // Validar que cat tenga los campos requeridos
-    if (!cat || typeof cat.id !== 'number' || !cat.name) {
-      navigate('/admin/categories');
-      return;
-    }
-    
-    setCategory({
-      id: cat.id,
-      name: cat.name,
-      description: cat.description ?? '',
-      active: cat.active ?? true,
-      image: cat.image ?? ''
-    });
+      if (!categoryId) return;
+      setLoading(true);
+      setError(null);
+      try {
+        console.log('Cargando categoría con ID:', categoryId);
+        const cat: any = await obtenerCategoriaPorId(Number(categoryId));
+        
+        console.log('Datos crudos de la categoría:', cat);
+        
+        // Transformar los datos del backend al formato que espera el frontend
+        const transformedCategory = {
+          id: cat.id,
+          name: cat.nombre, // El modelo real usa 'nombre'
+          description: '', // No existe en el modelo
+          active: true, // No existe en el modelo
+          image: '' // No existe en el modelo
+        };
+        
+        console.log('Categoría transformada:', transformedCategory);
+        
+        // Validar que cat tenga los campos requeridos
+        if (!transformedCategory.id || !transformedCategory.name) {
+          setError('Categoría no válida: faltan campos requeridos');
+          return;
+        }
+        
+        setCategory(transformedCategory);
 
-    // Cargar productos desde el backend
-    const all = await obtenerProductos();
-    setAllProducts(all);
-    const categoryProducts = all.filter(
-      (p: Product) => p.category?.toLowerCase().trim() === cat.name.toLowerCase().trim()
-    );
-    setProducts(categoryProducts);
-  } catch {
-    navigate('/admin/categories');
-  } finally {
-    setLoading(false);
-  }
-};
+        // Cargar productos desde el backend
+        console.log('Cargando productos...');
+        const all = await obtenerProductos();
+        
+        console.log('Productos crudos del backend:', all);
+        
+        // Transformar productos si es necesario
+        const transformedProducts = all.map((product: any) => ({
+          id: product.id,
+          name: product.name || product.nombre,
+          price: product.price || product.precio,
+          image: product.image || product.url_imagen,
+          description: product.description || product.descripcion,
+          category: product.category || product.categoria
+        }));
+        
+        console.log('Productos transformados:', transformedProducts);
+        
+        setAllProducts(transformedProducts);
+        const categoryProducts = transformedProducts.filter(
+          (p: Product) => p.category?.toLowerCase().trim() === transformedCategory.name.toLowerCase().trim()
+        );
+        console.log('Productos de la categoría:', categoryProducts);
+        setProducts(categoryProducts);
+      } catch (error) {
+        console.error('Error al cargar categoría:', error);
+        setError('Error al cargar la categoría: ' + (error as Error).message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
     loadCategoryAndProducts();
     // eslint-disable-next-line
@@ -80,16 +110,29 @@ const EditCategory = () => {
     e.preventDefault();
     if (!category) return;
 
+    setIsSubmitting(true);
+    setError(null);
+    console.log('=== INICIANDO ACTUALIZACIÓN DE CATEGORÍA ===');
+    console.log('ID de categoría:', category.id);
+    console.log('Datos de categoría a enviar:', category);
+
     try {
-      await actualizarCategoria(category.id, {
+      const result = await actualizarCategoria(category.id, {
         name: category.name,
         description: category.description,
         image: category.image,
         active: category.active,
       });
+      
+      console.log('=== ACTUALIZACIÓN EXITOSA ===');
+      console.log('Respuesta del backend:', result);
       navigate('/admin/categories');
     } catch (error) {
-      console.error('Error al guardar la categoría:', error);
+      console.error('=== ERROR EN ACTUALIZACIÓN ===');
+      console.error('Error completo:', error);
+      setError('Error al guardar la categoría: ' + (error as Error).message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -155,13 +198,51 @@ const EditCategory = () => {
     }
   };
 
-  if (loading || !category) {
-    return <div>Cargando...</div>;
+  if (loading) {
+    return <div className="edit-category">Cargando categoría...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="edit-category">
+        <div className="error-message">
+          <h2>Error</h2>
+          <p>{error}</p>
+          <button onClick={() => navigate('/admin/categories')}>Volver a Categorías</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!category) {
+    return (
+      <div className="edit-category">
+        <div className="error-message">
+          <h2>Categoría no encontrada</h2>
+          <button onClick={() => navigate('/admin/categories')}>Volver a Categorías</button>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="edit-category">
       <h1>Editar Categoría</h1>
+      {error && <div className="error-message">{error}</div>}
+      
+      {/* Nota: Solo se puede editar el nombre */}
+      <div className="warning-message" style={{
+        background: 'rgba(255, 193, 7, 0.1)',
+        border: '1px solid rgba(255, 193, 7, 0.3)',
+        borderRadius: '8px',
+        padding: '1rem',
+        marginBottom: '1rem',
+        color: '#ffc107'
+      }}>
+        <strong>Nota:</strong> El modelo de categoría solo tiene el campo nombre. 
+        Los campos de descripción e imagen no están disponibles.
+      </div>
+      
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="name">Nombre de la Categoría</label>
@@ -172,41 +253,49 @@ const EditCategory = () => {
             value={category.name}
             onChange={handleChange}
             required
+            disabled={isSubmitting}
           />
         </div>
 
         <div className="form-group">
-          <label htmlFor="description">Descripción</label>
+          <label htmlFor="description">Descripción (No disponible)</label>
           <textarea
             id="description"
             name="description"
             value={category.description}
-            onChange={handleChange}
-            required
+            disabled={true}
+            style={{ opacity: 0.5 }}
+            placeholder="Campo no disponible en el modelo actual"
           />
         </div>
 
         <div className="form-group">
-          <label htmlFor="image">Imagen de la Categoría</label>
+          <label htmlFor="image">Imagen de la Categoría (No disponible)</label>
           <input
             type="file"
             id="image"
             name="image"
             accept="image/*"
-            onChange={handleImageChange}
-            className="form-input"
+            disabled={true}
+            style={{ opacity: 0.5 }}
           />
-          {category.image && (
-            <img src={category.image} alt="Vista previa" style={{ maxWidth: 120, marginTop: 8, borderRadius: 8 }} />
-          )}
         </div>
 
         <div className="form-actions">
-          <button type="button" onClick={() => navigate('/admin/categories')} className="cancel-button">
+          <button 
+            type="button" 
+            onClick={() => navigate('/admin/categories')} 
+            className="cancel-button"
+            disabled={isSubmitting}
+          >
             Cancelar
           </button>
-          <button type="submit" className="save-button">
-            Guardar Cambios
+          <button 
+            type="submit" 
+            className="save-button"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Guardando...' : 'Guardar Cambios'}
           </button>
         </div>
       </form>

@@ -30,6 +30,7 @@ const AdminCategories = () => {
   const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<FilterType>('name');
   const [showFilterMenu, setShowFilterMenu] = useState(false);
@@ -38,13 +39,32 @@ const AdminCategories = () => {
   useEffect(() => {
     async function fetchCategorias() {
       setIsLoading(true);
+      setError(null);
       try {
         const data = await obtenerCategorias();
-        setCategories(data);
-      } catch (e) {
+        
+        console.log('Datos originales del backend:', data);
+        
+        // Transformar los datos del backend al formato que espera el frontend
+        const transformedCategories = data.map((category: any) => ({
+          id: category.id,
+          name: category.nombre, // El modelo real usa 'nombre'
+          description: '', // No existe en el modelo
+          image: '', // No existe en el modelo
+          active: true, // No existe en el modelo, por defecto activo
+          productCount: 0 // No existe en el modelo
+        }));
+        
+        console.log('Categorías transformadas:', transformedCategories);
+        
+        setCategories(transformedCategories);
+      } catch (e: any) {
+        console.error('Error al cargar categorías:', e);
+        setError(e.message || 'Error al cargar categorías');
         setCategories([]);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     }
     fetchCategorias();
   }, []);
@@ -110,6 +130,17 @@ const AdminCategories = () => {
     return (
       <div className="admin-categories">
         <div className="admin-categories-loading">Cargando categorías...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="admin-categories">
+        <div className="admin-categories-error">
+          <p>Error: {error}</p>
+          <button onClick={() => window.location.reload()}>Reintentar</button>
+        </div>
       </div>
     );
   }
@@ -198,6 +229,7 @@ const AdminCategories = () => {
           </button>
         </div>
       </div>
+      
       <div className="admin-categories-section">
         <div className="admin-categories-list">
           {filteredCategories.length === 0 ? (

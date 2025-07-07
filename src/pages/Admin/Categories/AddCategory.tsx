@@ -38,8 +38,18 @@ const AddCategory = () => {
     setIsSubmitting(true);
     try {
       // Verificar si ya existe una categoría con el mismo nombre
-      const categorias = await obtenerCategorias();
-      if (categorias.some(cat => cat.name.toLowerCase() === formData.name.trim().toLowerCase())) {
+      const categorias: any[] = await obtenerCategorias();
+      
+      // Transformar los datos del backend al formato que espera el frontend
+      const transformedCategories = categorias.map((cat: any) => ({
+        id: cat.id,
+        name: cat.nombre, // El modelo real usa 'nombre'
+        description: '', // No existe en el modelo
+        image: '', // No existe en el modelo
+        active: true // No existe en el modelo
+      }));
+      
+      if (transformedCategories.some(cat => cat.name.toLowerCase() === formData.name.trim().toLowerCase())) {
         setError('Ya existe una categoría con este nombre');
         setIsSubmitting(false);
         return;
@@ -76,6 +86,19 @@ const AddCategory = () => {
         <form onSubmit={handleSubmit} className="add-category-form">
           {error && <div className="error-message">{error}</div>}
           
+          {/* Nota: Solo se puede crear con nombre por ahora */}
+          <div className="warning-message" style={{
+            background: 'rgba(255, 193, 7, 0.1)',
+            border: '1px solid rgba(255, 193, 7, 0.3)',
+            borderRadius: '8px',
+            padding: '1rem',
+            marginBottom: '1rem',
+            color: '#ffc107'
+          }}>
+            <strong>Nota:</strong> Por ahora solo se puede crear categorías con nombre. 
+            Los campos de descripción e imagen no están disponibles en el modelo del backend.
+          </div>
+          
           <div className="form-group">
             <label htmlFor="name">Nombre de la Categoría *</label>
             <input
@@ -90,20 +113,22 @@ const AddCategory = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="description">Descripción</label>
+            <label htmlFor="description">Descripción (No disponible)</label>
             <textarea
               id="description"
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Describe la categoría..."
+              placeholder="Campo no disponible en el modelo actual"
               className="form-input"
               rows={4}
+              disabled={true}
+              style={{ opacity: 0.5 }}
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="image">Imagen de la Categoría</label>
+            <label htmlFor="image">Imagen de la Categoría (No disponible)</label>
             <input
               type="file"
               id="image"
@@ -111,6 +136,8 @@ const AddCategory = () => {
               accept="image/*"
               onChange={handleImageChange}
               className="form-input"
+              disabled={true}
+              style={{ opacity: 0.5 }}
             />
             {formData.image && (
               <img src={formData.image} alt="Vista previa" style={{ maxWidth: 120, marginTop: 8, borderRadius: 8 }} />
