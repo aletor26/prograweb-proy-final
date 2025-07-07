@@ -1,23 +1,40 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { obtenerCategoriaPorId } from '../../services/categoriaservicio';
+import type { Categoria } from '../../services/categoriaservicio';
 import './CategoryCard.css';
 
-interface Category {
-  id: number;
-  name: string;
-  image: string;
-  description: string;
-}
-
 interface CategoryCardProps {
-  category: Category;
+  categoryId: number;
 }
 
-const CategoryCard = ({ category }: CategoryCardProps) => {
+const CategoryCard = ({ categoryId }: CategoryCardProps) => {
+  const [category, setCategory] = useState<Categoria | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    obtenerCategoriaPorId(categoryId)
+      .then((cat) => {
+        setCategory(cat);
+        setError(null);
+      })
+      .catch((err) => {
+        setError(`Error al cargar la categoría: ${err.message}`);
+        setCategory(null);
+      })
+      .finally(() => setLoading(false));
+  }, [categoryId]);
+
+  if (loading) return <div className="category-card">Cargando...</div>;
+  if (error || !category) return <div className="category-card">{error || 'No encontrada'}</div>;
+
   return (
     <Link to={`/category/${category.id}`} className="category-card">
       <div className="category-card-container">
         <img
-          src={category.image}
+          src={category.image || '/placeholder.jpg'}
           alt={category.name}
           className="category-card-image"
         />
@@ -27,7 +44,7 @@ const CategoryCard = ({ category }: CategoryCardProps) => {
               {category.name}
             </h3>
             <p className="category-card-description">
-              {category.description}
+              {category.description || ''}
             </p>
           </div>
         </div>
@@ -36,4 +53,4 @@ const CategoryCard = ({ category }: CategoryCardProps) => {
   );
 };
 
-export default CategoryCard; 
+export default CategoryCard;

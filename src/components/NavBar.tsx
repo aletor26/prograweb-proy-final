@@ -4,14 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import './NavBar.css';
 import BotonCerrarSesion from './BotonCerrarSesion/BotonCerrarSesion';
-
-
-interface Category {
-  id: string;
-  name: string;
-  description: string;
-  active: boolean;
-}
+import { obtenerCategorias } from '../services/categoriaservicio';
+import type { Categoria } from '../services/categoriaservicio';
 
 const NavBar = () => {
   const navigate = useNavigate();
@@ -20,31 +14,23 @@ const NavBar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showCategories, setShowCategories] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [categories, setCategories] = useState<Category[] | null>(null);
+  const [categories, setCategories] = useState<Categoria[]>([]);
 
   const isAdmin = user?.role === 'admin';
 
   useEffect(() => {
-    const loadCategories = () => {
-      const storedCategories = localStorage.getItem('categories');
-      if (storedCategories) {
-        const parsedCategories = JSON.parse(storedCategories);
-        setCategories(parsedCategories.filter((cat: Category) => cat.active));
-      } else {
-        setCategories(null);
+    const fetchCategorias = async () => {
+      try {
+        const data = await obtenerCategorias();
+        setCategories(data); // ✅ sin filtro
+      } catch (error) {
+        console.error('Error cargando categorías desde el servicio:', error);
+        setCategories([]);
       }
     };
 
-    loadCategories();
-    window.addEventListener('storage', loadCategories);
-    return () => {
-      window.removeEventListener('storage', loadCategories);
-    };
+    fetchCategorias();
   }, []);
-
-  const fallbackCategories = [
-    'Vinos', 'Piscos', 'Whiskies', 'Vodkas', 'Tequilas', 'Rones', 'Gin', 'Champagnes'
-  ];
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,14 +74,14 @@ const NavBar = () => {
           </button>
           {showCategories && (
             <div className="categories-list">
-              {(categories ?? fallbackCategories).map((cat: any) => (
+              {categories.map((cat) => (
                 <Link
-                  key={cat.id ?? cat}
-                  to={`/category/${(cat.name ?? cat).toLowerCase()}`}
+                  key={cat.id}
+                  to={`/category/${cat.nombre?.toLowerCase() || 'sin-nombre'}`}
                   className="category-item"
                   onClick={() => setShowCategories(false)}
                 >
-                  {cat.name ?? cat}
+                  {cat.nombre || 'Sin nombre'}
                 </Link>
               ))}
             </div>
@@ -107,7 +93,6 @@ const NavBar = () => {
 
         {isAuthenticated ? (
           <div className="nav-user-section">
-            {/* Carrito: solo para clientes o usuarios no loggeados */}
             {!isAdmin && (
               <Link to="/cart" className="cart-link">
                 <img
