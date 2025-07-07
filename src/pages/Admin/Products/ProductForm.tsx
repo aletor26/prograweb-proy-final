@@ -59,8 +59,8 @@ const ProductForm = () => {
           .filter((cat: any) => cat.active !== false)
           .map((cat: any) => ({
             id: String(cat.id),
-            name: cat.name,
-            description: cat.description,
+            name: cat.nombre,
+            description: cat.descripcion || '',
             active: cat.active
           }));
         setCategories(mappedCats);
@@ -130,16 +130,17 @@ const ProductForm = () => {
       return;
     }
 
-    const productData = {
-      name: formData.name.trim(),
-      price: parseFloat(formData.price),
-      image: formData.image.trim(),
-      category: formData.category.trim(),
-      description: formData.description.trim(),
-      serie: formData.serie?.trim() || null,
-      stock: formData.stock ? parseInt(formData.stock) : 0,
-      active: true
-    };
+const productData = {
+  name: formData.name.trim(),
+  price: parseFloat(formData.price),
+  image: formData.image.trim(),
+  categoryId: parseInt(formData.category), // ✅ Convertimos a number
+  description: formData.description.trim(),
+  serie: formData.serie?.trim() || null,
+  stock: formData.stock ? parseInt(formData.stock) : 0,
+  active: true
+};
+
 
     try {
       setLoading(true);
@@ -148,6 +149,7 @@ const ProductForm = () => {
       if (isEditing && id) {
         await actualizarProducto(Number(id), productData);
       } else {
+        console.log(productData)
         await crearProducto(productData);
       }
 
@@ -255,7 +257,7 @@ const ProductForm = () => {
           >
             <option value="">Selecciona una categoría</option>
             {categories.map((category) => (
-              <option key={category.id} value={category.name}>
+              <option key={category.id} value={category.id}>
                 {category.name}
               </option>
             ))}
