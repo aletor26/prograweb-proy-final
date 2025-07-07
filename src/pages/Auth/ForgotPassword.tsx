@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { recuperarPassword } from '../../services/authservices'; // importa la función
 import './Auth.css';
 
 interface ValidationErrors {
@@ -26,19 +27,12 @@ const ForgotPassword = () => {
   const validateEmail = (): boolean => {
     const newErrors: ValidationErrors = {};
     
-    if (!email) {
+   if (!email) {
       newErrors.email = 'El email es requerido';
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       newErrors.email = 'Email inválido';
-    } else {
-      // Validar que el email exista en localStorage
-      const storedUsers = localStorage.getItem('users');
-      const users = storedUsers ? JSON.parse(storedUsers) : [];
-      const userExists = users.some((u: any) => u.email === email);
-      if (!userExists) {
-        newErrors.email = 'No existe una cuenta registrada con ese correo.';
-      }
     }
+
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -109,44 +103,24 @@ const ForgotPassword = () => {
     }
   };
 
-  const handleChangePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
+ const handleChangePassword = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    if (!validatePasswords()) {
-      return;
-    }
+  if (!validatePasswords()) {
+    return;
+  }
 
-    setIsLoading(true);
-    try {
-      // Obtener usuarios del localStorage
-      const storedUsers = localStorage.getItem('users');
-      const users = storedUsers ? JSON.parse(storedUsers) : [];
-      
-      // Actualizar la contraseña del usuario
-      const updatedUsers = users.map((user: any) => {
-        if (user.email === email) {
-          return { ...user, password };
-        }
-        return user;
-      });
-
-      // Guardar usuarios actualizados
-      localStorage.setItem('users', JSON.stringify(updatedUsers));
-      
-      // Simular delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Redirigir al login
-      navigate('/login');
-    } catch (error) {
-      setErrors({
-        password: 'Error al actualizar la contraseña'
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  setIsLoading(true);
+  try {
+    await recuperarPassword(email, password);
+    navigate('/login');
+  } catch (error: any) {
+    console.error('Error:', error);
+    setErrors({ password: error?.error || 'No se pudo actualizar la contraseña' });
+  } finally {
+    setIsLoading(false);
+  }
+};
   if (isVerified) {
     return (
       <div className="auth-container">
