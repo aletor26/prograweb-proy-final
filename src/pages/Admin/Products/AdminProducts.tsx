@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
-import { obtenerProductosAdmin, toggleProductoActivo } from '../../../services/productoservicio';
+import { obtenerProductosAdmin, toggleProductoActivo, testBackendConnection } from '../../../services/productoservicio';
 import './AdminProducts.css';
 
 interface Product {
@@ -37,17 +37,39 @@ const AdminProducts = () => {
   const [productsPerPage] = useState(10);
 
   useEffect(() => {
-    if (user?.role !== 'admin') {
+    console.log('AdminProducts useEffect - user:', user);
+    
+    if (!user) {
+      console.log('No user found, redirecting to home');
       navigate('/');
       return;
     }
 
-    fetchProducts();
+    if (user.role !== 'admin') {
+      console.log('User is not admin, redirecting to home');
+      navigate('/');
+      return;
+    }
+
+    console.log('User is admin, testing backend connection...');
+    testBackendConnection()
+      .then(() => {
+        console.log('Backend connection successful, fetching products...');
+        fetchProducts();
+      })
+      .catch((err) => {
+        console.error('Backend connection failed:', err);
+        setError(`Error de conexión con el backend: ${err.message}`);
+        setIsLoading(false);
+      });
   }, [user, navigate, currentPage, searchTerm, searchField]);
 
   const fetchProducts = async () => {
     try {
+      console.log('Starting fetchProducts...');
       setIsLoading(true);
+      setError(null);
+      
       const params: any = {
         pagina: currentPage,
         porPagina: productsPerPage
@@ -63,14 +85,17 @@ const AdminProducts = () => {
         }
       }
 
+      console.log('Fetching with params:', params);
       const response: ProductsResponse = await obtenerProductosAdmin(params);
+      console.log('Response received:', response);
+      
       setProducts(response.productos || []);
       setTotalPages(response.totalPaginas || 1);
       setTotalProducts(response.total || 0);
       setError(null);
     } catch (err) {
       console.error('Error fetching products:', err);
-      setError('Error al cargar los productos');
+      setError(err instanceof Error ? err.message : 'Error al cargar los productos');
     } finally {
       setIsLoading(false);
     }
@@ -111,6 +136,9 @@ const AdminProducts = () => {
     setCurrentPage(page);
   };
 
+  // Debug info
+  console.log('AdminProducts render - user:', user, 'isLoading:', isLoading, 'error:', error, 'products count:', products.length);
+
   if (isLoading) {
     return (
       <div className="admin-products">
@@ -122,7 +150,13 @@ const AdminProducts = () => {
   if (error) {
     return (
       <div className="admin-products">
-        <div className="error">{error}</div>
+        <div className="error">
+          <h3>Error al cargar productos</h3>
+          <p>{error}</p>
+          <button onClick={fetchProducts} className="retry-button">
+            Reintentar
+          </button>
+        </div>
       </div>
     );
   }

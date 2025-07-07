@@ -113,6 +113,31 @@
   text-align: center;
 }
 
+.admin-categories-error {
+  color: #dc2626;
+  text-align: center;
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  border-radius: 8px;
+  padding: 2rem;
+  margin: 2rem 0;
+}
+
+.admin-categories-error button {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+.admin-categories-error button:hover {
+  background: #b91c1c;
+}
+
 .admin-categories-filter-btn {
   background: none;
   border: none;
@@ -127,4 +152,24 @@
 
 .admin-categories-filter-btn:hover {
   color: #ffe0b2;
+}
+
+.admin-categories-delete-btn {
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 0.9rem;
+}
+
+.admin-categories-delete-btn:hover {
+  background: #b91c1c;
+}
+
+.admin-category-card.inactive {
+  opacity: 0.6;
+  border-color: rgba(220, 38, 38, 0.3);
 }
