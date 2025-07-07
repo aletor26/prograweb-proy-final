@@ -15,6 +15,7 @@ interface User {
   createdAt: string;
   dni?: string;
   password?: string;
+  activo: boolean;
 }
 
 interface Order {
@@ -61,16 +62,31 @@ const AdminUsers = () => {
         
         // Cargar usuarios del backend
         const usersResponse = await getUsuariosAdmin();
-        const parsedUsers: User[] = usersResponse.rows || usersResponse || [];
-        setUsers(parsedUsers);
+        
+        // El backend devuelve { count: number, rows: User[] }
+        // donde cada User tiene { Estado: { id: number, nombre: string } }
+        const users = usersResponse.rows || usersResponse || [];
+        
+        // Transformar los datos para que sean compatibles con el componente
+        const transformedUsers: User[] = users.map((user: any) => ({
+          ...user,
+          // Mapear campos del backend a los que espera el componente
+          email: user.correo,
+          name: user.nombre,
+          activo: user.Estado?.nombre === 'Activo' || user.estadoid === 1,
+          role: user.role || 'customer', // Por defecto customer si no existe
+          createdAt: user.createdAt
+        }));
+        
+        setUsers(transformedUsers);
 
         // Órdenes: intenta primero global, si no, por usuario
         let allOrders: Order[] = [];
         const globalOrders = localStorage.getItem('orders');
         if (globalOrders) {
           allOrders = JSON.parse(globalOrders);
-        } else if (parsedUsers.length > 0) {
-          parsedUsers.forEach((u) => {
+        } else if (transformedUsers.length > 0) {
+          transformedUsers.forEach((u) => {
             const userOrders = localStorage.getItem(`orders_${u.email}`);
             if (userOrders) {
               allOrders.push(...JSON.parse(userOrders));

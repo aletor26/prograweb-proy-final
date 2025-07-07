@@ -21,7 +21,27 @@ const UserDetail = () => {
         setError(null);
         
         const response = await getUsuarioAdmin(Number(id));
-        setUser(response.usuario || response);
+        
+        // El backend devuelve { usuario: User, pedidos: Order[] }
+        // donde User tiene { Estado: { id: number, nombre: string } }
+        const userData = response.usuario || response;
+        
+        if (userData) {
+          // Transformar los datos para que sean compatibles con el componente
+          const transformedUser = {
+            ...userData,
+            // Mapear campos del backend a los que espera el componente
+            email: userData.correo,
+            name: userData.nombre,
+            activo: userData.Estado?.nombre === 'Activo' || userData.estadoid === 1,
+            role: userData.role || 'customer', // Por defecto customer si no existe
+            createdAt: userData.createdAt
+          };
+          
+          setUser(transformedUser);
+        } else {
+          setUser(null);
+        }
       } catch (err: any) {
         console.error('Error al cargar usuario:', err);
         setError(err.message || 'Error al cargar usuario');

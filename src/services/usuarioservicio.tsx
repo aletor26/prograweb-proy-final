@@ -3,9 +3,25 @@ const API_URL = "http://localhost:3000";
 // ==================== ADMIN - GESTIÓN DE USUARIOS ====================
 
 // OBTENER LISTADO DE USUARIOS CON FILTROS
-export async function getUsuariosAdmin(params: any = {}) {
-  const queryString = new URLSearchParams(params).toString();
-  const url = `${API_URL}/admin/usuarios${queryString ? `?${queryString}` : ''}`;
+export async function getUsuariosAdmin(params: {
+  id?: string | number;
+  nombre?: string;
+  apellido?: string;
+  estadoid?: number;
+  page?: number;
+  limit?: number;
+} = {}) {
+  const queryParams = new URLSearchParams();
+  
+  // Agregar parámetros solo si están definidos
+  if (params.id !== undefined) queryParams.append('id', params.id.toString());
+  if (params.nombre) queryParams.append('nombre', params.nombre);
+  if (params.apellido) queryParams.append('apellido', params.apellido);
+  if (params.estadoid !== undefined) queryParams.append('estadoid', params.estadoid.toString());
+  if (params.page !== undefined) queryParams.append('page', params.page.toString());
+  if (params.limit !== undefined) queryParams.append('limit', params.limit.toString());
+  
+  const url = `${API_URL}/admin/usuarios${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
   const res = await fetch(url);
   if (!res.ok) throw await res.json();
   return res.json();

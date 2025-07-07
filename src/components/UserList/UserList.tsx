@@ -18,8 +18,9 @@ const UserList: React.FC = () => {
       setIsLoading(true);
       setError(null);
       
-      // Construir parámetros de filtro
+      // Construir parámetros de filtro según el endpoint del backend
       const params: any = {};
+      
       if (searchTerm) {
         if (searchField === 'id') {
           params.id = searchTerm;
@@ -30,8 +31,28 @@ const UserList: React.FC = () => {
         }
       }
       
+      // Agregar paginación por defecto
+      params.page = 1;
+      params.limit = 50; // Mostrar más usuarios por página
+      
       const response = await getUsuariosAdmin(params);
-      setUsuarios(response.rows || response || []);
+      
+      // El backend devuelve { count: number, rows: User[] }
+      // donde cada User tiene { Estado: { id: number, nombre: string } }
+      const users = response.rows || response || [];
+      
+      // Transformar los datos para que sean compatibles con el componente
+      const transformedUsers = users.map((user: any) => ({
+        ...user,
+        // Mapear campos del backend a los que espera el componente
+        email: user.correo,
+        name: user.nombre,
+        activo: user.Estado?.nombre === 'Activo' || user.estadoid === 1,
+        role: user.role || 'customer', // Por defecto customer si no existe
+        createdAt: user.createdAt
+      }));
+      
+      setUsuarios(transformedUsers);
     } catch (err: any) {
       console.error('Error al cargar usuarios:', err);
       setError(err.message || 'Error al cargar usuarios');
