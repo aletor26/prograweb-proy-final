@@ -7,7 +7,7 @@ export interface Categoria {
   image?: string;
   active?: boolean;
 }
-
+//hola
 // Obtener todas las categorías
 export async function obtenerCategorias(): Promise<Categoria[]> {
   try {
