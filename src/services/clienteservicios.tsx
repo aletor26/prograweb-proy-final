@@ -93,4 +93,11 @@ export async function completarOrden(data: any) {
   if (!res.ok) throw await res.json();
   return res.json();
 }
+
+// OBTENER DETALLE DE UN PEDIDO DE UN CLIENTE
+export async function getPedidoCliente(clienteId: number, pedidoId: number) {
+  const res = await fetch(`${API_URL}/usuarios/${clienteId}/ordenes/${pedidoId}`);
+  if (!res.ok) throw await res.json();
+  return res.json();
+}
   

@@ -2,28 +2,16 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
 import Paginacion from '../../components/Paginacion/Paginacion';
+import { getPedidosCliente } from '../../services/clienteservicios';
 import './Orders.css';
 
 interface Order {
-  id: string;
-  date: string;
-  total: number;
-  status: 'Pendiente' | 'Procesado' | 'Completado' | 'Cancelado';
-  items: {
-    id: number;
-    name: string;
-    quantity: number;
-    price: number;
-  }[];
-  shippingDetails: {
-    fullName: string;
-    email: string;
-    address: string;
-    city: string;
-    phone: string;
-  };
-  shippingMethod: 'standard' | 'express';
-  paymentMethod: 'qr' | 'credit-card';
+  id: number;
+  numero: string;
+  fecha_pedido: string;
+  precio_total: number;
+  estadoPedidoId: number;
+  // Puedes agregar más campos según lo que retorne el backend
 }
 
 const ORDERS_PER_PAGE = 3;
@@ -37,37 +25,21 @@ const Orders = () => {
 
   const isAdmin = user?.role === 'admin';
 
-  const fetchOrders = async () => {
-    try {
-      if (!user?.email) return;
-      const storedOrders = localStorage.getItem(`orders_${user.email}`);
-      if (storedOrders) {
-        setOrders(JSON.parse(storedOrders));
-      }
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-    } finally {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchOrders();
-
-    // Escuchar cambios en el localStorage
-    const handleStorageChange = (e: StorageEvent) => {
-      if (user?.email && e.key === `orders_${user.email}`) {
-        fetchOrders();
+    const fetchOrders = async () => {
+      if (!user?.id) return;
+      setIsLoading(true);
+      try {
+        const data = await getPedidosCliente(Number(user.id), currentPage, ORDERS_PER_PAGE);
+        setOrders(data.rows || data || []);
+      } catch (error) {
+        setOrders([]);
+      } finally {
+        setIsLoading(false);
       }
     };
-
-    window.addEventListener('storage', handleStorageChange);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, [user?.email]);
+    fetchOrders();
+  }, [user?.id, currentPage]);
 
   const handleCancelOrder = (orderId: string) => {
     setShowCancelConfirm(orderId);
@@ -78,8 +50,8 @@ const Orders = () => {
 
     try {
       const updatedOrders = orders.map(order => {
-        if (order.id === orderId) {
-          return { ...order, status: 'Cancelado' as const };
+        if (order.id === Number(orderId)) {
+          return { ...order, estadoPedidoId: 5 };
         }
         return order;
       });
@@ -92,34 +64,23 @@ const Orders = () => {
     }
   };
 
-  const getStatusColor = (status: Order['status']) => {
+  const getStatusColor = (status: Order['estadoPedidoId']) => {
     switch (status) {
-      case 'Pendiente':
+      case 1:
         return 'status-pending';
-      case 'Procesado':
+      case 2:
         return 'status-processing';
-      case 'Completado':
+      case 3:
         return 'status-completed';
-      case 'Cancelado':
+      case 5:
         return 'status-cancelled';
       default:
         return '';
     }
   };
 
-  // Paginación
-  const totalPages = Math.ceil(orders.length / ORDERS_PER_PAGE);
-  const paginatedOrders = orders.slice(
-    (currentPage - 1) * ORDERS_PER_PAGE,
-    currentPage * ORDERS_PER_PAGE
-  );
-
-  useEffect(() => {
-    // Si la página actual queda fuera de rango después de eliminar/cancelar, ajusta
-    if (currentPage > totalPages && totalPages > 0) {
-      setCurrentPage(totalPages);
-    }
-  }, [orders, totalPages, currentPage]);
+  const totalPages = 1; // Puedes ajustar esto si el backend retorna el total de páginas
+  const paginatedOrders = orders; // Ya viene paginado del backend
 
   if (isLoading) {
     return (
@@ -176,19 +137,19 @@ const Orders = () => {
             </div>
             {paginatedOrders.map((order) => (
               <div key={order.id} className="order-row">
-                <span>#{order.id}</span>
-                <span>{new Date(order.date).toLocaleDateString()}</span>
-                <span className={`order-status ${getStatusColor(order.status)}`}>
-                  {order.status}
+                <span>#{order.numero}</span>
+                <span>{new Date(order.fecha_pedido).toLocaleDateString()}</span>
+                <span className={`order-status ${getStatusColor(order.estadoPedidoId)}`}>
+                  {order.estadoPedidoId === 1 ? 'Pendiente' : order.estadoPedidoId === 2 ? 'Procesado' : order.estadoPedidoId === 3 ? 'Completado' : 'Cancelado'}
                 </span>
-                <span>S/ {order.total.toFixed(2)}</span>
+                <span>S/ {order.precio_total.toFixed(2)}</span>
                 <span>
                   <Link to={`/orders/${order.id}`} className="view-details-button">
                     Ver detalles
                   </Link>
-                  {!isAdmin && (order.status === 'Pendiente' || order.status === 'Procesado') && (
+                  {!isAdmin && (order.estadoPedidoId === 1 || order.estadoPedidoId === 2) && (
                     <button 
-                      onClick={() => handleCancelOrder(order.id)}
+                      onClick={() => handleCancelOrder(order.id.toString())}
                       className="cancel-order-button"
                     >
                       Cancelar
@@ -198,11 +159,8 @@ const Orders = () => {
               </div>
             ))}
           </div>
-          <Paginacion
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
+          {/* Paginación si el backend lo soporta */}
+          {/* <Paginacion currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} /> */}
         </>
       )}
     </div>

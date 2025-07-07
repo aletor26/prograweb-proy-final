@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { getPedidoCliente } from '../../services/clienteservicios';
 import './OrderDetail.css';
 
 interface OrderItem {
@@ -11,10 +12,10 @@ interface OrderItem {
 }
 
 interface Order {
-  id: string;
+  id: number;
   date: string;
   total: number;
-  status: 'pending' | 'processing' | 'completed' | 'cancelled';
+  status: string;
   items: OrderItem[];
   shippingDetails: {
     fullName: string;
@@ -23,74 +24,54 @@ interface Order {
     city: string;
     phone: string;
   };
-  shippingMethod: 'standard' | 'express';
-  paymentMethod: 'qr' | 'credit-card';
+  shippingMethod: string;
+  paymentMethod: string;
 }
 
 const OrderDetail = () => {
-  const { orderId } = useParams();
+  const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
-
-  const isAdmin = user?.role === 'admin';
 
   useEffect(() => {
-    const fetchOrder = () => {
+    const fetchOrder = async () => {
+      if (!user?.id || !orderId) return setIsLoading(false);
       try {
-        if (!user?.email) return;
-        const storedOrders = localStorage.getItem(`orders_${user.email}`);
-        if (storedOrders) {
-          const orders = JSON.parse(storedOrders);
-          const foundOrder = orders.find((o: Order) => o.id === orderId);
-          setOrder(foundOrder || null);
-        }
+        const data = await getPedidoCliente(Number(user.id), Number(orderId));
+        // Mapear los datos del backend al formato esperado
+        setOrder({
+          id: data.id,
+          date: data.fecha_pedido,
+          total: data.precio_total,
+          status: data.Estado_Pedido?.nombre || data.estadoPedido?.nombre || 'Desconocido',
+          items: (data.productos || []).map((item: any) => ({
+            id: item.id,
+            name: item.nombre,
+            quantity: item.Pedido_Producto?.cantidad,
+            price: item.precio
+          })),
+          shippingDetails: {
+            fullName: data.cliente?.usuario
+              ? `${data.cliente.usuario.nombre} ${data.cliente.usuario.apellido || ''}`
+              : '',
+            email: data.cliente?.usuario?.correo || '',
+            address: data.direccion || data.cliente?.direccion || '',
+            city: '', // Si tienes ciudad, ponla aquí
+            phone: data.cliente?.usuario?.telefono || ''
+          },
+          shippingMethod: data.Envio?.tipo || '',
+          paymentMethod: data.Pago?.nombre || ''
+        });
       } catch (error) {
-        console.error('Error fetching order:', error);
+        setOrder(null);
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchOrder();
-  }, [orderId, user?.email]);
-
-  const updateOrderStatus = (newStatus: Order['status']) => {
-    if (!user?.email || !order) return;
-
-    try {
-      const storedOrders = localStorage.getItem(`orders_${user.email}`);
-      if (storedOrders) {
-        const orders = JSON.parse(storedOrders);
-        const updatedOrders = orders.map((o: Order) => {
-          if (o.id === orderId) {
-            return { ...o, status: newStatus };
-          }
-          return o;
-        });
-
-        localStorage.setItem(`orders_${user.email}`, JSON.stringify(updatedOrders));
-        setOrder({ ...order, status: newStatus });
-        
-        // Si se está cancelando, cerrar el diálogo de confirmación
-        if (newStatus === 'cancelled') {
-          setShowCancelConfirm(false);
-        }
-      }
-    } catch (error) {
-      console.error('Error updating order status:', error);
-    }
-  };
-
-  const handleCancelOrder = () => {
-    setShowCancelConfirm(true);
-  };
-
-  const confirmCancelOrder = () => {
-    updateOrderStatus('cancelled');
-  };
+  }, [orderId, user?.id]);
 
   const getStatusColor = (status: Order['status']) => {
     switch (status) {
@@ -153,33 +134,8 @@ const OrderDetail = () => {
     );
   }
 
-  const canCancelOrder = !isAdmin && (order.status === 'pending' || order.status === 'processing');
-
   return (
     <div className="order-detail-container">
-      {showCancelConfirm && (
-        <div className="modal-overlay">
-          <div className="confirmation-modal">
-            <h3>¿Estás seguro que deseas cancelar este pedido?</h3>
-            <p>Esta acción no se puede deshacer.</p>
-            <div className="modal-actions">
-              <button 
-                onClick={() => setShowCancelConfirm(false)}
-                className="modal-button secondary"
-              >
-                No, mantener pedido
-              </button>
-              <button 
-                onClick={confirmCancelOrder}
-                className="modal-button primary"
-              >
-                Sí, cancelar pedido
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="order-detail-card">
         <div className="order-detail-header">
           <div className="order-detail-title">
@@ -187,30 +143,7 @@ const OrderDetail = () => {
             <p className="order-date">{new Date(order.date).toLocaleDateString()}</p>
           </div>
           <div className="order-status-section">
-            <span className={`order-status ${getStatusColor(order.status)}`}>
-              {getStatusText(order.status)}
-            </span>
-            {isAdmin ? (
-              <div className="admin-controls">
-                <select
-                  value={order.status}
-                  onChange={(e) => updateOrderStatus(e.target.value as Order['status'])}
-                  className="status-select"
-                >
-                  <option value="pending">Pendiente</option>
-                  <option value="processing">En proceso</option>
-                  <option value="completed">Completado</option>
-                  <option value="cancelled">Cancelado</option>
-                </select>
-              </div>
-            ) : canCancelOrder && (
-              <button 
-                onClick={handleCancelOrder}
-                className="cancel-order-button"
-              >
-                Cancelar Pedido
-              </button>
-            )}
+            <span className={`order-status`}>{order.status}</span>
           </div>
         </div>
 
