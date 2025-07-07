@@ -39,6 +39,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (foundUser.activo === false) {
         throw new Error('La cuenta está desactivada. Contacta al administrador.');
       }
+      console.log('Usuario recibido del backend:', foundUser);
 
       const userToSave: User = {
         id: foundUser.id.toString(),

@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import './NavBar.css';
 import BotonCerrarSesion from './BotonCerrarSesion/BotonCerrarSesion';
 
+
 interface Category {
   id: string;
   name: string;
@@ -107,7 +108,7 @@ const NavBar = () => {
         {isAuthenticated ? (
           <div className="nav-user-section">
             {/* Carrito: solo para clientes o usuarios no loggeados */}
-            {(!isAuthenticated || !isAdmin) && (
+            {!isAdmin && (
               <Link to="/cart" className="cart-link">
                 <img
                   src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/master/svgs/solid/shopping-bag.svg"
@@ -120,8 +121,7 @@ const NavBar = () => {
               </Link>
             )}
 
-            {/* Favoritos solo si está loggeado y no es admin */}
-            {isAuthenticated && !isAdmin && (
+            {!isAdmin && (
               <Link to="/saved-items" className="saved-items-link">
                 <img
                   src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/master/svgs/regular/heart.svg"
@@ -151,7 +151,7 @@ const NavBar = () => {
                       alt="Usuario"
                       className="nav-icon"
                     />
-                    <span>{user?.name}</span>
+                    <span>{user?.name || 'Usuario'}</span>
                   </div>
                 )}
               </button>
@@ -159,7 +159,7 @@ const NavBar = () => {
               {showUserMenu && (
                 <div className="user-menu">
                   <div className="user-info">
-                    <p className="user-name">{isAdmin ? 'Administrador' : user?.name}</p>
+                    <p className="user-name">{user?.name || (isAdmin ? 'Administrador' : 'Usuario')}</p>
                     <p className="user-email">{user?.email}</p>
                   </div>
 
@@ -191,7 +191,7 @@ const NavBar = () => {
                     </>
                   )}
 
-                   <BotonCerrarSesion
+                  <BotonCerrarSesion
                     onClick={handleLogout}
                     className="menu-item logout-button"
                   />

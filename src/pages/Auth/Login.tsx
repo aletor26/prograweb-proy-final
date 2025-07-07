@@ -67,7 +67,7 @@ const Login = () => {
 
     setIsLoading(true);
     try {
-      await loginService(formData.email, formData.password); 
+      await login(formData.email, formData.password);
       const redirect = localStorage.getItem('redirectAfterLogin');
       if (redirect) {
         navigate(redirect);
