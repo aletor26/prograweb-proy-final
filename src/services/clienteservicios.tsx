@@ -82,7 +82,7 @@ export async function getCheckout(clienteId: number) {
   if (!res.ok) throw await res.json();
   return res.json();
 }
-/*
+
 // COMPLETAR ORDEN (checkout)
 export async function completarOrden(data: any) {
   const res = await fetch(`${API_URL}/checkout/completarorden`, {
@@ -93,4 +93,4 @@ export async function completarOrden(data: any) {
   if (!res.ok) throw await res.json();
   return res.json();
 }
-  */
+  

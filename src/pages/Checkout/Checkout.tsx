@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
+import { completarOrden } from '../../services/clienteservicios'; // Ajusta la ruta real
+
 import QRCode from 'react-qr-code';
 import './Checkout.css';
 
@@ -86,45 +88,40 @@ const Checkout = () => {
     return isShippingValid && isPaymentValid;
   };
 
-  const handleCompleteOrder = () => {
-    if (!isFormValid() || !user?.email) return;
+ const handleCompleteOrder = async () => {
+  if (!isFormValid() || !user?.id) return;
 
-    // Crear el nuevo pedido
-    const newOrder = {
-      id: Date.now().toString(),
-      date: new Date().toISOString(),
-      total: total,
-      status: 'Pendiente',
+  try {
+    const data = {
+      metodoPago: paymentMethod,
+      datosPago: paymentMethod === 'credit-card' ? creditCard : {}, // si usas QR, se envía vacío
+      metodoEnvioId: shippingMethod === 'express' ? 2 : 1, // Asegúrate que estos IDs existan
+      correo: shippingAddress.email,
+      clienteId: user.id,
+      subtotal: subtotal,
       items: cartItems.map(item => ({
         id: item.id,
-        name: item.name,
         quantity: item.quantity,
         price: item.price
       })),
       shippingDetails: {
-        ...shippingAddress
-      },
-      shippingMethod,
-      paymentMethod
+        address: shippingAddress.address,
+        city: shippingAddress.city,
+        fullName: shippingAddress.fullName,
+        phone: shippingAddress.phone
+      }
     };
 
-    // Obtener pedidos existentes del localStorage
-    const storedOrders = localStorage.getItem(`orders_${user.email}`);
-    const existingOrders = storedOrders ? JSON.parse(storedOrders) : [];
+    const respuesta = await completarOrden(data);
+    console.log('Orden completada:', respuesta);
 
-    // Agregar el nuevo pedido al inicio del array
-    const updatedOrders = [newOrder, ...existingOrders];
-
-    // Guardar los pedidos actualizados en localStorage
-    localStorage.setItem(`orders_${user.email}`, JSON.stringify(updatedOrders));
-
-    // Limpiar el carrito
     clearCart();
-
-    // Redirigir a la página de confirmación
     navigate('/order-complete');
-  };
-
+  } catch (error) {
+    console.error('Error al completar la orden:', error);
+    alert('Hubo un error al procesar tu pedido.');
+  }
+};
   if (cartItems.length === 0) {
     return (
       <div className="checkout-container">
