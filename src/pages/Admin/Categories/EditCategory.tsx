@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
-import { getProducts, initializeProducts, deleteProduct } from '../../../data/products';
+import { obtenerCategoriaPorId, actualizarCategoria } from '../../../services/categoriaservicio';
+import { obtenerProductos, actualizarProducto, eliminarProducto } from '../../../services/productoservicio';
 import './EditCategory.css';
 
 interface Product {
@@ -14,7 +15,7 @@ interface Product {
 }
 
 interface Category {
-  id: string;
+  id: number;
   name: string;
   description: string;
   active: boolean;
@@ -30,6 +31,7 @@ const EditCategory = () => {
   const [showAddExisting, setShowAddExisting] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState('');
   const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user?.role !== 'admin') {
@@ -37,59 +39,55 @@ const EditCategory = () => {
       return;
     }
 
-    // Inicializar productos si es necesario
-    initializeProducts();
+    const loadCategoryAndProducts = async () => {
+  if (!categoryId) return;
+  setLoading(true);
+  try {
+    const cat = await obtenerCategoriaPorId(Number(categoryId));
+    // Validar que cat tenga los campos requeridos
+    if (!cat || typeof cat.id !== 'number' || !cat.name) {
+      navigate('/admin/categories');
+      return;
+    }
+    
+    setCategory({
+      id: cat.id,
+      name: cat.name,
+      description: cat.description ?? '',
+      active: cat.active ?? true,
+      image: cat.image ?? ''
+    });
 
-    const loadCategoryAndProducts = () => {
-      // Cargar categoría
-      const storedCategories = localStorage.getItem('categories');
-      if (storedCategories) {
-        const categories = JSON.parse(storedCategories);
-        const foundCategory = categories.find((c: Category) => c.id === categoryId);
-        if (foundCategory) {
-          setCategory(foundCategory);
-          // Cargar productos de la categoría desde localStorage
-          const allProducts = getProducts();
-          const categoryProducts = allProducts.filter(
-            p => p.category.toLowerCase().trim() === foundCategory.name.toLowerCase().trim()
-          );
-          setProducts(categoryProducts);
-        } else {
-          navigate('/admin/categories');
-        }
-      }
-    };
+    // Cargar productos desde el backend
+    const all = await obtenerProductos();
+    setAllProducts(all);
+    const categoryProducts = all.filter(
+      (p: Product) => p.category?.toLowerCase().trim() === cat.name.toLowerCase().trim()
+    );
+    setProducts(categoryProducts);
+  } catch {
+    navigate('/admin/categories');
+  } finally {
+    setLoading(false);
+  }
+};
 
     loadCategoryAndProducts();
-
-    // Cargar todos los productos (de localStorage o estáticos)
-    const stored = localStorage.getItem('products');
-    const all = stored ? JSON.parse(stored) : [];
-    setAllProducts(all);
-
-    // Escuchar cambios en el almacenamiento
-    window.addEventListener('storage', loadCategoryAndProducts);
-    return () => {
-      window.removeEventListener('storage', loadCategoryAndProducts);
-    };
+    // eslint-disable-next-line
   }, [categoryId, user, navigate]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!category) return;
 
     try {
-      const storedCategories = localStorage.getItem('categories');
-      if (storedCategories) {
-        const categories = JSON.parse(storedCategories);
-        const updatedCategories = categories.map((c: Category) =>
-          c.id === categoryId ? category : c
-        );
-        localStorage.setItem('categories', JSON.stringify(updatedCategories));
-        // Disparar evento para actualizar el NavBar
-        window.dispatchEvent(new Event('storage'));
-        navigate('/admin/categories');
-      }
+      await actualizarCategoria(category.id, {
+        name: category.name,
+        description: category.description,
+        image: category.image,
+        active: category.active,
+      });
+      navigate('/admin/categories');
     } catch (error) {
       console.error('Error al guardar la categoría:', error);
     }
@@ -114,14 +112,12 @@ const EditCategory = () => {
   };
 
   const handleAddProduct = () => {
-    // Navegar a la página de agregar producto con la categoría preseleccionada
     navigate('/admin/products/new', {
       state: { selectedCategory: category?.name }
     });
   };
 
   const handleEditProduct = (productId: number) => {
-    // Navegar a la página de editar producto
     navigate(`/admin/products/${productId}/edit`, {
       state: { returnTo: `/admin/categories/${categoryId}/edit` }
     });
@@ -129,23 +125,37 @@ const EditCategory = () => {
 
   const handleShowAddExistingProduct = () => setShowAddExisting(true);
 
-  const handleAddExistingProduct = () => {
-    if (!selectedProductId) return;
-    const categoryName = category?.name ?? '';
-    const updatedAllProducts = allProducts.map(p =>
-      p.id === Number(selectedProductId) ? { ...p, category: categoryName } : p
-    );
-    setAllProducts(updatedAllProducts);
-    localStorage.setItem('products', JSON.stringify(updatedAllProducts));
-    // Actualiza la lista de la categoría actual
-    const categoryProducts = updatedAllProducts.filter(
-      (p: Product) => p.category.toLowerCase().trim() === categoryName.toLowerCase().trim()
-    );
-    setProducts(categoryProducts);
-    setShowAddExisting(false);
+  const handleAddExistingProduct = async () => {
+    if (!selectedProductId || !category) return;
+    try {
+      const product = allProducts.find(p => p.id === Number(selectedProductId));
+      if (!product) return;
+      await actualizarProducto(product.id, { ...product, category: category.name });
+      // Refrescar productos
+      const all = await obtenerProductos();
+      setAllProducts(all);
+      const categoryProducts = all.filter(
+        (p: Product) => p.category?.toLowerCase().trim() === category.name.toLowerCase().trim()
+      );
+      setProducts(categoryProducts);
+      setShowAddExisting(false);
+    } catch (e) {
+      alert('Error al agregar producto existente');
+    }
   };
 
-  if (!category) {
+  const handleDeleteProduct = async (productId: number) => {
+    if (!window.confirm('¿Estás seguro de que deseas eliminar este producto?')) return;
+    try {
+      await eliminarProducto(productId);
+      setProducts(products.filter(p => p.id !== productId));
+      setAllProducts(allProducts.filter(p => p.id !== productId));
+    } catch (e) {
+      alert('Error al eliminar el producto');
+    }
+  };
+
+  if (loading || !category) {
     return <div>Cargando...</div>;
   }
 
@@ -242,14 +252,7 @@ const EditCategory = () => {
                       </button>
                       <button
                         className="action-button delete-button"
-                        onClick={() => {
-                          if (window.confirm('¿Estás seguro de que deseas eliminar este producto?')) {
-                            deleteProduct(product.id);
-                            const updatedProducts = products.filter(p => p.id !== product.id);
-                            setProducts(updatedProducts);
-                            window.dispatchEvent(new Event('storage'));
-                          }
-                        }}
+                        onClick={() => handleDeleteProduct(product.id)}
                         title="Eliminar producto"
                       >
                         <i className="fas fa-trash"></i>

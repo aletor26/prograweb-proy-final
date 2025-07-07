@@ -1,22 +1,61 @@
 import { useCart } from '../../context/CartContext';
 import { useEffect, useState } from 'react';
-import { getProducts, initializeProducts } from '../../data/products';
+import { obtenerProductos } from '../../services/productoservicio';
 import './Products.css';
 import { useNavigate } from 'react-router-dom';
-import type { Product } from '../../data/products';
+
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  image: string;
+  category: string;
+  description: string;
+  active?: boolean;
+}
 
 const Products = () => {
   const { addToCart } = useCart();
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    initializeProducts();
-    const allProducts = getProducts();
-    setProducts(allProducts.map(p => ({ ...p, active: p.active !== false })));
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const data = await obtenerProductos();
+        setProducts(data.map((p: { active: boolean; }) => ({ ...p, active: p.active !== false })));
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching products:', err);
+        setError('Error al cargar los productos');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
   }, []);
 
   const activeProducts = products.filter(p => p.active !== false);
+
+  if (loading) {
+    return (
+      <div className="products-container">
+        <div className="loading">Cargando productos...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="products-container">
+        <div className="error">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="products-container">

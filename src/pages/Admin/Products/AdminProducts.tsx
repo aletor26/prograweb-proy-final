@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
-import { getProducts, initializeProducts } from '../../../data/products';
+import { obtenerProductosAdmin, toggleProductoActivo } from '../../../services/productoservicio';
 import './AdminProducts.css';
 
 interface Product {
@@ -12,6 +12,15 @@ interface Product {
   description: string;
   category: string;
   active: boolean;
+  serie?: string;
+}
+
+interface ProductsResponse {
+  productos: Product[];
+  total: number;
+  pagina: number;
+  porPagina: number;
+  totalPaginas: number;
 }
 
 const AdminProducts = () => {
@@ -19,7 +28,13 @@ const AdminProducts = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchField, setSearchField] = useState<'nombre' | 'serie' | 'id'>('nombre');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [productsPerPage] = useState(10);
 
   useEffect(() => {
     if (user?.role !== 'admin') {
@@ -27,23 +42,37 @@ const AdminProducts = () => {
       return;
     }
 
-    initializeProducts();
-    const allProducts = getProducts();
-    // Asegúrate de que todos tengan el campo active
-    setProducts(allProducts.map(p => ({ ...p, active: p.active !== false })));
-    setIsLoading(false);
-  }, [user, navigate]);
+    fetchProducts();
+  }, [user, navigate, currentPage, searchTerm, searchField]);
 
-  const handleDeleteProduct = (productId: number) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar este producto?')) {
-      try {
-        const updatedProducts = products.filter(product => product.id !== productId);
-        localStorage.setItem('products', JSON.stringify(updatedProducts));
-        setProducts(updatedProducts);
-        window.dispatchEvent(new Event('storage'));
-      } catch (error) {
-        console.error('Error al eliminar producto:', error);
+  const fetchProducts = async () => {
+    try {
+      setIsLoading(true);
+      const params: any = {
+        pagina: currentPage,
+        porPagina: productsPerPage
+      };
+      
+      if (searchTerm) {
+        if (searchField === 'id') {
+          params.id = searchTerm;
+        } else if (searchField === 'nombre') {
+          params.nombre = searchTerm;
+        } else if (searchField === 'serie') {
+          params.serie = searchTerm;
+        }
       }
+
+      const response: ProductsResponse = await obtenerProductosAdmin(params);
+      setProducts(response.productos || []);
+      setTotalPages(response.totalPaginas || 1);
+      setTotalProducts(response.total || 0);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching products:', err);
+      setError('Error al cargar los productos');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -51,24 +80,49 @@ const AdminProducts = () => {
     navigate(`/admin/products/${productId}/edit`);
   };
 
-  const handleToggleActive = (id: number) => {
-    const updated = products.map(p =>
-      p.id === id ? { ...p, active: !p.active } : p
-    );
-    setProducts(updated);
-    localStorage.setItem('products', JSON.stringify(updated));
-    window.dispatchEvent(new Event('storage'));
+  const handleViewProduct = (productId: number) => {
+    navigate(`/admin/products/${productId}`);
   };
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleToggleActive = async (id: number) => {
+    try {
+      const product = products.find(p => p.id === id);
+      if (!product) return;
+
+      await toggleProductoActivo(id, !product.active);
+      
+      // Actualizar el estado local
+      const updated = products.map(p =>
+        p.id === id ? { ...p, active: !p.active } : p
+      );
+      setProducts(updated);
+    } catch (error) {
+      console.error('Error al actualizar producto:', error);
+      setError('Error al actualizar el estado del producto');
+    }
+  };
+
+  const handleSearch = () => {
+    setCurrentPage(1); // Reset a la primera página al buscar
+    fetchProducts();
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   if (isLoading) {
     return (
       <div className="admin-products">
         <div className="admin-products-loading">Cargando productos...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="admin-products">
+        <div className="error">{error}</div>
       </div>
     );
   }
@@ -86,13 +140,33 @@ const AdminProducts = () => {
       </div>
 
       <div className="admin-products-section">
-        <input
-          type="text"
-          placeholder="Buscar producto por nombre o categoría..."
-          value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
-          className="admin-search-input"
-        />
+        <div className="admin-search-section">
+          <select
+            value={searchField}
+            onChange={e => setSearchField(e.target.value as 'nombre' | 'serie' | 'id')}
+            className="admin-search-select"
+          >
+            <option value="nombre">Nombre</option>
+            <option value="serie">Serie</option>
+            <option value="id">ID</option>
+          </select>
+          <input
+            type="text"
+            placeholder={`Buscar por ${searchField}`}
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            className="admin-search-input"
+          />
+          <button onClick={handleSearch} className="admin-search-button">
+            Buscar
+          </button>
+        </div>
+
+        <div className="admin-products-info">
+          <p>Total de productos: {totalProducts}</p>
+          <p>Página {currentPage} de {totalPages}</p>
+        </div>
+
         <div className="admin-products-list">
           {products.length === 0 ? (
             <div className="admin-products-no-products">
@@ -100,7 +174,7 @@ const AdminProducts = () => {
               <p>Haz clic en "Agregar Producto" para crear uno nuevo</p>
             </div>
           ) : (
-            filteredProducts.map((product) => (
+            products.map((product) => (
               <div key={product.id} className="admin-product-card">
                 <div className="admin-product-image">
                   <img src={product.image} alt={product.name} />
@@ -109,6 +183,9 @@ const AdminProducts = () => {
                   <h3>{product.name}</h3>
                   <p className="admin-product-description">{product.description}</p>
                   <p className="admin-product-category">Categoría: {product.category}</p>
+                  {product.serie && (
+                    <p className="admin-product-serie">Serie: {product.serie}</p>
+                  )}
                   <p className="admin-product-price">S/. {product.price.toFixed(2)}</p>
                   <p className={product.active ? "estado-activo" : "estado-inactivo"}>
                     {product.active ? "Activo" : "Inactivo"}
@@ -116,22 +193,23 @@ const AdminProducts = () => {
                 </div>
                 <div className="admin-product-actions">
                   <button 
+                    className="admin-product-action-button admin-product-view-button"
+                    onClick={() => handleViewProduct(product.id)}
+                    title="Ver detalles"
+                  >
+                    <i className="fas fa-eye"></i>
+                  </button>
+                  <button 
                     className="admin-product-action-button admin-product-edit-button"
                     onClick={() => handleEditProduct(product.id)}
                     title="Editar producto"
                   >
                     <i className="fas fa-edit"></i>
                   </button>
-                  <button 
-                    className="admin-product-action-button admin-product-delete-button"
-                    onClick={() => handleDeleteProduct(product.id)}
-                    title="Eliminar producto"
-                  >
-                    <i className="fas fa-trash"></i>
-                  </button>
                   <button
-                    className="product-action-btn"
+                    className={`admin-product-toggle-button ${product.active ? 'deactivate' : 'activate'}`}
                     onClick={() => handleToggleActive(product.id)}
+                    title={product.active ? "Desactivar producto" : "Activar producto"}
                   >
                     {product.active ? "Desactivar" : "Activar"}
                   </button>
@@ -140,6 +218,37 @@ const AdminProducts = () => {
             ))
           )}
         </div>
+
+        {/* Paginación */}
+        {totalPages > 1 && (
+          <div className="admin-pagination">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="pagination-button"
+            >
+              Anterior
+            </button>
+            
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className={`pagination-button ${currentPage === page ? 'active' : ''}`}
+              >
+                {page}
+              </button>
+            ))}
+            
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="pagination-button"
+            >
+              Siguiente
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
