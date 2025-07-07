@@ -43,11 +43,12 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const userToSave: User = {
         id: foundUser.id.toString(),
-        name: foundUser.nombre + ' ' + foundUser.apellido,
+        name: `${foundUser.nombre ?? ''} ${foundUser.apellido ?? ''}`.trim() || 'Usuario',
         email: foundUser.correo,
-        role: foundUser.rol || 'customer', // por si no viene definido
+        role: foundUser.rol === 'admin' ? 'admin' : 'customer', // 👈 esta línea usa el campo que viene del backend
         activo: foundUser.activo ?? true,
       };
+
 
       setUser(userToSave);
       localStorage.setItem('currentUser', JSON.stringify(userToSave));
