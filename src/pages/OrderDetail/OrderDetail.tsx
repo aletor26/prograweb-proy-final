@@ -13,6 +13,7 @@ interface OrderItem {
 
 interface Order {
   id: number;
+  numero: string;
   date: string;
   total: number;
   status: string;
@@ -40,31 +41,34 @@ const OrderDetail = () => {
       if (!user?.id || !orderId) return setIsLoading(false);
       try {
         const data = await getPedidoCliente(Number(user.id), Number(orderId));
-        // Mapear los datos del backend al formato esperado
+        console.log('Datos del pedido recibidos:', data); // Para debug
+        
         setOrder({
           id: data.id,
+          numero: data.numero,
           date: data.fecha_pedido,
           total: data.precio_total,
-          status: data.Estado_Pedido?.nombre || data.estadoPedido?.nombre || 'Desconocido',
+          status: data.Estado_Pedido?.nombre || 'Desconocido',
           items: (data.productos || []).map((item: any) => ({
             id: item.id,
             name: item.nombre,
-            quantity: item.Pedido_Producto?.cantidad,
+            quantity: item.pedido_producto?.cantidad || 1, // Usar la cantidad de la tabla intermedia
             price: item.precio
           })),
           shippingDetails: {
             fullName: data.cliente?.usuario
               ? `${data.cliente.usuario.nombre} ${data.cliente.usuario.apellido || ''}`
               : '',
-            email: data.cliente?.usuario?.correo || '',
+            email: data.cliente?.usuario?.correo || data.correo || '',
             address: data.direccion || data.cliente?.direccion || '',
-            city: '', // Si tienes ciudad, ponla aquí
+            city: data.cliente?.ciudad || '',
             phone: data.cliente?.usuario?.telefono || ''
           },
           shippingMethod: data.Envio?.tipo || '',
           paymentMethod: data.Pago?.nombre || ''
         });
       } catch (error) {
+        console.error('Error al obtener el pedido:', error);
         setOrder(null);
       } finally {
         setIsLoading(false);
@@ -139,7 +143,7 @@ const OrderDetail = () => {
       <div className="order-detail-card">
         <div className="order-detail-header">
           <div className="order-detail-title">
-            <h1>Pedido #{order.id}</h1>
+            <h1>Pedido #{order.numero}</h1>
             <p className="order-date">{new Date(order.date).toLocaleDateString()}</p>
           </div>
           <div className="order-status-section">
