@@ -45,11 +45,11 @@ const OrderDetail = () => {
         
         setOrder({
           id: data.id,
-          numero: data.numero,
+          numero: data.numero,  
           date: data.fecha_pedido,
           total: data.precio_total,
           status: data.Estado_Pedido?.nombre || 'Desconocido',
-          items: (data.productos || []).map((item: any) => ({
+          items: (data.Productos || []).map((item: any) => ({
             id: item.id,
             name: item.nombre,
             quantity: item.pedido_producto?.cantidad || 1, // Usar la cantidad de la tabla intermedia
@@ -112,7 +112,7 @@ const OrderDetail = () => {
   };
 
   const getPaymentMethodText = (method: Order['paymentMethod']) => {
-    return method === 'qr' ? 'Pago con QR' : 'Tarjeta de crédito';
+    return method === 'Qr' ? 'Pago con QR' : 'Tarjeta de crédito';
   };
 
   if (isLoading) {
