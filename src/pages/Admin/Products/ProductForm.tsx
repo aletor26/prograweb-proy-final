@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { obtenerProducto, crearProducto, actualizarProducto } from '../../../services/productoservicio';
+import { obtenerCategorias } from '../../../services/categoriaservicio'; // <-- IMPORTANTE
 import './ProductForm.css';
 
 interface Category {
@@ -49,13 +50,25 @@ const ProductForm = () => {
       return;
     }
 
-    // Cargar categorías
-    const storedCategories = localStorage.getItem('categories');
-    if (storedCategories) {
-      const parsedCategories = JSON.parse(storedCategories);
-      // Solo mostrar categorías activas
-      setCategories(parsedCategories.filter((cat: Category) => cat.active));
-    }
+    // Cargar categorías desde el backend
+    const fetchCategorias = async () => {
+      try {
+        const cats = await obtenerCategorias();
+        // Mapear id a string para que coincida con la interfaz Category
+        const mappedCats: Category[] = cats
+          .filter((cat: any) => cat.active !== false)
+          .map((cat: any) => ({
+            id: String(cat.id),
+            name: cat.name,
+            description: cat.description,
+            active: cat.active
+          }));
+        setCategories(mappedCats);
+      } catch (err) {
+        setCategories([]);
+      }
+    };
+    fetchCategorias();
 
     if (isEditing && id) {
       fetchProduct();
