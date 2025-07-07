@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import { login as loginService } from '../services/clienteservicios';
 
 interface User {
   id: string;
@@ -16,73 +17,42 @@ interface AuthContextType {
   logout: () => void;
 }
 
-const DEFAULT_ADMIN = {
-  id: 'admin-1',
-  name: 'Administrador',
-  email: 'admin@cheers.com',
-  password: '123',
-  role: 'admin' as const,
-  activo: true
-};
-
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
 
+  // Restaurar sesión desde localStorage
   useEffect(() => {
-    // Cargar usuario actual si existe
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
-
-    // Asegurar que existe el admin por defecto
-    const storedUsers = localStorage.getItem('users');
-    if (!storedUsers) {
-      localStorage.setItem('users', JSON.stringify([DEFAULT_ADMIN]));
-    } else {
-      const users = JSON.parse(storedUsers);
-      const adminExists = users.some((u: any) => u.email === DEFAULT_ADMIN.email);
-      if (!adminExists) {
-        users.push(DEFAULT_ADMIN);
-        localStorage.setItem('users', JSON.stringify(users));
-      }
-    }
   }, []);
 
+  // Función de login conectada al backend
   const login = async (email: string, password: string) => {
-    const storedUsers = localStorage.getItem('users');
-    const users = storedUsers ? JSON.parse(storedUsers) : [DEFAULT_ADMIN];
-    
-    const foundUser = users.find((u: any) => 
-      u.email === email && u.password === password
-    );
+    try {
+      const data = await loginService(email, password); // llama al backend
+      const foundUser = data.usuario;
 
-    if (!foundUser) {
+      if (foundUser.activo === false) {
+        throw new Error('La cuenta está desactivada. Contacta al administrador.');
+      }
+
+      const userToSave: User = {
+        id: foundUser.id.toString(),
+        name: foundUser.nombre + ' ' + foundUser.apellido,
+        email: foundUser.correo,
+        role: foundUser.rol || 'customer', // por si no viene definido
+        activo: foundUser.activo ?? true,
+      };
+
+      setUser(userToSave);
+      localStorage.setItem('currentUser', JSON.stringify(userToSave));
+    } catch (err) {
       throw new Error('Credenciales inválidas');
     }
-
-    // Nueva validación: usuario desactivado
-    if (foundUser.activo === false) {
-      throw new Error('La cuenta está desactivada. Contacta al administrador.');
-    }
-
-    // Asegurarse de que el usuario tenga un rol válido
-    if (!foundUser.role) {
-      foundUser.role = 'customer';
-    }
-
-    const userToSave = {
-      id: foundUser.id,
-      name: foundUser.name,
-      email: foundUser.email,
-      role: foundUser.role as 'customer' | 'admin',
-      activo: foundUser.activo
-    };
-
-    setUser(userToSave);
-    localStorage.setItem('currentUser', JSON.stringify(userToSave));
   };
 
   const logout = () => {
@@ -104,8 +74,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+  if (!context) {
+    throw new Error('useAuth debe usarse dentro de un AuthProvider');
   }
   return context;
 };
