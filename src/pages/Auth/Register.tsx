@@ -93,29 +93,26 @@ const Register = () => {
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
 
-  if (!validateForm()) {
-    return;
-  }
+  if (!validateForm()) return;
 
   setIsLoading(true);
   try {
-    // Llama al servicio de registro
     await registerService({
       nombre: formData.nombre,
       apellido: formData.apellido,
       correo: formData.email,
       dni: formData.dni,
       clave: formData.password,
-      direccion: '', 
-      telefono: '' 
+      direccion: 'N/A',
+      telefono: 'N/A'
     });
 
-    // Inicia sesión automáticamente después de registrar
-    await loginService(formData.email, formData.password);
+    // 👇 AUTENTICA usando el contexto (¡clave!)
+    await login(formData.email, formData.password);
+
     navigate('/');
   } catch (error: any) {
-    // Si el backend devuelve error de usuario existente
-    if (error?.response?.data?.message?.includes('existe')) {
+    if (error?.message?.includes('existe')) {
       setErrors({ email: 'Este correo ya está registrado' });
     } else {
       setErrors({ general: 'Error al crear la cuenta' });
@@ -124,6 +121,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     setIsLoading(false);
   }
 };
+
   return (
     <div className="auth-container">
       <div className="auth-card">
