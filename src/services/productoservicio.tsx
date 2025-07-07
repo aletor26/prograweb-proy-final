@@ -36,7 +36,7 @@ export async function obtenerProductos() {
     description: producto.descripcion,
     price: producto.precio,
     image: producto.url_imagen || 'https://placehold.co/300x300',
-    category: producto.categoriaId ? `Categoría ${producto.categoriaId}` : 'Sin categoría',
+    categoriaId: producto.categoriaId,
     active: producto.estadoId === 1,
     serie: producto.serie || null,
     stock: producto.stock || 0,

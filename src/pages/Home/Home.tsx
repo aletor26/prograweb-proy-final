@@ -1,17 +1,38 @@
 import { useEffect, useState } from 'react';
-import { getProducts, initializeProducts } from '../../data/products';
 import ProductCarousel from '../../components/ProductCarousel/ProductCarousel';
 import AdCarousel from '../../components/AdCarousel/AdCarousel';
 import './Home.css';
 import type { Product } from '../../data/products';
+import { obtenerProductos } from '../../services/productoservicio';
+import { obtenerCategorias } from '../../services/categoriaservicio';
 
 const Home = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    initializeProducts();
-    const allProducts = getProducts();
-    setProducts(allProducts.filter(p => p.active !== false));
+    const fetchData = async () => {
+      try {
+        const [productos, categorias] = await Promise.all([
+          obtenerProductos(),
+          obtenerCategorias()
+        ]);
+        // Mapea el nombre real de la categoría
+        const categoriasMap = Object.fromEntries(
+          categorias.map((cat: any) => [cat.id, cat.nombre])
+        );
+        const productosConCategoria = productos.map((p: any) => ({
+          ...p,
+          category: categoriasMap[p.categoriaId] || 'Sin categoría'
+        }));
+        setProducts(productosConCategoria.filter((p: any) => p.active !== false));
+      } catch (err) {
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
   // 12 más vendidos (puedes cambiar la lógica si tienes ventas reales)
