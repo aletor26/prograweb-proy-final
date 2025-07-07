@@ -6,6 +6,7 @@ import {
   obtenerCategorias,
   eliminarCategoria
 } from '../../../services/categoriaservicio';
+import { obtenerProductos } from '../../../services/productoservicio';
 import './AdminCategories.css';
 
 interface Category {
@@ -37,39 +38,45 @@ const AdminCategories = () => {
   const filterMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    async function fetchCategorias() {
+    async function fetchData() {
       setIsLoading(true);
       setError(null);
       try {
-        const data = await obtenerCategorias();
-        
-        console.log('Datos originales del backend:', data);
-        
-        // Transformar los datos del backend al formato que espera el frontend
-        const transformedCategories = data.map((category: any) => ({
+        const [categoriasData, productosData] = await Promise.all([
+          obtenerCategorias(),
+          obtenerProductos()
+        ]);
+
+        const counts: Record<number, number> = {};
+        productosData.forEach((producto: any) => {
+          const catId = producto.categoriaId;
+          if (catId) {
+            counts[catId] = (counts[catId] || 0) + 1;
+          }
+        });
+
+        const transformedCategories = categoriasData.map((category: any) => ({
           id: category.id,
-          name: category.nombre, // El modelo real usa 'nombre'
-          description: '', // No existe en el modelo
-          image: '', // No existe en el modelo
-          active: true, // No existe en el modelo, por defecto activo
-          productCount: 0 // No existe en el modelo
+          name: category.nombre,
+          description: '',
+          image: '',
+          active: true,
+          productCount: counts[category.id] || 0
         }));
-        
-        console.log('Categorías transformadas:', transformedCategories);
-        
+
         setCategories(transformedCategories);
       } catch (e: any) {
-        console.error('Error al cargar categorías:', e);
+        console.error('Error al cargar categorías o productos:', e);
         setError(e.message || 'Error al cargar categorías');
         setCategories([]);
       } finally {
         setIsLoading(false);
       }
     }
-    fetchCategorias();
+
+    fetchData();
   }, []);
 
-  // Cierra el menú si se hace click fuera
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -229,7 +236,7 @@ const AdminCategories = () => {
           </button>
         </div>
       </div>
-      
+
       <div className="admin-categories-section">
         <div className="admin-categories-list">
           {filteredCategories.length === 0 ? (
