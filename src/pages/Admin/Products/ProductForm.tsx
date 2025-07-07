@@ -3,6 +3,7 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { obtenerProducto, crearProducto, actualizarProducto } from '../../../services/productoservicio';
 import './ProductForm.css';
+import { obtenerCategorias } from '../../../services/categoriaservicio';
 
 interface Category {
   id: string;
@@ -43,25 +44,38 @@ const ProductForm = () => {
     stock: ''
   });
 
-  useEffect(() => {
+   useEffect(() => {
     if (user?.role !== 'admin') {
       navigate('/');
       return;
     }
 
-    // Cargar categorías
-    const storedCategories = localStorage.getItem('categories');
-    if (storedCategories) {
-      const parsedCategories = JSON.parse(storedCategories);
-      // Solo mostrar categorías activas
-      setCategories(parsedCategories.filter((cat: Category) => cat.active));
-    }
+     // Cargar categorías desde el backend
+    const fetchCategorias = async () => {
+      try {
+        const cats = await obtenerCategorias();
+        // Solo mostrar categorías activas (si tu backend lo soporta)
+        setCategories(
+          cats
+            .filter((cat: any) => cat.active !== false)
+            .map((cat: any) => ({
+              id: String(cat.id),
+              name: cat.name,
+              description: cat.description,
+              active: cat.active
+            }))
+        );
+      } catch (err) {
+        setCategories([]);
+      }
+    };
+    fetchCategorias();
 
     if (isEditing && id) {
       fetchProduct();
     }
   }, [user, navigate, id, isEditing]);
-
+  
   const fetchProduct = async () => {
     try {
       setLoading(true);
