@@ -97,26 +97,26 @@ export async function obtenerProducto(id: number) {
   };
 }
 
-// Crear un nuevo producto
-export async function crearProducto(data: any) {
-  // Transformar campos del frontend al backend
-  const backendData = {
-    nombre: data.name,
-    descripcion: data.description,
-    precio: data.price,
-    url_imagen: data.image,
-    categoriaId: data.categoryId || 1,
-    estadoId: data.active ? 1 : 2
-  };
-  
+  export async function crearProducto(data: any) {
+    const backendData = {
+      nombre: data.name,
+      descripcion: data.description,
+      precio: data.price,
+      url_imagen: data.image,
+      categoriaId: data.categoryId, // ✅ Ya viene como número correcto
+      estadoId: data.active ? 1 : 2
+    };
+
   const res = await fetch(`${API_URL}/admin/producto`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(backendData),
   });
+
   if (!res.ok) throw await res.json();
   return res.json();
 }
+
 
 // Actualizar un producto
 export async function actualizarProducto(id: number, data: any) {

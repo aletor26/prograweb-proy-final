@@ -49,13 +49,25 @@ const ProductForm = () => {
       return;
     }
 
-    // Cargar categorías
-    const storedCategories = localStorage.getItem('categories');
-    if (storedCategories) {
-      const parsedCategories = JSON.parse(storedCategories);
-      // Solo mostrar categorías activas
-      setCategories(parsedCategories.filter((cat: Category) => cat.active));
-    }
+    // Cargar categorías desde el backend
+    const fetchCategorias = async () => {
+      try {
+        const cats = await obtenerCategorias();
+        // Mapear id a string para que coincida con la interfaz Category
+        const mappedCats: Category[] = cats
+          .filter((cat: any) => cat.active !== false)
+          .map((cat: any) => ({
+            id: String(cat.id),
+            name: cat.nombre,
+            description: cat.descripcion || '',
+            active: cat.active
+          }));
+        setCategories(mappedCats);
+      } catch (err) {
+        setCategories([]);
+      }
+    };
+    fetchCategorias();
 
     if (isEditing && id) {
       fetchProduct();
@@ -117,16 +129,17 @@ const ProductForm = () => {
       return;
     }
 
-    const productData = {
-      name: formData.name.trim(),
-      price: parseFloat(formData.price),
-      image: formData.image.trim(),
-      category: formData.category.trim(),
-      description: formData.description.trim(),
-      serie: formData.serie?.trim() || null,
-      stock: formData.stock ? parseInt(formData.stock) : 0,
-      active: true
-    };
+const productData = {
+  name: formData.name.trim(),
+  price: parseFloat(formData.price),
+  image: formData.image.trim(),
+  categoryId: parseInt(formData.category), // ✅ Convertimos a number
+  description: formData.description.trim(),
+  serie: formData.serie?.trim() || null,
+  stock: formData.stock ? parseInt(formData.stock) : 0,
+  active: true
+};
+
 
     try {
       setLoading(true);
@@ -135,6 +148,7 @@ const ProductForm = () => {
       if (isEditing && id) {
         await actualizarProducto(Number(id), productData);
       } else {
+        console.log(productData)
         await crearProducto(productData);
       }
 
@@ -242,7 +256,7 @@ const ProductForm = () => {
           >
             <option value="">Selecciona una categoría</option>
             {categories.map((category) => (
-              <option key={category.id} value={category.name}>
+              <option key={category.id} value={category.id}>
                 {category.name}
               </option>
             ))}
