@@ -35,7 +35,7 @@ const Checkout = () => {
     phone: ''
   });
 
-  const [paymentMethod, setPaymentMethod] = useState<'qr' | 'credit-card'>('qr');
+  const [paymentMethod, setPaymentMethod] = useState<'Qr' | 'Credit Card'>('Qr');
   const [creditCard, setCreditCard] = useState<CreditCard>({
     number: '',
     name: '',
@@ -83,8 +83,8 @@ const Checkout = () => {
 
   const isFormValid = () => {
     const isShippingValid = Object.values(shippingAddress).every(value => value.length > 0);
-    const isPaymentValid = paymentMethod === 'qr' || 
-      (paymentMethod === 'credit-card' && Object.values(creditCard).every(value => value.length > 0));
+    const isPaymentValid = paymentMethod === 'Qr' || 
+      (paymentMethod === 'Credit Card' && Object.values(creditCard).every(value => value.length > 0));
     return isShippingValid && isPaymentValid;
   };
 
@@ -94,7 +94,7 @@ const Checkout = () => {
   try {
     const data = {
       metodoPago: paymentMethod,
-      datosPago: paymentMethod === 'credit-card' ? creditCard : {}, // si usas QR, se envía vacío
+      datosPago: paymentMethod === 'Credit Card' ? creditCard : {}, // si usas QR, se envía vacío
       metodoEnvioId: shippingMethod === 'express' ? 2 : 1, // Asegúrate que estos IDs existan
       correo: shippingAddress.email,
       clienteId: user.id,
@@ -225,32 +225,32 @@ const Checkout = () => {
           <h2 className="checkout-section-title">Método de pago</h2>
           <div className="payment-methods">
             <div
-              className={`payment-method ${paymentMethod === 'qr' ? 'selected' : ''}`}
-              onClick={() => setPaymentMethod('qr')}
+              className={`payment-method ${paymentMethod === 'Qr' ? 'selected' : ''}`}
+              onClick={() => setPaymentMethod('Qr')}
             >
               <input
                 type="radio"
                 name="payment"
-                checked={paymentMethod === 'qr'}
-                onChange={() => setPaymentMethod('qr')}
+                checked={paymentMethod === 'Qr'}
+                onChange={() => setPaymentMethod('Qr')}
               />
               <span>Pago con código QR</span>
             </div>
             <div
-              className={`payment-method ${paymentMethod === 'credit-card' ? 'selected' : ''}`}
-              onClick={() => setPaymentMethod('credit-card')}
+              className={`payment-method ${paymentMethod === 'Credit Card' ? 'selected' : ''}`}
+              onClick={() => setPaymentMethod('Credit Card')}
             >
               <input
                 type="radio"
                 name="payment"
-                checked={paymentMethod === 'credit-card'}
-                onChange={() => setPaymentMethod('credit-card')}
+                checked={paymentMethod === 'Credit Card'}
+                onChange={() => setPaymentMethod('Credit Card')}
               />
               <span>Tarjeta de crédito</span>
             </div>
           </div>
 
-          {paymentMethod === 'qr' && (
+          {paymentMethod === 'Qr' && (
             <div className="qr-code">
               <QRCode
                 value={generateQRData()}
@@ -263,7 +263,7 @@ const Checkout = () => {
             </div>
           )}
 
-          {paymentMethod === 'credit-card' && (
+          {paymentMethod === 'Credit Card' && (
             <div className="credit-card-form">
               <div className="form-group">
                 <label className="form-label">Número de tarjeta</label>
