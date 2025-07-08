@@ -9,6 +9,7 @@ const UserDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
+  const [orders, setOrders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,6 +26,7 @@ const UserDetail = () => {
         // El backend devuelve { usuario: User, pedidos: Order[] }
         // donde User tiene { Estado: { id: number, nombre: string } }
         const userData = response.usuario || response;
+        const pedidos = response.pedidos || [];
         
         if (userData) {
           // Transformar los datos para que sean compatibles con el componente
@@ -39,8 +41,10 @@ const UserDetail = () => {
           };
           
           setUser(transformedUser);
+          setOrders(pedidos);
         } else {
           setUser(null);
+          setOrders([]);
         }
       } catch (err: any) {
         console.error('Error al cargar usuario:', err);
@@ -91,7 +95,7 @@ const UserDetail = () => {
     <div>
       <h2>Detalle de Usuario</h2>
       <UserDetailView user={user} />
-      <UserOrdersList email={user.email} />
+      <UserOrdersList orders={orders} />
       {/* <UserOrdersList email={user.email} /> */}
       <button onClick={() => navigate(-1)}>Volver</button>
     </div>

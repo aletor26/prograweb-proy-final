@@ -15,16 +15,19 @@ const OrderDetail = () => {
   const navigate = useNavigate();
   const [order, setOrder] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchOrder = async () => {
       try {
+        setError(null);
         if (id) {
           const orderData = await getPedidoAdmin(parseInt(id));
           setOrder(orderData);
         }
-      } catch (error) {
-        console.error('Error fetching order:', error);
+      } catch (error: any) {
+        console.error('❌ Error fetching order:', error);
+        setError(error.error || 'Error al cargar la orden');
       } finally {
         setIsLoading(false);
       }
@@ -55,10 +58,22 @@ const OrderDetail = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div>
+        <h2>Error al cargar la orden</h2>
+        <p style={{ color: 'red' }}>{error}</p>
+        <p>ID del pedido: {id}</p>
+        <button onClick={() => navigate(-1)}>Volver</button>
+      </div>
+    );
+  }
+
   if (!order) {
     return (
       <div>
         <h2>Orden no encontrada</h2>
+        <p>ID del pedido: {id}</p>
         <button onClick={() => navigate(-1)}>Volver</button>
       </div>
     );

@@ -3,20 +3,10 @@ import { Link } from "react-router-dom";
 import './UserOrdersList.css';
 
 interface UserOrdersListProps {
-  email: string;
+  orders: any[];
 }
 
-const UserOrdersList: React.FC<UserOrdersListProps> = ({ email }) => {
-  const [orders, setOrders] = useState<any[]>([]);
-
-  useEffect(() => {
-    const userOrders = localStorage.getItem(`orders_${email}`);
-    if (userOrders) {
-      const parsed = JSON.parse(userOrders);
-      setOrders(parsed.slice(0, 10)); // Máximo 10
-    }
-  }, [email]);
-
+const UserOrdersList: React.FC<UserOrdersListProps> = ({ orders }) => {
   if (!orders.length) {
     return <p>Este usuario no tiene órdenes.</p>;
   }
@@ -36,9 +26,9 @@ const UserOrdersList: React.FC<UserOrdersListProps> = ({ email }) => {
         <tbody>
           {orders.map(order => (
             <tr key={order.id}>
-              <td>{order.id}</td>
-              <td>{new Date(order.date).toLocaleDateString()}</td>
-              <td className={`order-status-${order.status}`}>{order.status}</td>
+              <td>{order.numero || order.id}</td>
+              <td>{new Date(order.fecha_pedido || order.fecha || order.createdAt).toLocaleDateString()}</td>
+              <td className={`order-status-${order.estado || order.estadoPedidoId}`}>{order.estado || order.estadoPedidoId}</td>
               <td>
                 <Link className="order-detail-link" to={`/admin/orders/${order.id}`}>Ver detalles</Link>
               </td>
