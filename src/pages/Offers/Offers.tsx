@@ -39,12 +39,7 @@ const Offers = () => {
               </div>
               <p className="offer-valid-until">
                 Válido hasta: {formatDate(offer.validUntil)}
-              </p>
-              <button 
-                className="add-to-cart-button">
-                Agregar al carrito
-              </button>
-              
+              </p>   
             </div>
           </div>
         ))}
