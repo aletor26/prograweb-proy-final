@@ -38,7 +38,6 @@ const UserList: React.FC = () => {
       
       // Transformar los datos para que sean compatibles con el componente
       const transformedUsers = users.map((user: any) => {
-        console.log('Usuario del backend:', user); // Debug para ver qué campos tiene
         
         // Función para determinar el rol basado en diferentes campos posibles
         const getRole = (user: any) => {
