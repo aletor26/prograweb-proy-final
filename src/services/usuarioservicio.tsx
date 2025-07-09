@@ -53,3 +53,15 @@ export async function activarUsuario(id: number) {
   if (!res.ok) throw await res.json();
   return res.json();
 }
+
+// OBTENER ESTADÍSTICAS DEL DASHBOARD
+export async function getDashboardStats(startDate?: string, endDate?: string) {
+  const params = new URLSearchParams();
+  if (startDate) params.append('startDate', startDate);
+  if (endDate) params.append('endDate', endDate);
+  
+  const url = `${API_URL}/admin/dashboard${params.toString() ? `?${params.toString()}` : ''}`;
+  const res = await fetch(url);
+  if (!res.ok) throw await res.json();
+  return res.json();
+}

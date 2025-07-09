@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { getUsuariosAdmin } from '../../../services/usuarioservicio';
+import { getPedidosAdmin } from '../../../services/pedidosservicio';
 import SummaryCards from '../../../components/SummaryCards/SummaryCards';
 import PeriodForm from '../../../components/PeriodForm/PeriodForm';
 import UserList from '../../../components/UserList/UserList';
@@ -42,6 +43,7 @@ const AdminUsers = () => {
   // Para filtrar por periodo
   const [startDate, setStartDate] = useState(getToday());
   const [endDate, setEndDate] = useState(getToday());
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
 
   // Estadísticas
   const [summary, setSummary] = useState({
@@ -49,6 +51,45 @@ const AdminUsers = () => {
     newUsers: 0,
     totalIncome: 0,
   });
+
+  // Función para cargar estadísticas por período
+  const loadStatsByPeriod = async (start: string, end: string) => {
+    try {
+      setIsLoadingStats(true);
+      
+      // Filtrar por periodo
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+      endDate.setHours(23, 59, 59, 999);
+
+      // Filtrar órdenes por fecha
+      const filteredOrders = orders.filter(order => {
+        const orderDate = new Date(order.date);
+        return orderDate >= startDate && orderDate <= endDate;
+      });
+
+      // Filtrar usuarios nuevos por fecha de creación
+      const filteredUsers = users.filter(u => {
+        const created = new Date(u.createdAt);
+        return created >= startDate && created <= endDate;
+      });
+
+      // Calcular ingresos (solo pedidos completados)
+      const totalIncome = filteredOrders
+        .filter(order => order.status === 'Completado' || order.status === 'completed')
+        .reduce((sum, order) => sum + (order.total || 0), 0);
+
+      setSummary({
+        totalOrders: filteredOrders.length,
+        newUsers: filteredUsers.length,
+        totalIncome,
+      });
+    } catch (error) {
+      console.error('Error al cargar estadísticas:', error);
+    } finally {
+      setIsLoadingStats(false);
+    }
+  };
 
   useEffect(() => {
     if (user?.role !== 'admin') {
@@ -80,20 +121,19 @@ const AdminUsers = () => {
         
         setUsers(transformedUsers);
 
-        // Órdenes: intenta primero global, si no, por usuario
-        let allOrders: Order[] = [];
-        const globalOrders = localStorage.getItem('orders');
-        if (globalOrders) {
-          allOrders = JSON.parse(globalOrders);
-        } else if (transformedUsers.length > 0) {
-          transformedUsers.forEach((u) => {
-            const userOrders = localStorage.getItem(`orders_${u.email}`);
-            if (userOrders) {
-              allOrders.push(...JSON.parse(userOrders));
-            }
-          });
-        }
-        setOrders(allOrders);
+        // Cargar pedidos del backend
+        const ordersResponse = await getPedidosAdmin({ limit: 1000 }); // Obtener todos los pedidos
+        const allOrders = ordersResponse.pedidos || [];
+        
+        // Transformar pedidos al formato esperado
+        const transformedOrders: Order[] = allOrders.map((order: any) => ({
+          id: order.id,
+          date: order.fecha_pedido || order.createdAt,
+          total: order.precio_total || 0,
+          status: order.estadoNombre || 'Pendiente'
+        }));
+        
+        setOrders(transformedOrders);
       } catch (error) {
         console.error('Error al cargar usuarios u órdenes:', error);
         
@@ -108,40 +148,13 @@ const AdminUsers = () => {
     };
 
     loadUsersAndOrders();
-    window.addEventListener('storage', loadUsersAndOrders);
-    return () => {
-      window.removeEventListener('storage', loadUsersAndOrders);
-    };
   }, [user, navigate]);
 
   useEffect(() => {
-    // Filtrar por periodo
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    end.setHours(23, 59, 59, 999);
-
-    // Filtrar órdenes
-    const filteredOrders = orders.filter(order => {
-      const orderDate = new Date(order.date);
-      return orderDate >= start && orderDate <= end;
-    });
-
-    // Filtrar usuarios nuevos
-    const filteredUsers = users.filter(u => {
-      const created = new Date(u.createdAt);
-      return created >= start && created <= end;
-    });
-
-    // Calcular ingresos
-    const totalIncome = filteredOrders
-      .filter(order => order.status === 'completed')
-      .reduce((sum, order) => sum + (order.total || 0), 0);
-
-    setSummary({
-      totalOrders: filteredOrders.length,
-      newUsers: filteredUsers.length,
-      totalIncome,
-    });
+    // Cargar estadísticas cuando cambien las fechas o los datos
+    if (orders.length > 0 || users.length > 0) {
+      loadStatsByPeriod(startDate, endDate);
+    }
   }, [orders, users, startDate, endDate]);
 
   const formatDate = (dateString: string) => {
@@ -202,7 +215,28 @@ const AdminUsers = () => {
         totalOrders={summary.totalOrders}
         newUsers={summary.newUsers}
         totalIncome={summary.totalIncome}
+        isLoading={isLoadingStats}
       />
+
+      {/* Botón para cargar estadísticas totales */}
+      <div style={{ textAlign: 'center', margin: '1rem 0' }}>
+        <button 
+          onClick={() => {
+            setStartDate('2020-01-01'); // Fecha muy antigua para obtener todos los datos
+            setEndDate(new Date().toISOString().slice(0, 10)); // Hoy
+          }}
+          style={{
+            padding: '0.5rem 1rem',
+            backgroundColor: '#c8a97e',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          Ver Estadísticas Totales
+        </button>
+      </div>
 
       <div className="users-section">
         <UserList />
