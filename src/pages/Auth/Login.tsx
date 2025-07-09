@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { login as loginService } from '../../services/clienteservicios';
 import './Auth.css';
 
 interface LoginForm {
