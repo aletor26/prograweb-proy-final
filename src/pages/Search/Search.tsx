@@ -22,7 +22,6 @@ const Search = () => {
   const query = searchParams.get('q') || '';
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const [searchTerm, setSearchTerm] = useState(query);
@@ -39,7 +38,6 @@ const Search = () => {
   useEffect(() => {
     Promise.all([obtenerProductos(), obtenerCategorias()])
       .then(([productos, categorias]) => {
-        setProducts(productos);
         setCategories(categorias);
         // Mapea el nombre real de la categoría
         const categoriasMap = Object.fromEntries(
@@ -55,8 +53,6 @@ const Search = () => {
       .catch((err) => {
         console.error('Error fetching products or categories:', err);
         setError('Error al cargar los productos');
-        setProducts([]);
-        setCategories([]);
         setProductosConCategoria([]);
       })
       .finally(() => {
