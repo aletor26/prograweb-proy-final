@@ -112,17 +112,18 @@ export async function obtenerProducto(id: number) {
   };
 }
 
-  export async function crearProducto(data: any) {
-    const backendData = {
+export async function crearProducto(data: any) {
+  const backendData = {
     nombre: data.name,
     descripcion: data.description,
     precio: data.price,
     url_imagen: data.image,
-    stock: data.stock, // ✅ nuevo campo
     categoriaId: data.categoryId,
-    estadoId: data.active ? 1 : 2
+    estadoId: data.active ? 1 : 2,
+    stock: data.stock ?? 0, // 👈 IMPORTANTE
   };
 
+  console.log("📦 Enviando al backend:", backendData); // Añade esto para depurar
 
   const res = await fetch(`${API_URL}/admin/producto`, {
     method: "POST",
@@ -133,6 +134,7 @@ export async function obtenerProducto(id: number) {
   if (!res.ok) throw await res.json();
   return res.json();
 }
+
 
 
 // Actualizar un producto

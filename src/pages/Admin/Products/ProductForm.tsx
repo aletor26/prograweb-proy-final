@@ -137,6 +137,9 @@ const productData = {
   active: true
 };
 
+console.log("➡️ Stock ingresado:", formData.stock);
+
+
 
     try {
       setLoading(true);
