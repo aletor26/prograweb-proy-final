@@ -4,6 +4,7 @@ import { obtenerProducto } from '../../services/productoservicio';
 import { useCart } from '../../context/CartContext'; 
 import { useNavigate } from 'react-router-dom'; 
 import './DetalleProducto.css';
+import { obtenerCategoriaPorId } from '../../services/categoriaservicio';
 
 interface Product {
   id: number;
@@ -31,7 +32,18 @@ const DetalleProducto = () => {
       if (!id) return;
       try {
         const data = await obtenerProducto(Number(id));
-        setProduct(data);
+        let categoryName = '';
+        if (data.categoryId) {
+          try {
+            const categoria = await obtenerCategoriaPorId(data.categoryId);
+            categoryName = categoria.nombre;
+          } catch {
+            categoryName = 'Sin categoría';
+          }
+        } else {
+          categoryName = 'Sin categoría';
+        }
+        setProduct({ ...data, category: categoryName });
       } catch (err) {
         setError('No se pudo cargar el producto');
       } finally {

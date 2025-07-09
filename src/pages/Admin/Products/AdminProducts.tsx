@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { obtenerProductosAdmin, toggleProductoActivo, testBackendConnection } from '../../../services/productoservicio';
@@ -34,6 +34,7 @@ const AdminProducts = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
   const [productsPerPage] = useState(10);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     console.log('AdminProducts useEffect - user:', user);
@@ -54,50 +55,53 @@ const AdminProducts = () => {
     testBackendConnection()
       .then(() => {
         console.log('Backend connection successful, fetching products...');
-        fetchProducts();
+        setIsLoading(true);
+        setError(null);
+        obtenerProductosAdmin({ pagina: 1, porPagina: 1000 })
+          .then((response: ProductsResponse) => {
+            setAllProducts(response.productos || []);
+            setError(null);
+          })
+          .catch((err) => {
+            setError(err instanceof Error ? err.message : 'Error al cargar los productos');
+            setAllProducts([]);
+          })
+          .finally(() => setIsLoading(false));
       })
       .catch((err) => {
         console.error('Backend connection failed:', err);
         setError(`Error de conexión con el backend: ${err.message}`);
         setIsLoading(false);
       });
-  }, [user, navigate, currentPage, searchTerm, searchField]);
+  }, [user, navigate]);
 
-  const fetchProducts = async () => {
-    try {
-      console.log('Starting fetchProducts...');
-      setIsLoading(true);
-      setError(null);
-      
-      const params: any = {
-        pagina: currentPage,
-        porPagina: productsPerPage
-      };
-      
-    if (searchTerm) {
+  const filteredProducts = useMemo(() => {
+    if (!searchTerm) return allProducts;
+    return allProducts.filter((product) => {
       if (searchField === 'id') {
-        params.id = searchTerm;
+        return product.id.toString().includes(searchTerm);
       } else if (searchField === 'nombre') {
-        params.nombre = searchTerm;
+        return product.name.toLowerCase().includes(searchTerm.toLowerCase());
       }
-    }
+      return true;
+    });
+  }, [allProducts, searchTerm, searchField]);
 
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * productsPerPage;
+    const endIndex = startIndex + productsPerPage;
+    return filteredProducts.slice(startIndex, endIndex);
+  }, [filteredProducts, currentPage, productsPerPage]);
 
-      console.log('Fetching with params:', params);
-      const response: ProductsResponse = await obtenerProductosAdmin(params);
-      console.log('Response received:', response);
-      
-      setProducts(response.productos || []);
-      setTotalPages(response.totalPaginas || 1);
-      setTotalProducts(response.total || 0);
-      setError(null);
-    } catch (err) {
-      console.error('Error fetching products:', err);
-      setError(err instanceof Error ? err.message : 'Error al cargar los productos');
-    } finally {
-      setIsLoading(false);
+  useEffect(() => {
+    setProducts(paginatedProducts);
+    const newTotalPages = Math.max(1, Math.ceil(filteredProducts.length / productsPerPage));
+    setTotalPages(newTotalPages);
+    setTotalProducts(filteredProducts.length);
+    if (currentPage > newTotalPages) {
+      setCurrentPage(1);
     }
-  };
+  }, [paginatedProducts, filteredProducts, currentPage, productsPerPage]);
 
   const handleEditProduct = (productId: number) => {
     navigate(`/admin/products/${productId}/edit`);
@@ -125,11 +129,6 @@ const AdminProducts = () => {
     }
   };
 
-  const handleSearch = () => {
-    setCurrentPage(1); // Reset a la primera página al buscar
-    fetchProducts();
-  };
-
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -151,7 +150,7 @@ const AdminProducts = () => {
         <div className="error">
           <h3>Error al cargar productos</h3>
           <p>{error}</p>
-          <button onClick={fetchProducts} className="retry-button">
+          <button onClick={() => obtenerProductosAdmin({ pagina: 1, porPagina: 1000 })} className="retry-button">
             Reintentar
           </button>
         </div>
@@ -189,9 +188,7 @@ const AdminProducts = () => {
             onChange={e => setSearchTerm(e.target.value)}
             className="admin-search-input"
           />
-          <button onClick={handleSearch} className="admin-search-button">
-            Buscar
-          </button>
+          {/* El botón Buscar ya no se usa, el filtrado es instantáneo */}
         </div>
 
         <div className="admin-products-info">
