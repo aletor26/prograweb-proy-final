@@ -1,13 +1,13 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getPedidoAdmin, cancelarPedidoAdmin } from "../../../services/pedidosservicio";
+import { getPedidoAdmin, cancelarPedidoAdmin, actualizarEstadoPedidoAdmin } from "../../../services/pedidosservicio";
 import '../AdminOrders.css';
 
 const statusOptions = [
   { value: 1, label: "Pendiente" },
-  { value: 3, label: "En proceso" },
-  { value: 5, label: "Entregado" },
-  { value: 2, label: "Cancelado" }
+  { value: 2, label: "Procesando" },
+  { value: 3, label: "Completado" },
+  { value: 4, label: "Cancelado" }
 ];
 
 const OrderDetail = () => {
@@ -16,6 +16,8 @@ const OrderDetail = () => {
   const [order, setOrder] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<number | null>(null);
+  const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -36,17 +38,29 @@ const OrderDetail = () => {
     fetchOrder();
   }, [id]);
 
-  const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+  useEffect(() => {
+    if (order) {
+      setSelectedStatus(order.estado);
+      setHasChanges(false);
+    }
+  }, [order]);
+
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newStatus = parseInt(e.target.value);
+    setSelectedStatus(newStatus);
+    setHasChanges(newStatus !== order.estado);
+  };
+
+  const handleSaveStatus = async () => {
+    if (selectedStatus === null || selectedStatus === order.estado) return;
     try {
-      const newStatus = parseInt(e.target.value);
-      if (newStatus === 4) {
-        // Si se está cancelando, usar la función de cancelar
-        await cancelarPedidoAdmin(parseInt(id!));
-      }
-      // Actualizar el estado local
-      setOrder((prev: any) => ({ ...prev, estado: newStatus }));
+      await actualizarEstadoPedidoAdmin(Number(id), selectedStatus);
+      // Recargar el pedido actualizado
+      const updatedOrder = await getPedidoAdmin(Number(id));
+      setOrder(updatedOrder);
+      setHasChanges(false);
     } catch (error) {
-      console.error('Error updating order status:', error);
+      alert('Error al actualizar el estado');
     }
   };
 
@@ -88,19 +102,27 @@ const OrderDetail = () => {
         <div className="order-card">
           <div className="order-header">
             <div className="order-info">
-              <h3>Pedido #{order.id}</h3>
+              <h3>Pedido #{order.numero}</h3>
               <p className="order-date">{new Date(order.fecha).toLocaleDateString()}</p>
             </div>
             <div className="order-status">
+              <div style={{ fontWeight: 500, marginBottom: 4 }}>
+                Estado actual: {order.estadoNombre || statusOptions.find(opt => opt.value === (selectedStatus ?? order.estado))?.label}
+              </div>
               <select
-                value={order.estado}
+                value={selectedStatus ?? order.estado}
                 onChange={handleStatusChange}
-                className={`status-select status-${order.estado}`}
+                className={`status-select status-${selectedStatus ?? order.estado}`}
               >
                 {statusOptions.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
               </select>
+              {hasChanges && (
+                <button onClick={handleSaveStatus} style={{ marginLeft: 10 }}>
+                  Guardar cambios
+                </button>
+              )}
             </div>
           </div>
           <div className="order-details">

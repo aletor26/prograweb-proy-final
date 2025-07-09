@@ -88,16 +88,18 @@ const AdminOrdersList: React.FC = () => {
                 <div
                   className={
                     "admin-order-status " +
-                    (order.estado === 5
-                      ? "estado-completado"
-                      : order.estado === 1
+                    (order.estadoNombre === 'Pendiente'
                       ? "estado-pendiente"
-                      : order.estado === 3
+                      : order.estadoNombre === 'Procesando'
                       ? "estado-processing"
-                      : "estado-cancelado")
+                      : order.estadoNombre === 'Completado'
+                      ? "estado-completado"
+                      : order.estadoNombre === 'Cancelado'
+                      ? "estado-cancelado"
+                      : "")
                   }
                 >
-                  Estado: {order.estado === 1 ? 'Pendiente' : order.estado === 3 ? 'Procesando' : order.estado === 5 ? 'Entregado' : 'Cancelado'}
+                  Estado: {order.estadoNombre || 'Desconocido'}
                 </div>
               </div>
               <div className="admin-order-actions">

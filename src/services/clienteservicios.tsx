@@ -99,4 +99,14 @@ export async function getPedidoCliente(_clienteId: number, pedidoId: number) {
   if (!res.ok) throw await res.json();
   return res.json();
 }
+
+// CANCELAR PEDIDO DEL USUARIO
+export async function cancelarPedidoUsuario(pedidoId: number) {
+  const res = await fetch(`${API_URL}/pedidos/${pedidoId}/cancelar`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!res.ok) throw await res.json();
+  return res.json();
+}
   

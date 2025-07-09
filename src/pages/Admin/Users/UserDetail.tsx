@@ -26,7 +26,11 @@ const UserDetail = () => {
         // El backend devuelve { usuario: User, pedidos: Order[] }
         // donde User tiene { Estado: { id: number, nombre: string } }
         const userData = response.usuario || response;
-        const pedidos = response.pedidos || [];
+        const pedidos = (response.pedidos || []).map((pedido: any) => ({
+          ...pedido,
+          estadoNombre: pedido.Estado_Pedido?.nombre || pedido.estadoNombre || '',
+          numero: pedido.numero || pedido.id // asegura que el campo numero esté presente
+        }));
         
         if (userData) {
           // Transformar los datos para que sean compatibles con el componente

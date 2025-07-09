@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
 import Paginacion from '../../components/Paginacion/Paginacion';
-import { getPedidosCliente } from '../../services/clienteservicios';
+import { getPedidosCliente, cancelarPedidoUsuario } from '../../services/clienteservicios';
 import './Orders.css';
 
 interface Order {
@@ -45,22 +45,18 @@ const Orders = () => {
     setShowCancelConfirm(orderId);
   };
 
-  const confirmCancelOrder = (orderId: string) => {
-    if (!user?.email) return;
-
+  const confirmCancelOrder = async (orderId: string) => {
     try {
-      const updatedOrders = orders.map(order => {
-        if (order.id === Number(orderId)) {
-          return { ...order, estadoPedidoId: 5 };
-        }
-        return order;
-      });
-
-      localStorage.setItem(`orders_${user.email}`, JSON.stringify(updatedOrders));
-      setOrders(updatedOrders);
+      await cancelarPedidoUsuario(Number(orderId));
+      // Recargar pedidos después de cancelar
+      if (user?.id) {
+        const data = await getPedidosCliente(Number(user.id), currentPage, ORDERS_PER_PAGE);
+        setOrders(data.rows || data || []);
+      }
       setShowCancelConfirm(null);
     } catch (error) {
       console.error('Error cancelling order:', error);
+      alert('Error al cancelar el pedido');
     }
   };
 

@@ -22,7 +22,8 @@ export async function getPedidosAdmin(params: any = {}) {
         telefono: pedido.Cliente?.telefono || pedido.cliente?.telefono,
         direccion: pedido.Cliente?.direccion || pedido.cliente?.direccion
       },
-      estado: pedido.Estado_Pedido?.id || pedido.estadoPedidoId || pedido.estado
+      estado: pedido.Estado_Pedido?.id || pedido.estadoPedidoId || pedido.estado,
+      estadoNombre: pedido.Estado_Pedido?.nombre || '',
     }))
   };
   
@@ -62,7 +63,8 @@ export async function getPedidoAdmin(id: number) {
       telefono: data.Cliente?.telefono,
       direccion: data.Cliente?.direccion
     },
-    estado: data.Estado_Pedido?.id || data.estadoPedidoId
+    estado: data.Estado_Pedido?.id || data.estadoPedidoId,
+    estadoNombre: data.Estado_Pedido?.nombre || '',
   };
   
   return transformedData;
@@ -73,6 +75,17 @@ export async function cancelarPedidoAdmin(id: number) {
   const res = await fetch(`${API_URL}/admin/pedidos/${id}/cancelar`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
+  });
+  if (!res.ok) throw await res.json();
+  return res.json();
+}
+
+// ACTUALIZAR ESTADO DE PEDIDO (ADMIN)
+export async function actualizarEstadoPedidoAdmin(id: number, estadoPedidoId: number) {
+  const res = await fetch(`${API_URL}/admin/pedidos/${id}/estado`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ estadoPedidoId }),
   });
   if (!res.ok) throw await res.json();
   return res.json();

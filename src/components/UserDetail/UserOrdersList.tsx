@@ -28,7 +28,9 @@ const UserOrdersList: React.FC<UserOrdersListProps> = ({ orders }) => {
             <tr key={order.id}>
               <td>{order.numero || order.id}</td>
               <td>{new Date(order.fecha_pedido || order.fecha || order.createdAt).toLocaleDateString()}</td>
-              <td className={`order-status-${order.estado || order.estadoPedidoId}`}>{order.estado || order.estadoPedidoId}</td>
+              <td className={`order-status-${order.estadoNombre || order.Estado_Pedido?.nombre || order.estado || order.estadoPedidoId}`}>
+                {order.estadoNombre || order.Estado_Pedido?.nombre || order.estado || order.estadoPedidoId}
+              </td>
               <td>
                 <Link className="order-detail-link" to={`/admin/orders/${order.id}`}>Ver detalles</Link>
               </td>
