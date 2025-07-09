@@ -76,6 +76,9 @@ const AdminDashboard = () => {
 
       <div className="admin-stats-section">
         <h2>Estadísticas del Período</h2>
+        <div style={{ textAlign: 'center', color: '#666', marginBottom: '1rem' }}>
+          Actualizado al: {new Date().toISOString().slice(0, 10)}
+        </div>
         <PeriodForm
           startDate={startDate}
           endDate={endDate}
