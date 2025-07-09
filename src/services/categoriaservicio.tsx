@@ -2,9 +2,9 @@ const API_URL = 'http://localhost:3000';
 
 export interface Categoria {
   id: number;
-  name: string;
-  description?: string;
-  image?: string;
+  nombre: string;
+  descripcion?: string;
+  imagen?: string;
   active?: boolean;
 }
 
@@ -43,34 +43,30 @@ export async function obtenerCategoriaPorId(id: number): Promise<Categoria> {
 }
 
 // Crear una nueva categoría
-export async function crearCategoria(data: Omit<Categoria, 'id' | 'active'>): Promise<Categoria> {
+export async function crearCategoria(data: {
+  nombre: string;
+  descripcion?: string;
+  imagen?: string;
+}) {
   try {
-    console.log('Enviando datos para crear categoría:', data);
-    
-    // El modelo real solo tiene: id, nombre
-    const backendData = {
-      nombre: data.name
-    };
-    
-    console.log('Datos transformados para backend:', backendData);
-    
     const res = await fetch(`${API_URL}/categorias`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(backendData),
+      body: JSON.stringify(data)
     });
+
     if (!res.ok) {
       const errorData = await res.json();
-      throw new Error(errorData.error || 'Error al crear la categoría');
+      throw new Error(errorData.error || 'Error al crear categoría');
     }
-    const result = await res.json();
-    console.log('Respuesta de crear categoría:', result);
-    return result;
-  } catch (error) {
+
+    return await res.json();
+  } catch (error: any) {
     console.error('Error en crearCategoria:', error);
     throw error;
   }
 }
+
 
 // Actualizar una categoría existente
 export async function actualizarCategoria(id: number, data: Partial<Categoria>): Promise<Categoria> {
@@ -79,7 +75,7 @@ export async function actualizarCategoria(id: number, data: Partial<Categoria>):
     
     // El modelo real solo tiene: id, nombre
     const backendData = {
-      nombre: data.name
+      nombre: data.nombre
     };
     
     console.log('Datos transformados para backend:', backendData);
