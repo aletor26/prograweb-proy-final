@@ -19,7 +19,7 @@ const UserList: React.FC = () => {
   const [backendLimit] = useState(1000); // Cargar muchos usuarios del backend
 
   // Cargar usuarios del backend
-  const loadUsers = async (page: number) => {
+  const loadUsers = async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -138,7 +138,7 @@ const UserList: React.FC = () => {
     const currentUser = localStorage.getItem('currentUser');
     setCurrentUserId(currentUser ? JSON.parse(currentUser).id : undefined);
     // Cargar usuarios
-    loadUsers(1);
+    loadUsers();
     setCurrentPage(1);
   }, []);
 
@@ -160,7 +160,7 @@ const UserList: React.FC = () => {
       }
 
       // Recargar usuarios después del cambio
-      await loadUsers(currentPage);
+      await loadUsers();
     } catch (err: any) {
       console.error('Error al cambiar estado del usuario:', err);
       alert(err.message || 'Error al cambiar estado del usuario');
@@ -171,7 +171,7 @@ const UserList: React.FC = () => {
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
-    loadUsers(page);
+    loadUsers();
   };
 
   if (isLoading) {
@@ -186,7 +186,7 @@ const UserList: React.FC = () => {
     return (
       <div className="user-list-container">
         <div className="error">Error: {error}</div>
-        <button onClick={() => loadUsers(currentPage)}>Reintentar</button>
+        <button onClick={() => loadUsers()}>Reintentar</button>
       </div>
     );
   }
