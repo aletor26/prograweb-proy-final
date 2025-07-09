@@ -118,6 +118,17 @@
 .btn-comprar:hover {
   background: #c62828;
 }
+.stock-error {
+  color: #e53935;
+  font-size: 0.95rem;
+  margin-top: 10px;
+  text-align: center;
+  background-color: #ffe6e6;
+  padding: 8px 12px;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(229, 57, 53, 0.2);
+}
+
 
 @media (max-width: 768px) {
   .detalle-producto-container-v2 {

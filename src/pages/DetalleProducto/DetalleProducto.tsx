@@ -31,7 +31,26 @@ const DetalleProducto = () => {
   const { addToCart } = useCart();
   const navigate = useNavigate();
   const isCustomer = user?.role === 'customer';
+  const [stockError, setStockError] = useState<string | null>(null);
+
  
+const intentarAgregarAlCarrito = (redirigirACarrito: boolean = false) => {
+  if (!product) return;
+
+  // Verificar stock
+  if (quantity > product.stock) {
+    setStockError(`Solo hay ${product.stock} unidades disponibles`);
+    return;
+  }
+
+  setStockError(null); // ✅ limpiar error anterior
+
+  addToCart(product, quantity);
+
+  if (redirigirACarrito) {
+    navigate('/cart');
+  }
+};
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -78,6 +97,11 @@ const DetalleProducto = () => {
         <p className="stock">Stock disponible: {product.stock}</p>
 
         {/* Cantidad y botones */}
+        {stockError && (
+          <div className="stock-error">
+            <p>{stockError}</p>
+          </div>
+        )}
         <div className="detalle-producto-acciones">
           <div className="cantidad-selector">
             <button onClick={() => setQuantity(prev => Math.max(prev - 1, 1))}>−</button>
@@ -86,31 +110,16 @@ const DetalleProducto = () => {
           </div>
 
           {isCustomer && (
-          <div className="botones">
-            <button
-              className="btn-añadir"
-              onClick={() => {
-                if (product) {
-                  addToCart(product, quantity);
-                }
-              }}
-            >
-              Añadir a la cesta
-            </button>
+            <div className="botones">
+              <button className="btn-añadir" onClick={() => intentarAgregarAlCarrito()}>
+                Añadir a la cesta
+              </button>
 
-            <button
-              className="btn-comprar"
-              onClick={() => {
-                if (product) {
-                  addToCart(product, quantity);
-                  navigate('/cart');
-                }
-              }}
-            >
-              Comprar ahora
-            </button>
-          </div>
-        )}
+              <button className="btn-comprar" onClick={() => intentarAgregarAlCarrito(true)}>
+                Comprar ahora
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
