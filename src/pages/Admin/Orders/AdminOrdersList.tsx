@@ -16,7 +16,7 @@ const AdminOrdersList: React.FC = () => {
   const [limit] = useState(10); // 10 pedidos por página en el frontend
   const [backendLimit] = useState(1000); // Cargar muchos pedidos del backend
 
-  const fetchOrders = async (page: number) => {
+  const fetchOrders = async () => {
     try {
       setIsLoading(true);
       const params: any = {};
@@ -77,14 +77,14 @@ const AdminOrdersList: React.FC = () => {
   }, [paginatedOrders, filteredOrders, currentPage, limit]);
 
   useEffect(() => {
-    fetchOrders(1);
+    fetchOrders();
     setCurrentPage(1);
   }, []); // Solo cargar una vez al montar el componente
 
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
-    fetchOrders(page);
+    fetchOrders();
   };
 
   const handleSearch = () => {
