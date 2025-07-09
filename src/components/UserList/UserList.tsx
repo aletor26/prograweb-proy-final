@@ -37,15 +37,47 @@ const UserList: React.FC = () => {
       // No usar count del backend, calcular basado en usuarios filtrados
       
       // Transformar los datos para que sean compatibles con el componente
-      const transformedUsers = users.map((user: any) => ({
-        ...user,
-        // Mapear campos del backend a los que espera el componente
-        email: user.correo,
-        name: user.nombre,
-        activo: user.Estado?.nombre === 'Activo' || user.estadoid === 1,
-        role: user.role || 'customer', // Por defecto customer si no existe
-        createdAt: user.createdAt
-      }));
+      const transformedUsers = users.map((user: any) => {
+        console.log('Usuario del backend:', user); // Debug para ver qué campos tiene
+        
+        // Función para determinar el rol basado en diferentes campos posibles
+        const getRole = (user: any) => {
+          // Intentar diferentes campos posibles
+          const roleValue = user.rol || user.role || user.tipo || user.roleId || user.rolId;
+          
+          // Si no hay campo de rol, verificar si es admin por otros medios
+          if (!roleValue) {
+            // Verificar si tiene permisos de admin o si el email contiene 'admin'
+            if (user.correo?.toLowerCase().includes('admin') || 
+                user.nombre?.toLowerCase().includes('admin') ||
+                user.isAdmin === true ||
+                user.admin === true) {
+              return 'admin';
+            }
+            return 'customer';
+          }
+          
+          // Normalizar el valor del rol
+          const roleStr = roleValue.toString().toLowerCase();
+          if (roleStr.includes('admin') || roleStr === '1' || roleStr === 'administrador') {
+            return 'admin';
+          } else if (roleStr.includes('customer') || roleStr.includes('cliente') || roleStr === '2' || roleStr === 'usuario') {
+            return 'customer';
+          }
+          
+          return 'customer'; // Por defecto
+        };
+        
+        return {
+          ...user,
+          // Mapear campos del backend a los que espera el componente
+          email: user.correo,
+          name: user.nombre,
+          activo: user.Estado?.nombre === 'Activo' || user.estadoid === 1,
+          role: getRole(user),
+          createdAt: user.createdAt
+        };
+      });
       
       setAllUsers(transformedUsers);
     } catch (err: any) {

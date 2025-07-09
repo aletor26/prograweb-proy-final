@@ -49,7 +49,8 @@ const UserRow: React.FC<UserRowProps> = ({
       <td>
         <button
           onClick={() => onToggleActive(user.id)}
-          disabled={user.id === currentUserId}
+          disabled={user.id === currentUserId || user.role === "admin"}
+          title={user.role === "admin" ? "No se puede desactivar un administrador" : ""}
         >
           {activo ? "Desactivar" : "Activar"}
         </button>
@@ -60,7 +61,8 @@ const UserRow: React.FC<UserRowProps> = ({
       <td>
         <button
           onClick={() => onDeleteUser(user.id)}
-          disabled={user.id === currentUserId}
+          disabled={user.id === currentUserId || user.role === "admin"}
+          title={user.role === "admin" ? "No se puede eliminar un administrador" : ""}
         >
           Eliminar
         </button>
