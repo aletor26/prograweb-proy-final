@@ -12,14 +12,12 @@ interface UserRowProps {
     role?: string;
   };
   onToggleActive: (id: string) => void;
-  onDeleteUser: (id: string) => void;
   currentUserId: string | undefined;
 }
 
 const UserRow: React.FC<UserRowProps> = ({
   user,
   onToggleActive,
-  onDeleteUser,
   currentUserId
 }) => {
   // Si no hay nombre/apellido, intenta separar el campo name
@@ -49,21 +47,14 @@ const UserRow: React.FC<UserRowProps> = ({
       <td>
         <button
           onClick={() => onToggleActive(user.id)}
-          disabled={user.id === currentUserId}
+          disabled={user.id === currentUserId || user.role === "admin"}
+          title={user.role === "admin" ? "No se puede desactivar un administrador" : ""}
         >
           {activo ? "Desactivar" : "Activar"}
         </button>
       </td>
       <td>
         <Link to={`/admin/users/${user.id}`}>Ver detalles</Link>
-      </td>
-      <td>
-        <button
-          onClick={() => onDeleteUser(user.id)}
-          disabled={user.id === currentUserId}
-        >
-          Eliminar
-        </button>
       </td>
     </tr>
   );
