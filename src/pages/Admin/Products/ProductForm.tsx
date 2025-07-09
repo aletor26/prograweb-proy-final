@@ -18,7 +18,6 @@ interface ProductFormData {
   image: string;
   category: string;
   description: string;
-  serie?: string;
   stock?: string;
 }
 
@@ -40,7 +39,6 @@ const ProductForm = () => {
     image: '',
     category: location.state?.selectedCategory || '',
     description: '',
-    serie: '',
     stock: ''
   });
 
@@ -86,7 +84,6 @@ const ProductForm = () => {
           image: product.image || '',
           category: product.category || '',
           description: product.description || '',
-          serie: product.serie || '',
           stock: product.stock?.toString() || ''
         });
         setImagePreview(product.image || '');
@@ -136,8 +133,7 @@ const productData = {
   image: formData.image.trim(),
   categoryId: parseInt(formData.category), // ✅ Convertimos a number
   description: formData.description.trim(),
-  serie: formData.serie?.trim() || null,
-  stock: formData.stock ? parseInt(formData.stock) : 0,
+  stock: formData.stock?.trim() && !isNaN(parseInt(formData.stock)) ? parseInt(formData.stock): 0,
   active: true
 };
 
@@ -264,17 +260,7 @@ const productData = {
           </select>
         </div>
 
-        <div className="form-group">
-          <label htmlFor="serie">Serie (Opcional)</label>
-          <input
-            type="text"
-            id="serie"
-            name="serie"
-            value={formData.serie}
-            onChange={handleChange}
-            placeholder="Ej: Reserva 2020"
-          />
-        </div>
+
 
         <div className="form-group">
           <label htmlFor="image">URL de la Imagen *</label>

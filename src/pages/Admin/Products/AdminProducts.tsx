@@ -12,7 +12,6 @@ interface Product {
   description: string;
   category: string;
   active: boolean;
-  serie?: string;
 }
 
 interface ProductsResponse {
@@ -30,7 +29,7 @@ const AdminProducts = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchField, setSearchField] = useState<'nombre' | 'serie' | 'id'>('nombre');
+  const [searchField, setSearchField] = useState<'nombre' | 'id'>('nombre');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
@@ -75,15 +74,14 @@ const AdminProducts = () => {
         porPagina: productsPerPage
       };
       
-      if (searchTerm) {
-        if (searchField === 'id') {
-          params.id = searchTerm;
-        } else if (searchField === 'nombre') {
-          params.nombre = searchTerm;
-        } else if (searchField === 'serie') {
-          params.serie = searchTerm;
-        }
+    if (searchTerm) {
+      if (searchField === 'id') {
+        params.id = searchTerm;
+      } else if (searchField === 'nombre') {
+        params.nombre = searchTerm;
       }
+    }
+
 
       console.log('Fetching with params:', params);
       const response: ProductsResponse = await obtenerProductosAdmin(params);
@@ -177,11 +175,11 @@ const AdminProducts = () => {
         <div className="admin-search-section">
           <select
             value={searchField}
-            onChange={e => setSearchField(e.target.value as 'nombre' | 'serie' | 'id')}
+            onChange={e => setSearchField(e.target.value as 'nombre' | 'id')}
             className="admin-search-select"
           >
             <option value="nombre">Nombre</option>
-            <option value="serie">Serie</option>
+        
             <option value="id">ID</option>
           </select>
           <input
@@ -217,9 +215,6 @@ const AdminProducts = () => {
                   <h3>{product.name}</h3>
                   <p className="admin-product-description">{product.description}</p>
                   <p className="admin-product-category">Categoría: {product.category}</p>
-                  {product.serie && (
-                    <p className="admin-product-serie">Serie: {product.serie}</p>
-                  )}
                   <p className="admin-product-price">S/. {product.price.toFixed(2)}</p>
                   <p className={product.active ? "estado-activo" : "estado-inactivo"}>
                     {product.active ? "Activo" : "Inactivo"}

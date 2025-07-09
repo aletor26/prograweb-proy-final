@@ -114,13 +114,15 @@ export async function obtenerProducto(id: number) {
 
   export async function crearProducto(data: any) {
     const backendData = {
-      nombre: data.name,
-      descripcion: data.description,
-      precio: data.price,
-      url_imagen: data.image,
-      categoriaId: data.categoryId, // ✅ Ya viene como número correcto
-      estadoId: data.active ? 1 : 2
-    };
+    nombre: data.name,
+    descripcion: data.description,
+    precio: data.price,
+    url_imagen: data.image,
+    stock: data.stock, // ✅ nuevo campo
+    categoriaId: data.categoryId,
+    estadoId: data.active ? 1 : 2
+  };
+
 
   const res = await fetch(`${API_URL}/admin/producto`, {
     method: "POST",
@@ -141,9 +143,11 @@ export async function actualizarProducto(id: number, data: any) {
     descripcion: data.description,
     precio: data.price,
     url_imagen: data.image,
+    stock: data.stock ,// ✅ nuevo campo
     categoriaId: data.categoryId || 1,
     estadoId: data.active ? 1 : 2
   };
+
   
   const res = await fetch(`${API_URL}/admin/producto/${id}`, {
     method: "PUT",
