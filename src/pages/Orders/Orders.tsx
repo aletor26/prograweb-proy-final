@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
-import Paginacion from '../../components/Paginacion/Paginacion';
 import { getPedidosCliente, cancelarPedidoUsuario } from '../../services/clienteservicios';
 import './Orders.css';
+import Paginacion from '../../components/Paginacion/Paginacion';
 
 interface Order {
   id: number;
@@ -14,7 +14,7 @@ interface Order {
   // Puedes agregar más campos según lo que retorne el backend
 }
 
-const ORDERS_PER_PAGE = 3;
+const ORDERS_PER_PAGE = 10;
 
 const Orders = () => {
   const { user } = useAuth();
@@ -30,7 +30,7 @@ const Orders = () => {
       if (!user?.id) return;
       setIsLoading(true);
       try {
-        const data = await getPedidosCliente(Number(user.id), currentPage, ORDERS_PER_PAGE);
+        const data = await getPedidosCliente(Number(user.id), 1, 1000); // Traer hasta 1000 pedidos
         setOrders(data.rows || data || []);
       } catch (error) {
         setOrders([]);
@@ -39,7 +39,7 @@ const Orders = () => {
       }
     };
     fetchOrders();
-  }, [user?.id, currentPage]);
+  }, [user?.id]);
 
   const handleCancelOrder = (orderId: string) => {
     setShowCancelConfirm(orderId);
@@ -50,7 +50,7 @@ const Orders = () => {
       await cancelarPedidoUsuario(Number(orderId));
       // Recargar pedidos después de cancelar
       if (user?.id) {
-        const data = await getPedidosCliente(Number(user.id), currentPage, ORDERS_PER_PAGE);
+        const data = await getPedidosCliente(Number(user.id), 1, 1000); // Traer hasta 1000 pedidos
         setOrders(data.rows || data || []);
       }
       setShowCancelConfirm(null);
@@ -75,8 +75,8 @@ const Orders = () => {
     }
   };
 
-  const totalPages = 1; // Puedes ajustar esto si el backend retorna el total de páginas
-  const paginatedOrders = orders; // Ya viene paginado del backend
+  const totalPages = Math.max(1, Math.ceil(orders.length / ORDERS_PER_PAGE));
+  const paginatedOrders = orders.slice((currentPage - 1) * ORDERS_PER_PAGE, currentPage * ORDERS_PER_PAGE);
 
   if (isLoading) {
     return (
@@ -155,8 +155,11 @@ const Orders = () => {
               </div>
             ))}
           </div>
-          {/* Paginación si el backend lo soporta */}
-          {/* <Paginacion currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} /> */}
+          <Paginacion
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
         </>
       )}
     </div>
