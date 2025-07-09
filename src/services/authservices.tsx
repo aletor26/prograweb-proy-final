@@ -1,4 +1,4 @@
-const API_URL = 'backend-cloud-proyecto-c7gng2dehwezhhh3.canadacentral-01.azurewebsites.net';
+const API_URL = 'https://backend-cloud-proyecto-c7gng2dehwezhhh3.canadacentral-01.azurewebsites.net';
 
 export async function recuperarPassword(email: string, nueva: string) {
   const res = await fetch(`${API_URL}/forgot-password`, {

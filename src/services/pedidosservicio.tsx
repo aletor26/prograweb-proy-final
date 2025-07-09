@@ -1,4 +1,4 @@
-const API_URL = "backend-cloud-proyecto-c7gng2dehwezhhh3.canadacentral-01.azurewebsites.net";
+const API_URL = "https://backend-cloud-proyecto-c7gng2dehwezhhh3.canadacentral-01.azurewebsites.net";
 
 // ==================== ADMIN - GESTIÓN DE PEDIDOS ====================
 
