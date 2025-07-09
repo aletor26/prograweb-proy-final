@@ -187,9 +187,7 @@ const AppRoutes = () => {
       <Route path="/admin/users/:id/edit" element={
         <ProtectedRoute>
           <AdminRoute>
-            <UserForm editMode={false} setEditMode={function (value: boolean): void {
-              throw new Error('Function not implemented.');
-            } } />
+            <UserForm editMode={false} setEditMode={() => {}} />
           </AdminRoute>
         </ProtectedRoute>
       } />
