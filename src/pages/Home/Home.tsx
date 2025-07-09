@@ -37,7 +37,10 @@ const Home = () => {
 
   // 12 más vendidos (puedes cambiar la lógica si tienes ventas reales)
   const bestSellers = products.slice(0, 12);
-  const newProducts = products.slice(12, 18);
+  // Mostrar los 10 productos con el id más alto como nuevos productos
+  const newProducts = [...products]
+    .sort((a, b) => b.id - a.id)
+    .slice(0, 10);
   const whiskies = products.filter(p => p.category.toLowerCase() === 'whiskies');
   const vinos = products.filter(p => p.category.toLowerCase() === 'vinos');
   const piscos = products.filter(p => p.category.toLowerCase() === 'piscos');
