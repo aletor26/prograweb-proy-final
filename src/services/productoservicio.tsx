@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000";
+const API_URL = "postgres-cloud-pw.postgres.database.azure.com";
 
 // Función de prueba para verificar conectividad
 export async function testBackendConnection() {
