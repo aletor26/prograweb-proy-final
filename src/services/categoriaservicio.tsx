@@ -118,7 +118,7 @@ export async function eliminarCategoria(id: number): Promise<{ mensaje: string }
 }
 
 export async function obtenerProductosPorCategoria(categoriaId: number) {
-  const res = await fetch(`http://localhost:3000/categorias/${categoriaId}/productos`);
+  const res = await fetch(`${API_URL}/categorias/${categoriaId}/productos`);
   if (!res.ok) throw await res.json();
 
   const productos = await res.json();
