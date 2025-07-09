@@ -51,7 +51,7 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
                 window.location.href = '/login';
                 return;
               }
-              moveToSaved(product.id);
+              moveToSaved(product);
             }}
             tabIndex={0}
           >

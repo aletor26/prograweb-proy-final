@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 
 interface Product {
@@ -26,7 +26,7 @@ interface CartContextType {
   removeFromCart: (productId: number) => void;
   updateQuantity: (productId: number, quantity: number) => void;
   clearCart: () => void;
-  moveToSaved: (productId: number) => void;
+  moveToSaved: (productOrId: number | Product) => void;
   moveToCart: (productId: number) => void;
   removeSavedItem: (productId: number) => void;
   total: number;
@@ -36,7 +36,15 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>([]);
-  const [savedItems, setSavedItems] = useState<CartItem[]>([]);
+  const [savedItems, setSavedItems] = useState<CartItem[]>(() => {
+    const saved = localStorage.getItem('savedItems');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  // Guardar en localStorage cada vez que cambian los productos guardados
+  useEffect(() => {
+    localStorage.setItem('savedItems', JSON.stringify(savedItems));
+  }, [savedItems]);
 
 const addToCart = (product: Product, quantity = 1) => {
   setItems(currentItems => {
@@ -78,11 +86,23 @@ const addToCart = (product: Product, quantity = 1) => {
     setItems([]);
   };
 
-  const moveToSaved = (productId: number) => {
-    const item = items.find(item => item.id === productId);
-    if (item) {
-      setSavedItems(current => [...current, item]);
-      removeFromCart(productId);
+  const moveToSaved = (productOrId: number | Product) => {
+    let item: CartItem | undefined;
+    if (typeof productOrId === 'number') {
+      item = items.find(i => i.id === productOrId);
+      // Si no está en el carrito, buscar en savedItems para evitar duplicados
+      if (!item && !savedItems.some(i => i.id === productOrId)) {
+        // Buscar en localStorage o pedir el producto como argumento
+        // Aquí asumimos que el botón pasa el objeto Product si no está en el carrito
+        return;
+      }
+    } else {
+      // Si se pasa el objeto Product directamente
+      item = { ...productOrId, quantity: 1 };
+    }
+    if (item && !savedItems.some(i => i.id === item!.id)) {
+      setSavedItems(current => [...current, item!]);
+      removeFromCart(item.id);
     }
   };
 
