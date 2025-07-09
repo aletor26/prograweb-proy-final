@@ -191,3 +191,23 @@ export async function obtenerEstadisticasDashboard(fechaInicio: string, fechaFin
   if (!res.ok) throw await res.json();
   return res.json();
 }
+
+// Obtener un solo producto por ID (detalle)
+export async function obtenerProducto(id: number) {
+  const res = await fetch(`${API_URL}/admin/producto/${id}`);
+  if (!res.ok) throw await res.json();
+  const producto = await res.json();
+
+  return {
+    id: producto.id,
+    name: producto.nombre,
+    description: producto.descripcion,
+    price: producto.precio,
+    image: producto.url_imagen || 'https://placehold.co/300x300',
+    categoryId: producto.categoriaId,
+    active: producto.estadoId === 1,
+    stock: producto.stock || 0,
+    createdAt: producto.createdAt,
+    updatedAt: producto.updatedAt
+  };
+}
