@@ -4,30 +4,43 @@ import AdCarousel from '../../components/AdCarousel/AdCarousel';
 import './Home.css';
 import type { Product } from '../../data/products';
 import { obtenerProductos } from '../../services/productoservicio';
+import { obtenerCategorias } from '../../services/categoriaservicio';
 
 const Home = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
- useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const productos = await obtenerProductos();
-      setProducts(productos.filter((p: any) => p.active !== false));
-    } catch {
-      setProducts([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchData();
-}, []);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [productos, categorias] = await Promise.all([
+          obtenerProductos(),
+          obtenerCategorias()
+        ]);
+        // Mapea el nombre real de la categoría
+        const categoriasMap = Object.fromEntries(
+          categorias.map((cat: any) => [cat.id, cat.nombre])
+        );
+        const productosConCategoria = productos.map((p: any) => ({
+          ...p,
+          category: categoriasMap[p.categoriaId] || 'Sin categoría'
+        }));
+        setProducts(productosConCategoria.filter((p: any) => p.active !== false));
+      } catch (err) {
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
-
+  // 12 más vendidos (puedes cambiar la lógica si tienes ventas reales)
   const bestSellers = [...products]
-  .sort((a, b) => a.price - b.price) 
-  .slice(0, 12); 
+  .sort((a, b) => a.price - b.price) // ordenar por precio ascendente
+  .slice(0, 12); // tomar los 12 más baratos
 
+  // Mostrar los 10 productos con el id más alto como nuevos productos
   const newProducts = [...products]
     .sort((a, b) => b.id - a.id)
     .slice(0, 10);
