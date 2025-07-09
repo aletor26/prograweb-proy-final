@@ -41,9 +41,7 @@ const Offers = () => {
                 Válido hasta: {formatDate(offer.validUntil)}
               </p>
               <button 
-                className="add-to-cart-button"
-                onClick={() => addToCart(offer)}
-              >
+                className="add-to-cart-button">
                 Agregar al carrito
               </button>
               
