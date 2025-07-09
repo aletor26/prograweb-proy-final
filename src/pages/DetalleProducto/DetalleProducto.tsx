@@ -5,6 +5,10 @@ import { useCart } from '../../context/CartContext';
 import { useNavigate } from 'react-router-dom'; 
 import './DetalleProducto.css';
 import { obtenerCategoriaPorId } from '../../services/categoriaservicio';
+import { useAuth } from '../../context/AuthContext'; 
+
+
+
 
 interface Product {
   id: number;
@@ -23,8 +27,10 @@ const DetalleProducto = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const { user } = useAuth();
   const { addToCart } = useCart();
   const navigate = useNavigate();
+  const isCustomer = user?.role === 'customer';
  
 
   useEffect(() => {
@@ -79,31 +85,32 @@ const DetalleProducto = () => {
             <button onClick={() => setQuantity(prev => prev + 1)}>+</button>
           </div>
 
+          {isCustomer && (
           <div className="botones">
-          <button
-            className="btn-añadir"
-            onClick={() => {
-              if (product) {
-                addToCart(product, quantity);
-              }
-            }}
-          >
-            Añadir a la cesta
-          </button>
+            <button
+              className="btn-añadir"
+              onClick={() => {
+                if (product) {
+                  addToCart(product, quantity);
+                }
+              }}
+            >
+              Añadir a la cesta
+            </button>
 
-          <button
-            className="btn-comprar"
-            onClick={() => {
-              if (product) {
-                addToCart(product, quantity);
-                navigate('/cart');
-              }
-            }}
-          >
-            Comprar ahora
-          </button>
-        </div>
-
+            <button
+              className="btn-comprar"
+              onClick={() => {
+                if (product) {
+                  addToCart(product, quantity);
+                  navigate('/cart');
+                }
+              }}
+            >
+              Comprar ahora
+            </button>
+          </div>
+        )}
         </div>
       </div>
     </div>
