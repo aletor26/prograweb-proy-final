@@ -55,7 +55,7 @@ const NavBar = () => {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Buscar productos..."
+          placeholder="Buscar productos o categorías..."
           className="search-input"
         />
         <button type="submit" className="search-button">
