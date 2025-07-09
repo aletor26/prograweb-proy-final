@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { register as registerService, login as loginService } from '../../services/clienteservicios';
+import { register as registerService } from '../../services/clienteservicios';
 import './Auth.css';
 
 interface RegisterForm {
