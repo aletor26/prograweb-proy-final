@@ -83,15 +83,6 @@ const AdminOrders = () => {
     }
   };
 
-  const getStatusText = (status: Order['status']) => {
-    switch (status) {
-      case 'pending': return 'Pendiente';
-      case 'processing': return 'En proceso';
-      case 'completed': return 'Completado';
-      case 'cancelled': return 'Cancelado';
-      default: return status;
-    }
-  };
 
   if (isLoading) {
     return (
