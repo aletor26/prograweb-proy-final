@@ -77,36 +77,6 @@ const OrderDetail = () => {
     fetchOrder();
   }, [orderId, user?.id]);
 
-  const getStatusColor = (status: Order['status']) => {
-    switch (status) {
-      case 'pending':
-        return 'text-yellow-600';
-      case 'processing':
-        return 'text-blue-600';
-      case 'completed':
-        return 'text-green-600';
-      case 'cancelled':
-        return 'text-red-600';
-      default:
-        return 'text-gray-600';
-    }
-  };
-
-  const getStatusText = (status: Order['status']) => {
-    switch (status) {
-      case 'pending':
-        return 'Pendiente';
-      case 'processing':
-        return 'En proceso';
-      case 'completed':
-        return 'Completado';
-      case 'cancelled':
-        return 'Cancelado';
-      default:
-        return status;
-    }
-  };
-
   const getShippingMethodText = (method: Order['shippingMethod']) => {
     return method === 'standard' ? 'Envío estándar (3-5 días)' : 'Envío express (1-2 días)';
   };
