@@ -17,7 +17,7 @@ interface Category {
 }
 
 const SearchResults = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [sortBy, setSortBy] = useState('relevance');
