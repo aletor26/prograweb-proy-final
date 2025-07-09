@@ -1,4 +1,4 @@
-const API_URL = "postgres-cloud-pw.postgres.database.azure.com";
+const API_URL = "backend-cloud-proyecto-c7gng2dehwezhhh3.canadacentral-01.azurewebsites.net";
 
 // Función de prueba para verificar conectividad
 export async function testBackendConnection() {
