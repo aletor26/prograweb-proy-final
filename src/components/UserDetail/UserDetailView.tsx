@@ -1,4 +1,3 @@
-import React from "react";
 import './UserDetailView.css';
 
 const UserDetailView = ({ user }: { user: any }) => {
