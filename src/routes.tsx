@@ -17,7 +17,6 @@ import OrderDetail from './pages/OrderDetail/OrderDetail';
 import Profile from './pages/Profile/Profile';
 import Search from './pages/Search/Search';
 import Offers from './pages/Offers/Offers';
-import AdminOrders from './pages/Admin/AdminOrders';
 import AdminCategories from './pages/Admin/Categories/AdminCategories';
 import AddCategory from './pages/Admin/Categories/AddCategory';
 import EditCategory from './pages/Admin/Categories/EditCategory';
