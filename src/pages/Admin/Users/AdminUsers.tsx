@@ -157,37 +157,6 @@ const AdminUsers = () => {
     }
   }, [orders, users, startDate, endDate]);
 
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      });
-    } catch (error) {
-      return 'Fecha no disponible';
-    }
-  };
-
-  const handleDeleteUser = (userId: string) => {
-    if (userId === user?.id) {
-      alert('No puedes eliminar tu propio usuario administrador');
-      return;
-    }
-
-    if (window.confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
-      try {
-        const updatedUsers = users.filter(u => u.id !== userId);
-        localStorage.setItem('users', JSON.stringify(updatedUsers));
-        setUsers(updatedUsers);
-        window.dispatchEvent(new Event('storage'));
-      } catch (error) {
-        console.error('Error al eliminar usuario:', error);
-      }
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="admin-users">
