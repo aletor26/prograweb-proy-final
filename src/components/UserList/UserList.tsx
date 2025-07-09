@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import UserFilter from "./UserFilter";
 import UserRow from "./UserRow";
 import { getUsuariosAdmin, activarUsuario, desactivarUsuario } from "../../services/usuarioservicio";
@@ -9,12 +9,14 @@ const UserList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchField, setSearchField] = useState<'id' | 'nombre' | 'apellido'>('id');
   const [usuarios, setUsuarios] = useState<any[]>([]);
+  const [allUsers, setAllUsers] = useState<any[]>([]); // Todos los usuarios sin filtrar
   const [currentUserId, setCurrentUserId] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [limit] = useState(10); // 10 usuarios por página
+  const [limit] = useState(10); // 10 usuarios por página en el frontend
+  const [backendLimit] = useState(1000); // Cargar muchos usuarios del backend
 
   // Cargar usuarios del backend
   const loadUsers = async (page: number) => {
@@ -22,30 +24,18 @@ const UserList: React.FC = () => {
       setIsLoading(true);
       setError(null);
       
-      // Construir parámetros de filtro según el endpoint del backend
+      // Solo traer datos del backend, sin filtros
       const params: any = {};
-      
-      if (searchTerm) {
-        if (searchField === 'id') {
-          params.id = searchTerm;
-        } else if (searchField === 'nombre') {
-          params.nombre = searchTerm;
-        } else if (searchField === 'apellido') {
-          params.apellido = searchTerm;
-        }
-      }
-      
-      // Agregar paginación
-      params.page = page;
-      params.limit = limit;
+      params.page = 1; // Siempre cargar desde la página 1
+      params.limit = backendLimit; // Cargar muchos usuarios
       
       const response = await getUsuariosAdmin(params);
       
       // El backend devuelve { count: number, rows: User[] }
       // donde cada User tiene { Estado: { id: number, nombre: string } }
       const users = response.rows || response || [];
-      const count = response.count || users.length;
-      setTotalPages(Math.max(1, Math.ceil(count / limit)));
+      // No usar count del backend, calcular basado en usuarios filtrados
+      
       // Transformar los datos para que sean compatibles con el componente
       const transformedUsers = users.map((user: any) => ({
         ...user,
@@ -57,20 +47,60 @@ const UserList: React.FC = () => {
         createdAt: user.createdAt
       }));
       
-      setUsuarios(transformedUsers);
+      setAllUsers(transformedUsers);
     } catch (err: any) {
       console.error('Error al cargar usuarios:', err);
       setError(err.message || 'Error al cargar usuarios');
       // Fallback a localStorage si hay error
       const storedUsers = localStorage.getItem('users');
       if (storedUsers) {
-        setUsuarios(JSON.parse(storedUsers));
-        setTotalPages(1);
+        setAllUsers(JSON.parse(storedUsers));
       }
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Filtrar usuarios usando useMemo para evitar recálculos innecesarios
+  const filteredUsers = useMemo(() => {
+    if (!searchTerm) return allUsers;
+    
+    return allUsers.filter((user: any) => {
+      const userId = user.id?.toString() || '';
+      const userName = user.name || user.nombre || '';
+      const userApellido = user.apellido || '';
+      const searchLower = searchTerm.toLowerCase();
+      
+      if (searchField === 'id') {
+        return userId.includes(searchLower);
+      } else if (searchField === 'nombre') {
+        return userName.toLowerCase().includes(searchLower);
+      } else if (searchField === 'apellido') {
+        return userApellido.toLowerCase().includes(searchLower);
+      }
+      return true;
+    });
+  }, [allUsers, searchTerm, searchField]);
+
+  // Calcular usuarios paginados
+  const paginatedUsers = useMemo(() => {
+    const startIndex = (currentPage - 1) * limit;
+    const endIndex = startIndex + limit;
+    return filteredUsers.slice(startIndex, endIndex);
+  }, [filteredUsers, currentPage, limit]);
+
+  // Actualizar usuarios cuando cambien los filtros
+  useEffect(() => {
+    setUsuarios(paginatedUsers);
+    // Recalcular paginación basada en usuarios filtrados
+    const newTotalPages = Math.max(1, Math.ceil(filteredUsers.length / limit));
+    setTotalPages(newTotalPages);
+    
+    // Si la página actual es mayor que el nuevo total, resetear a página 1
+    if (currentPage > newTotalPages) {
+      setCurrentPage(1);
+    }
+  }, [paginatedUsers, filteredUsers, currentPage, limit]);
 
   useEffect(() => {
     // Cargar usuario actual
@@ -83,10 +113,7 @@ const UserList: React.FC = () => {
 
   // Recargar usuarios cuando cambien los filtros
   useEffect(() => {
-    if (!isLoading) {
-      loadUsers(1);
-      setCurrentPage(1);
-    }
+    // No recargar, el filtrado ya es automático
   }, [searchTerm, searchField]);
 
   // Activar/desactivar usuario usando el servicio
