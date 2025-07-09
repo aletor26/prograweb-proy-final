@@ -91,25 +91,26 @@ export async function obtenerProductosAdmin(params: any = {}) {
 }
 
 // Obtener detalle de un producto
-export async function obtenerProducto(id: number) {
-  const res = await fetch(`${API_URL}/productos/${id}`);
-  if (!res.ok) throw await res.json();
-  const producto = await res.json();
-  
-  // Transformar campos
-  return {
-    id: producto.id,
-    name: producto.nombre,
-    description: producto.descripcion,
-    price: producto.precio,
-    image: producto.url_imagen || 'https://placehold.co/300x300',
-    category: producto.categoriaId ? `Categoría ${producto.categoriaId}` : 'Sin categoría',
-    active: producto.estadoId === 1,
-    serie: producto.serie || null,
-    stock: producto.stock || 0,
-    createdAt: producto.createdAt,
-    updatedAt: producto.updatedAt
-  };
+export async function obtenerProductosPorCategoria(categoriaId: number) {
+  try {
+    const res = await fetch(`${API_URL}/productos/por-categoria/${categoriaId}`);
+    if (!res.ok) throw await res.json();
+    const productos = await res.json();
+
+    return productos.map((producto: any) => ({
+      id: producto.id,
+      name: producto.nombre,
+      description: producto.descripcion,
+      price: producto.precio,
+      image: producto.url_imagen || 'https://placehold.co/300x300',
+      categoryId: producto.categoriaId,
+      active: producto.estadoId === 1,
+      stock: producto.stock || 0
+    }));
+  } catch (error) {
+    console.error('Error en obtenerProductosPorCategoria:', error);
+    throw error;
+  }
 }
 
 export async function crearProducto(data: any) {

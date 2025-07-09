@@ -117,6 +117,27 @@ export async function eliminarCategoria(id: number): Promise<{ mensaje: string }
   }
 }
 
+export async function obtenerProductosPorCategoria(categoriaId: number) {
+  const res = await fetch(`http://localhost:3000/categorias/${categoriaId}/productos`);
+  if (!res.ok) throw await res.json();
+
+  const productos = await res.json();
+
+  return productos.map((producto: any) => ({
+    id: producto.id,
+    name: producto.nombre,
+    description: producto.descripcion,
+    price: producto.precio,
+    image: producto.url_imagen || 'https://placehold.co/300x300',
+    categoryId: producto.categoriaId,
+    active: producto.estadoId === 1,
+    serie: producto.serie || null,
+    stock: producto.stock || 0,
+    createdAt: producto.createdAt,
+    updatedAt: producto.updatedAt
+  }));
+}
+
 // Función de test para verificar endpoints
 export async function testEndpoints() {
   console.log('=== TESTING ENDPOINTS ===');
