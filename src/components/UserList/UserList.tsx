@@ -167,21 +167,6 @@ const UserList: React.FC = () => {
     }
   };
 
-  const handleDeleteUser = (id: string) => {
-    if (id === currentUserId) {
-      alert('No puedes eliminar tu propio usuario administrador');
-      return;
-    }
-    if (window.confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
-      // Por ahora mantenemos la lógica de localStorage para eliminar
-      // ya que no hay endpoint de eliminar en el backend
-      const updated = usuarios.filter(u => u.id !== id);
-      setUsuarios(updated);
-      localStorage.setItem('users', JSON.stringify(updated));
-      window.dispatchEvent(new Event('storage'));
-    }
-  };
-
   // Función separada para cambio de página
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages) return;
@@ -226,7 +211,6 @@ const UserList: React.FC = () => {
             <th>Estado</th>
             <th>Acción</th>
             <th>Detalles</th>
-            <th>Eliminar</th>
           </tr>
         </thead>
         <tbody>
@@ -235,7 +219,6 @@ const UserList: React.FC = () => {
               key={user.id}
               user={user}
               onToggleActive={handleToggleActive}
-              onDeleteUser={handleDeleteUser}
               currentUserId={currentUserId}
             />
           ))}
