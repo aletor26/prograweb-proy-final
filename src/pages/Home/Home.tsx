@@ -8,7 +8,6 @@ import { obtenerCategorias } from '../../services/categoriaservicio';
 
 const Home = () => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,8 +27,6 @@ const Home = () => {
         setProducts(productosConCategoria.filter((p: any) => p.active !== false));
       } catch (err) {
         setProducts([]);
-      } finally {
-        setLoading(false);
       }
     };
     fetchData();
