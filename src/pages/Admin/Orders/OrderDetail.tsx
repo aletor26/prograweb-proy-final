@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getPedidoAdmin, cancelarPedidoAdmin, actualizarEstadoPedidoAdmin } from "../../../services/pedidosservicio";
+import { getPedidoAdmin, actualizarEstadoPedidoAdmin } from "../../../services/pedidosservicio";
 import '../AdminOrders.css';
 
 const statusOptions = [
