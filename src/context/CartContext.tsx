@@ -22,7 +22,7 @@ export interface CartItem {
 interface CartContextType {
   items: CartItem[];
   savedItems: CartItem[];
-  addToCart: (product: Product) => void;
+  addToCart: (product: Product, quantity?: number) => void;
   removeFromCart: (productId: number) => void;
   updateQuantity: (productId: number, quantity: number) => void;
   clearCart: () => void;
@@ -38,21 +38,22 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>([]);
   const [savedItems, setSavedItems] = useState<CartItem[]>([]);
 
-  const addToCart = (product: Product) => {
-    setItems(currentItems => {
-      const existingItem = currentItems.find(item => item.id === product.id);
-      
-      if (existingItem) {
-        return currentItems.map(item =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      }
+const addToCart = (product: Product, quantity = 1) => {
+  setItems(currentItems => {
+    const existingItem = currentItems.find(item => item.id === product.id);
 
-      return [...currentItems, { ...product, quantity: 1 }];
-    });
-  };
+    if (existingItem) {
+      return currentItems.map(item =>
+        item.id === product.id
+          ? { ...item, quantity: item.quantity + quantity }
+          : item
+      );
+    }
+
+    return [...currentItems, { ...product, quantity }];
+  });
+};
+
 
   const removeFromCart = (productId: number) => {
     setItems(currentItems => currentItems.filter(item => item.id !== productId));

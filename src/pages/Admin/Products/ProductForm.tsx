@@ -82,7 +82,7 @@ const ProductForm = () => {
           name: product.name || '',
           price: product.price?.toString() || '',
           image: product.image || '',
-          category: product.category || '',
+          category: product.categoryId || '',
           description: product.description || '',
           stock: product.stock?.toString() || ''
         });
