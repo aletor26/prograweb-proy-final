@@ -2,14 +2,18 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getPedidosAdmin } from "../../../services/pedidosservicio";
 import './AdminOrdersList.css';
+import Paginacion from '../../../components/Paginacion/Paginacion';
 
 const AdminOrdersList: React.FC = () => {
   const [orders, setOrders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchField, setSearchField] = useState<'id' | 'nombre' | 'apellido'>('id');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [limit] = useState(10); // 10 pedidos por página
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (page: number) => {
     try {
       setIsLoading(true);
       const params: any = {};
@@ -23,9 +27,13 @@ const AdminOrdersList: React.FC = () => {
           params.apellido = searchTerm;
         }
       }
+      params.page = page;
+      params.limit = limit;
 
       const response = await getPedidosAdmin(params);
       setOrders(response.pedidos || []);
+      const count = response.count || (response.pedidos ? response.pedidos.length : 0);
+      setTotalPages(Math.max(1, Math.ceil(count / limit)));
     } catch (error) {
       console.error('Error fetching orders:', error);
     } finally {
@@ -34,11 +42,19 @@ const AdminOrdersList: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchOrders();
+    fetchOrders(1);
+    setCurrentPage(1);
   }, [searchTerm, searchField]);
 
+  const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+    fetchOrders(page);
+  };
+
   const handleSearch = () => {
-    fetchOrders();
+    fetchOrders(1);
+    setCurrentPage(1);
   };
 
   if (isLoading) {
@@ -111,6 +127,11 @@ const AdminOrdersList: React.FC = () => {
           ))}
         </div>
       )}
+      <Paginacion
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
     </div>
   );
 };

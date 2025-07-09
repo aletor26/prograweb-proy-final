@@ -3,6 +3,7 @@ import UserFilter from "./UserFilter";
 import UserRow from "./UserRow";
 import { getUsuariosAdmin, activarUsuario, desactivarUsuario } from "../../services/usuarioservicio";
 import './UserList.css';
+import Paginacion from "../Paginacion/Paginacion";
 
 const UserList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -11,9 +12,12 @@ const UserList: React.FC = () => {
   const [currentUserId, setCurrentUserId] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [limit] = useState(10); // 10 usuarios por página
 
   // Cargar usuarios del backend
-  const loadUsers = async () => {
+  const loadUsers = async (page: number) => {
     try {
       setIsLoading(true);
       setError(null);
@@ -31,16 +35,17 @@ const UserList: React.FC = () => {
         }
       }
       
-      // Agregar paginación por defecto
-      params.page = 1;
-      params.limit = 50; // Mostrar más usuarios por página
+      // Agregar paginación
+      params.page = page;
+      params.limit = limit;
       
       const response = await getUsuariosAdmin(params);
       
       // El backend devuelve { count: number, rows: User[] }
       // donde cada User tiene { Estado: { id: number, nombre: string } }
       const users = response.rows || response || [];
-      
+      const count = response.count || users.length;
+      setTotalPages(Math.max(1, Math.ceil(count / limit)));
       // Transformar los datos para que sean compatibles con el componente
       const transformedUsers = users.map((user: any) => ({
         ...user,
@@ -60,6 +65,7 @@ const UserList: React.FC = () => {
       const storedUsers = localStorage.getItem('users');
       if (storedUsers) {
         setUsuarios(JSON.parse(storedUsers));
+        setTotalPages(1);
       }
     } finally {
       setIsLoading(false);
@@ -70,15 +76,16 @@ const UserList: React.FC = () => {
     // Cargar usuario actual
     const currentUser = localStorage.getItem('currentUser');
     setCurrentUserId(currentUser ? JSON.parse(currentUser).id : undefined);
-    
     // Cargar usuarios
-    loadUsers();
+    loadUsers(1);
+    setCurrentPage(1);
   }, []);
 
   // Recargar usuarios cuando cambien los filtros
   useEffect(() => {
     if (!isLoading) {
-      loadUsers();
+      loadUsers(1);
+      setCurrentPage(1);
     }
   }, [searchTerm, searchField]);
 
@@ -95,7 +102,7 @@ const UserList: React.FC = () => {
       }
 
       // Recargar usuarios después del cambio
-      await loadUsers();
+      await loadUsers(currentPage);
     } catch (err: any) {
       console.error('Error al cambiar estado del usuario:', err);
       alert(err.message || 'Error al cambiar estado del usuario');
@@ -117,6 +124,13 @@ const UserList: React.FC = () => {
     }
   };
 
+  // Función separada para cambio de página
+  const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+    loadUsers(page);
+  };
+
   if (isLoading) {
     return (
       <div className="user-list-container">
@@ -129,7 +143,7 @@ const UserList: React.FC = () => {
     return (
       <div className="user-list-container">
         <div className="error">Error: {error}</div>
-        <button onClick={loadUsers}>Reintentar</button>
+        <button onClick={() => loadUsers(currentPage)}>Reintentar</button>
       </div>
     );
   }
@@ -169,6 +183,11 @@ const UserList: React.FC = () => {
           ))}
         </tbody>
       </table>
+      <Paginacion
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
     </div>
   );
 };
