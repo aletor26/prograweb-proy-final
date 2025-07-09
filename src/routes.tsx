@@ -164,6 +164,13 @@ const AppRoutes = () => {
           </AdminRoute>
         </ProtectedRoute>
       } />
+      <Route path="/admin/products/:id" element={
+      <ProtectedRoute>
+        <AdminRoute>
+          <DetalleProducto />
+        </AdminRoute>
+      </ProtectedRoute>
+      } />
       <Route path="/admin/users" element={
         <ProtectedRoute>
           <AdminRoute>
