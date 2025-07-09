@@ -1,10 +1,7 @@
-import { useCart } from '../../context/CartContext';
 import { offers } from '../../data/offers';
 import './Offers.css';
 
 const Offers = () => {
-  const { addToCart } = useCart();
- 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-ES', {
       year: 'numeric',
