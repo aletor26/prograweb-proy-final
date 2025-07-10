@@ -4,7 +4,7 @@
   --accent-color: #8b4513;
   --text-light: #ffffff;
   --text-dark: #1a1a1a;
-  --background-dark: #121212;
+  --background-dark: #f8f9fa; ;
   --card-background: #1e1e1e;
 }
 
@@ -84,22 +84,27 @@
 }
 
 .ad-carousel-btn {
-  background: #1976d2;
-  color: #fff;
+  background: transparent;
   border: none;
+  color: #000000;
   border-radius: 50%;
-  width: 2.8rem;
-  height: 2.8rem;
-  font-size: 1.7rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  font-weight: bold;
+  font-size: 1.5rem;
   cursor: pointer;
-  transition: background 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
+  line-height: 1;
+  padding: 0;
+  margin: 0;
+  transition: all 0.3s ease;
 }
 
+
 .ad-carousel-btn:hover {
-  background: #1251a3;
+  transform: translateY(-2px) scale(1.1);
 }
 
 /* Responsive */
@@ -128,4 +133,4 @@
     height: 2rem;
     font-size: 1.1rem;
   }
-}
+} 

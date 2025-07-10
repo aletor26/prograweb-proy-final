@@ -214,7 +214,7 @@
 }
 
 .order-summary {
-  background: white;
+  background: rgb(190, 187, 187);
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -272,13 +272,13 @@
   display: flex;
   justify-content: space-between;
   margin-bottom: 1rem;
-  color: #4a5568;
+  color: #000000;
   font-size: 1.1rem;
 }
 
 .order-total {
   font-weight: 600;
-  color: #1a1a1a;
+  color: #951414;
   font-size: 1.3rem;
   margin-top: 1.5rem;
   padding-top: 1.5rem;
@@ -288,7 +288,7 @@
 .complete-order-button {
   width: 100%;
   padding: 1.25rem;
-  background-color: #1a56db;
+  background-color: #10b44c;
   color: white;
   border: none;
   border-radius: 10px;
@@ -330,4 +330,4 @@
   .form-input {
     min-width: auto;
   }
-} 
+}  

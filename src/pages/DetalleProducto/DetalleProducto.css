@@ -69,16 +69,18 @@
   align-items: center;
   gap: 12px;
   margin-bottom: 16px;
+  color: rgb(99, 19, 19);
 }
 
 .cantidad-selector button {
   padding: 6px 12px;
-  background: #eee;
+  background: #eae8e8;
   border: none;
   font-size: 1.2rem;
   cursor: pointer;
   border-radius: 6px;
   transition: background 0.2s;
+  color: black; 
 }
 .cantidad-selector button:hover {
   background: #ddd;

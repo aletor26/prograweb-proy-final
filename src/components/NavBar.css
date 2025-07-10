@@ -1,16 +1,16 @@
 :root {
-  --background-dark: #762020;
+  --background-dark: #f8f9fa;
   --text-dark: #333333;
   --text-light: #ffffff;
   --secondary-color: #C8A97E;
   --accent-color: #e31837;
   --accent-hover: #c41230;
   --border-color: rgba(200, 169, 126, 0.3);
-  --hover-bg: #f5f5f5;
+  --hover-bg: #000000;
 }
 
 .navbar {
-  background-color: var(--background-dark);
+   background-color: #1a1a1a; 
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
@@ -27,23 +27,28 @@
 }
 
 .brand-logo {
-  color: var(--secondary-color);
   text-decoration: none;
-  font-size: 2rem;
+  font-size: 4rem;
   font-weight: 700;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Dancing Script', cursive;
+  color:#e8b4a6;
+  font-style: italic;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
 }
 
 .search-form {
-  flex: 0 1 400px;
+  flex: 0 1 700px;
   display: flex;
   gap: 0.5rem;
+  margin-top: 0.9rem;
+  
 }
 
 .search-input {
   flex: 1;
   padding: 0.5rem 1rem;
-  border: 1px solid rgba(200, 169, 126, 0.2);
+  border: 1px solid rgba(192, 177, 146, 0.2);
   border-radius: 4px;
   background: rgba(255, 255, 255, 0.1);
   color: var(--text-light);
@@ -56,6 +61,7 @@
 .search-button {
   padding: 0.5rem 1rem;
   background: var(--secondary-color);
+  background: #F7F2EC;
   border: none;
   border-radius: 4px;
   color: var(--text-dark);
@@ -384,3 +390,5 @@
 .saved-items-link:hover .nav-icon {
   filter: invert(83%) sepia(19%) saturate(789%) hue-rotate(358deg) brightness(89%) contrast(82%);
 }
+ 
+

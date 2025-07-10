@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import './AdCarousel.css';
 
 const banners = [
-  { id: 1, image: 'https://placehold.co/1200x350/1976d2/fff?text=Oferta+Especial+1' },
-  { id: 2, image: 'https://placehold.co/1200x350/388e3c/fff?text=Descuento+en+Whiskies' },
-  { id: 3, image: 'https://placehold.co/1200x350/d32f2f/fff?text=Vinos+Premium' },
+  { id: 1, image: 'https://i.postimg.cc/vTYXRshc/Banner-Mercado-Shops-Black-Friday-Moderno-Negro-Amarillo.jpg' },
+  { id: 2, image: 'https://i.postimg.cc/pXcX8dML/Banner-Mercado-Shops-Black-Friday-Moderno-Negro-Amarillo-3.jpg' },
+  { id: 3, image: 'https://i.postimg.cc/jSGxgk5V/Banner-Mercado-Shops-Black-Friday-Moderno-Negro-Amarillo-2.jpg' },
+  { id: 4, image: 'https://i.postimg.cc/qv74vHtH/Banner-Mercado-Shops-Black-Friday-Moderno-Negro-Amarillo-1.jpg' },
 ];
 
 const AdCarousel: React.FC = () => {
@@ -15,13 +16,13 @@ const AdCarousel: React.FC = () => {
 
   return (
     <div className="ad-carousel">
-      <button className="ad-carousel-btn" onClick={prev}>&#8592;</button>
+      <button className="ad-carousel-btn" onClick={prev}>&#171;</button>
       <img
         src={banners[index].image}
         alt={`Banner ${index + 1}`}
         className="ad-carousel-img"
       />
-      <button className="ad-carousel-btn" onClick={next}>&#8594;</button>
+      <button className="ad-carousel-btn" onClick={next}>&#187;</button>
     </div>
   );
 };
