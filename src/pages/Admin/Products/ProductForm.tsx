@@ -82,7 +82,7 @@ const ProductForm = () => {
           name: product.name || '',
           price: product.price?.toString() || '',
           image: product.image || '',
-          category: product.categoryId || '',
+          category: product.categoryId ? String(product.categoryId) : '', // <-- Forzar string
           description: product.description || '',
           stock: product.stock?.toString() || ''
         });
