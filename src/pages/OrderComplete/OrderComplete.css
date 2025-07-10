@@ -73,6 +73,20 @@
   background-color: #1e40af;
 }
 
+.order-complete-container, .order-complete-card, .order-info {
+  background: var(--card-background) !important;
+  color: var(--text-light) !important;
+}
+
+.order-complete-title, .order-complete-message, .order-info p {
+  color: var(--text-light) !important;
+}
+
+.continue-shopping-button {
+  background-color: var(--secondary-color) !important;
+  color: var(--text-dark) !important;
+}
+
 @media (max-width: 640px) {
   .order-complete-container {
     padding: 1rem;

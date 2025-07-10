@@ -331,3 +331,23 @@
     min-width: auto;
   }
 }  
+
+.checkout-container, .checkout-form, .checkout-section, .payment-method, .qr-code, .shipping-method, .order-summary, .order-item, .order-item-details, .order-item-name, .order-item-price, .order-summary-title, .order-summary-row, .order-total, .complete-order-button {
+  background: var(--card-background) !important;
+  color: var(--text-light) !important;
+  border-color: var(--border-color) !important;
+}
+
+.checkout-section-title, .form-group label, .order-summary-title, .order-summary-row, .order-total {
+  color: var(--text-light) !important;
+}
+
+.form-input {
+  background: var(--card-background) !important;
+  color: var(--text-light) !important;
+  border-color: var(--border-color) !important;
+}
+
+.form-input::placeholder {
+  color: var(--text-muted) !important;
+}  

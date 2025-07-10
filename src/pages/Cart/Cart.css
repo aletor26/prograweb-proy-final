@@ -156,13 +156,14 @@
 }
 
 .cart-summary {
-  background: var(--color-text-light);
-  border-radius: var(--border-radius-md);
-  padding: 2rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  height: fit-content;
-  position: sticky;
-  top: 2rem;
+  background: var(--card-background) !important;
+  color: var(--text-light) !important;
+  border-color: var(--border-color) !important;
+}
+
+.cart-summary-title, .cart-summary-row, .cart-summary-total {
+  color: var(--text-light) !important;
+  border-color: var(--border-color) !important;
 }
 
 .cart-summary-title {
