@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import UserDataView from './UserDataView';
 import UserFormFields from './UserFormFields';
 import './UserForm.css';
+import { actualizarPerfilCliente } from '../../services/clienteservicios';
 
 interface UserFormData {
   id: string;
@@ -18,7 +19,7 @@ interface UserFormProps {
 }
 
 const UserForm: React.FC<UserFormProps> = ({ editMode, setEditMode }) => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const navigate = useNavigate();
   const [showMessage, setShowMessage] = useState(false);
   const [error, setError] = useState<string>('');
@@ -53,37 +54,28 @@ const UserForm: React.FC<UserFormProps> = ({ editMode, setEditMode }) => {
     }
 
     try {
-      const storedUsers = localStorage.getItem('users');
-      let users = storedUsers ? JSON.parse(storedUsers) : [];
-
-      const updatedUsers = users.map((u: any) => {
-        if (u.id === formData.id || u.dni === formData.id) {
-          const updates = {
-            ...u,
-            name: formData.name,
-            email: formData.email,
-            updatedAt: new Date().toISOString()
-          };
-
-          if (formData.password && formData.password.trim() !== '') {
-            updates.password = formData.password;
-          }
-
-          return updates;
-        }
-        return u;
+      // Llamada al backend para actualizar el perfil
+      const payload: any = {
+        nombre: formData.name.split(' ')[0] || formData.name,
+        apellido: formData.name.split(' ').slice(1).join(' '),
+        correo: formData.email, // <-- 'correo', no 'email'
+      };
+      if (formData.password && formData.password.trim() !== '') {
+        payload.clave = formData.password;
+      }
+      await actualizarPerfilCliente(Number(formData.id), payload);
+      // Actualizar el contexto de usuario
+      updateUser && updateUser({
+        name: formData.name,
+        email: formData.email
       });
-
-      localStorage.setItem('users', JSON.stringify(updatedUsers));
       setShowMessage(true);
-      window.dispatchEvent(new Event('storage'));
-
       setTimeout(() => {
         setShowMessage(false);
         setEditMode(false);
       }, 1500);
-    } catch (error) {
-      setError('Error al guardar los cambios');
+    } catch (error: any) {
+      setError(error?.message || 'Error al guardar los cambios');
     }
   };
 

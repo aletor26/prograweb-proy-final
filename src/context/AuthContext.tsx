@@ -16,6 +16,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  updateUser: (newUser: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -65,13 +66,22 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('currentUser');
   };
 
+  // Nueva función para actualizar el usuario en el contexto
+  const updateUser = (newUser: Partial<User>) => {
+    if (!user) return;
+    const updatedUser = { ...user, ...newUser };
+    setUser(updatedUser);
+    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
       isAuthenticated: !!user,
       isLoading,
       login,
-      logout
+      logout,
+      updateUser // <-- la agrego al contexto
     }}>
       {children}
     </AuthContext.Provider>

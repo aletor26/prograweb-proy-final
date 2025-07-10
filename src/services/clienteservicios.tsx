@@ -110,3 +110,21 @@ export async function cancelarPedidoUsuario(pedidoId: number) {
   return res.json();
 }
   
+// ACTUALIZAR PERFIL DEL CLIENTE
+export async function actualizarPerfilCliente(clienteId: number, data: {
+  nombre?: string;
+  apellido?: string;
+  correo?: string;
+  clave?: string;
+  direccion?: string;
+  telefono?: string;
+}) {
+  const res = await fetch(`${API_URL}/usuarios/${clienteId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw await res.json();
+  return res.json();
+}
+  
