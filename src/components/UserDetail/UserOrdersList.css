@@ -1,36 +1,14 @@
-.user-orders-list {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  padding: 1.5rem;
-  margin: 2rem 0;
+.user-orders-list, .orders-table, .orders-table th, .orders-table td {
+  background: var(--card-background) !important;
+  color: var(--text-light) !important;
 }
 
 .user-orders-list h3 {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: var(--text-dark, #222);
-  margin-bottom: 1rem;
-}
-
-.orders-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #f8fafc;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.orders-table th, .orders-table td {
-  padding: 0.7rem 1rem;
-  text-align: left;
+  color: var(--text-light) !important;
 }
 
 .orders-table th {
-  background: #f3f4f6;
-  color: #222;
-  font-weight: 600;
-  border-bottom: 2px solid #e5e7eb;
+  color: var(--secondary-color) !important;
 }
 
 .orders-table tr {
@@ -47,24 +25,24 @@
 }
 
 .order-status-pending {
-  color: #d97706;
+  color: #d97706 !important;
   font-weight: 600;
 }
 .order-status-processing {
-  color: #2563eb;
+  color: #2563eb !important;
   font-weight: 600;
 }
 .order-status-completed {
-  color: #059669;
+  color: #22c55e !important;
   font-weight: 600;
 }
 .order-status-cancelled {
-  color: #dc2626;
+  color: #ef4444 !important;
   font-weight: 600;
 }
 
 .order-detail-link {
-  color: #4338ca;
+  color: var(--secondary-color) !important;
   text-decoration: underline;
   font-weight: 500;
 }

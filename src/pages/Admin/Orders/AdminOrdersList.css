@@ -4,6 +4,12 @@
   border-radius: 12px;
   padding: 2rem;
   margin-bottom: 2rem;
+  color: var(--text-light, #fff);
+}
+
+.admin-orders-section h2 {
+  color: var(--text-light, #fff);
+  margin-bottom: 1.5rem;
 }
 
 .admin-orders-list {
@@ -21,11 +27,17 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  color: var(--text-light, #fff);
 }
 
 .admin-order-info {
   color: var(--text-light, #fff);
   margin-bottom: 1rem;
+}
+
+.admin-order-info div {
+  margin-bottom: 0.5rem;
+  color: var(--text-light, #fff);
 }
 
 .admin-order-id {
@@ -56,22 +68,25 @@
   padding: 0.3rem 0.6rem;
   border-radius: 4px;
   transition: background 0.2s;
+  text-decoration: none;
 }
 
 .admin-order-action-button:hover {
-  background: #ffe0b2;
-  color: #222;
+  background: rgba(200, 169, 126, 0.1);
+  color: #b89861;
 }
 
 .admin-orders-no-orders {
-  color: #c8a97e;
+  color: var(--text-light, #fff);
   text-align: center;
   grid-column: 1/-1;
+  padding: 2rem;
 }
 
 .admin-orders-loading {
-  color: #c8a97e;
+  color: var(--text-light, #fff);
   text-align: center;
+  padding: 2rem;
 }
 
 .admin-search-input {
@@ -79,17 +94,58 @@
   max-width: 350px;
   padding: 0.7rem 1rem;
   margin-bottom: 1.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-color, rgba(200, 169, 126, 0.2));
   border-radius: 8px;
   font-size: 1rem;
   outline: none;
   box-shadow: 0 1px 3px rgba(0,0,0,0.06);
   transition: border 0.2s, box-shadow 0.2s;
+  background: var(--card-background, #23272f);
+  color: var(--text-light, #fff);
 }
 
 .admin-search-input:focus {
   border-color: #6366f1;
   box-shadow: 0 2px 8px rgba(99,102,241,0.08);
+}
+
+.admin-search-input::placeholder {
+  color: var(--text-muted, #a0a0a0);
+}
+
+.admin-search-select {
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--border-color, rgba(200, 169, 126, 0.2));
+  border-radius: 8px;
+  font-size: 1rem;
+  background: var(--card-background, #23272f);
+  color: var(--text-light, #fff);
+  outline: none;
+  margin-right: 0.5rem;
+}
+
+.admin-search-select:focus {
+  border-color: #6366f1;
+}
+
+.admin-search-select option {
+  background: var(--card-background, #23272f);
+  color: var(--text-light, #fff);
+}
+
+.admin-search-button {
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--border-color, rgba(200, 169, 126, 0.2));
+  border-radius: 8px;
+  font-size: 1rem;
+  background: var(--secondary-color, #c8a97e);
+  color: var(--text-dark, #1a1a1a);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.admin-search-button:hover {
+  background: #b89861;
 }
 
 .estado-completado {

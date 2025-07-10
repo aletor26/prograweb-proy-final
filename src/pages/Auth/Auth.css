@@ -189,3 +189,37 @@
     grid-template-columns: 1fr;
   }
 } 
+
+.auth-container, .auth-card {
+  background: var(--card-background) !important;
+  color: var(--text-light) !important;
+}
+
+.auth-title, .auth-description, .auth-message, .form-group label, .auth-link {
+  color: var(--text-light) !important;
+}
+
+.form-group input {
+  background: var(--card-background) !important;
+  color: var(--text-light) !important;
+  border-color: var(--border-color) !important;
+}
+
+.form-group input::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.error-message, .error-message.general {
+  color: #dc2626 !important;
+  background: #2a1818 !important;
+  border-color: #dc2626 !important;
+}
+
+.auth-button {
+  background-color: #ff6b6b !important;
+  color: white !important;
+}
+
+.auth-link {
+  color: var(--secondary-color) !important;
+} 

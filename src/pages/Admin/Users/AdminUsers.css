@@ -157,6 +157,26 @@
   padding: 2rem;
 }
 
+.admin-users, .users-section, .users-table, .users-table th, .users-table td {
+  background: var(--card-background) !important;
+  color: var(--text-light) !important;
+}
+
+.no-users, .loading {
+  color: var(--text-light) !important;
+}
+
+.users-table, .users-table th, .users-table td {
+  background: var(--card-background) !important;
+  color: var(--text-light) !important;
+}
+
+.admin-search-input, .admin-search-select {
+  background: var(--card-background) !important;
+  color: var(--text-light) !important;
+  border-color: var(--border-color) !important;
+}
+
 @media (max-width: 768px) {
   .admin-users {
     padding: 1rem;

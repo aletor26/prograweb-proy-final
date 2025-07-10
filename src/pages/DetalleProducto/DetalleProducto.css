@@ -131,6 +131,25 @@
   box-shadow: 0 1px 4px rgba(229, 57, 53, 0.2);
 }
 
+.detalle-producto-wrapper, .detalle-producto-container-v2, .detalle-producto-info, .detalle-producto-info h2, .detalle-producto-info .descripcion, .detalle-producto-info .stock {
+  background: var(--card-background) !important;
+  color: var(--text-light) !important;
+}
+
+.cantidad-selector, .cantidad-selector button, .btn-añadir, .btn-comprar {
+  background: var(--card-background) !important;
+  color: var(--text-light) !important;
+}
+
+.detalle-producto-info .precio {
+  color: #e53935 !important;
+}
+
+.stock-error {
+  color: #e53935 !important;
+  background-color: #2a1818 !important;
+}
+
 
 @media (max-width: 768px) {
   .detalle-producto-container-v2 {

@@ -7,22 +7,28 @@
 }
 
 .pagination-btn {
-  background: #1976d2;
-  color: #fff;
+  background: var(--secondary-color, #c8a97e);
+  color: var(--text-dark, #1a1a1a);
   border: none;
   border-radius: 6px;
   padding: 0.4rem 1.2rem;
   font-size: 1rem;
   cursor: pointer;
   transition: background 0.2s;
+  font-weight: 500;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #b89861;
 }
 
 .pagination-btn:disabled {
-  background: #bdbdbd;
+  background: var(--text-muted, #6c757d);
+  color: var(--text-light, #fff);
   cursor: not-allowed;
 }
 
 .pagination-info {
   font-weight: 500;
-  color: #fff;
+  color: var(--text-light, #fff);
 }

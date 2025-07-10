@@ -105,3 +105,21 @@
   grid-column: 1 / -1;
   padding: 2rem;
 } 
+
+.saved-items-container, .saved-item-card, .saved-item-details {
+  background: var(--card-background) !important;
+  color: var(--text-light) !important;
+}
+
+.saved-items-title {
+  color: var(--text-light) !important;
+}
+
+.saved-item-name, .saved-item-category, .saved-item-price {
+  color: var(--text-light) !important;
+}
+
+.no-saved-items {
+  color: var(--text-light) !important;
+  background: var(--card-background) !important;
+} 

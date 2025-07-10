@@ -162,3 +162,34 @@
 .admin-search-select:focus {
   border-color: #6366f1;
 } 
+
+.user-list-container, .user-table, .user-table th, .user-table td {
+  background: var(--card-background) !important;
+  color: var(--text-light) !important;
+}
+
+.user-list-container h2 {
+  color: var(--text-light) !important;
+}
+
+.user-table th {
+  color: var(--secondary-color) !important;
+}
+
+.user-table .estado-activo {
+  color: #22c55e !important;
+}
+.user-table .estado-inactivo {
+  color: #ef4444 !important;
+}
+
+.admin-search-input, .admin-search-select {
+  background: var(--card-background) !important;
+  color: var(--text-light) !important;
+  border-color: var(--border-color) !important;
+}
+
+.loading, .error {
+  color: var(--text-light) !important;
+  background: var(--card-background) !important;
+} 

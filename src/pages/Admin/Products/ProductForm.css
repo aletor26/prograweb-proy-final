@@ -314,3 +314,17 @@
     text-align: center;
   }
 } 
+
+.product-form-container, .product-form, .product-form input, .product-form select, .product-form textarea {
+  background: var(--card-background) !important;
+  color: var(--text-light) !important;
+  border-color: var(--border-color) !important;
+}
+
+.product-form label {
+  color: var(--text-light) !important;
+}
+
+.product-form input::placeholder, .product-form textarea::placeholder {
+  color: var(--text-muted) !important;
+} 

@@ -2,13 +2,18 @@
   max-width: 1200px;
   margin: 2rem auto;
   padding: 0 1rem;
+  background: var(--background-dark) !important;
+  color: var(--text-light) !important;
 }
 
-.order-detail-card {
-  background: white;
-  border-radius: 12px;
-  padding: 2rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+.order-detail-card, .order-detail-header, .order-detail-title h1, .order-info-section, .order-info-section h2, .shipping-details p, .shipping-details strong, .order-items-section, .order-item, .item-info, .item-name, .item-quantity, .item-price, .order-total-section, .order-total, .order-detail-actions, .back-button, .admin-controls, .status-select, .order-status, .order-summary, .order-summary *, .order-header, .order-header *, .order-section, .order-section *, .order-section h4, .order-section p {
+  background: var(--card-background) !important;
+  color: var(--text-light) !important;
+  border-color: var(--border-color) !important;
+}
+
+.order-detail-card label, .order-detail-card span {
+  color: var(--text-light) !important;
 }
 
 .order-detail-header {
@@ -23,7 +28,7 @@
 .order-detail-title h1 {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--text-light) !important;
   margin-bottom: 0.5rem;
 }
 
@@ -97,7 +102,7 @@
 }
 
 .order-info-section {
-  background-color: #f8fafc;
+  background-color: var(--card-background) !important;
   padding: 1.5rem;
   border-radius: 8px;
 }
@@ -105,13 +110,13 @@
 .order-info-section h2 {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--text-light) !important;
   margin-bottom: 1rem;
 }
 
 .shipping-details p {
   margin-bottom: 0.75rem;
-  color: #4a5568;
+  color: var(--text-muted) !important;
 }
 
 .shipping-details strong {
@@ -133,7 +138,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  background-color: #f8fafc;
+  background-color: var(--card-background) !important;
   border-radius: 8px;
 }
 
@@ -145,11 +150,11 @@
 
 .item-name {
   font-weight: 500;
-  color: #1a1a1a;
+  color: var(--text-light) !important;
 }
 
 .item-quantity {
-  color: #4a5568;
+  color: var(--text-muted) !important;
   font-size: 0.875rem;
 }
 
@@ -170,7 +175,7 @@
   align-items: center;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--text-light) !important;
 }
 
 .order-detail-actions {

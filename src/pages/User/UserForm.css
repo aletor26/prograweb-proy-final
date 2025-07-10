@@ -161,3 +161,18 @@
   display: flex;
   align-items: center;
 }
+
+.user-form-container h1, .user-data-view label, .form-group label {
+  color: var(--text-light) !important;
+  opacity: 1 !important;
+}
+
+.user-form input, .user-form select, .user-form textarea {
+  background-color: var(--card-background) !important;
+  color: var(--text-light) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.user-form input::placeholder, .user-form textarea::placeholder {
+  color: var(--text-muted) !important;
+}

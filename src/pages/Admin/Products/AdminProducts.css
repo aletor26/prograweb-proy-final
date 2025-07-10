@@ -14,7 +14,7 @@
 }
 
 .admin-products-header h1 {
-  color: #333;
+  color: var(--text-light) !important;
   margin: 0;
   font-size: 2rem;
 }
@@ -79,7 +79,7 @@
   display: flex;
   justify-content: space-between;
   margin-bottom: 1rem;
-  color: #666;
+  color: var(--text-muted) !important;
   font-size: 0.9rem;
 }
 
@@ -91,7 +91,7 @@
 
 .admin-product-card {
   display: flex;
-  background: white;
+  background: var(--card-background) !important;
   border: 1px solid #e0e0e0;
   border-radius: 10px;
   padding: 1.5rem;
@@ -125,12 +125,12 @@
 
 .admin-product-info h3 {
   margin: 0;
-  color: #333;
+  color: var(--text-light) !important;
   font-size: 1.2rem;
 }
 
 .admin-product-description {
-  color: #666;
+  color: var(--text-muted) !important;
   margin: 0;
   line-height: 1.4;
 }
@@ -139,7 +139,7 @@
 .admin-product-serie,
 .admin-product-price {
   margin: 0;
-  color: #555;
+  color: var(--text-muted) !important;
   font-size: 0.9rem;
 }
 
@@ -218,7 +218,7 @@
 .admin-products-no-products {
   text-align: center;
   padding: 3rem;
-  color: #666;
+  color: var(--text-muted) !important;
 }
 
 .admin-products-no-products p {
@@ -228,7 +228,7 @@
 .admin-products-loading {
   text-align: center;
   padding: 3rem;
-  color: #666;
+  color: var(--text-muted) !important;
   font-size: 1.1rem;
 }
 
